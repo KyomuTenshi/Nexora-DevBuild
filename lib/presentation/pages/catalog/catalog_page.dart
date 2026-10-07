@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nexora/core/di/providers.dart';
 import 'package:nexora/core/utils/russian_plural.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
 import 'package:nexora/presentation/providers/catalog_provider.dart';
@@ -50,6 +51,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
                 loading: () =>
                 const Center(child: CircularProgressIndicator()),
                 error: (error, _) => ErrorView(
+                  error: error,
                   onRetry: () => ref.invalidate(catalogResultsProvider),
                 ),
                 data: (items) {
@@ -65,8 +67,14 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
                   }
                   return RefreshIndicator(
                     onRefresh: () async {
+                      // Сбрасываем кэш, иначе получим те же сохранённые данные
+                      ref.read(mediaRepositoryProvider).clearCache();
                       ref.invalidate(catalogResultsProvider);
-                      await ref.read(catalogResultsProvider.future);
+                      try {
+                        await ref.read(catalogResultsProvider.future);
+                      } catch (_) {
+                        // Ошибку покажет сам экран (ErrorView с кнопкой «Повторить»)
+                      }
                     },
                     child: CatalogGrid(items: items),
                   );

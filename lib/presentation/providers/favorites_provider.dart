@@ -1,22 +1,34 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nexora/data/mock/mock_data.dart';
+import 'package:nexora/domain/entities/media_item.dart';
 
-/// Множество id избранных тайтлов. Стартовые значения как в макете профиля.
-class FavoritesNotifier extends Notifier<Set<int>> {
+/// Избранное: id тайтла -> сам тайтл. Тайтл храним целиком, чтобы страница
+/// «Избранное» открывалась сразу и без запроса к API.
+/// Стартовые значения как в макете профиля.
+class FavoritesNotifier extends Notifier<Map<int, MediaItem>> {
   @override
-  Set<int> build() => <int>{1, 2, 4};
+  Map<int, MediaItem> build() => {
+    for (final item in [
+      MockData.onePiece,
+      MockData.jujutsu,
+      MockData.vinland,
+    ])
+      item.id: item,
+  };
 
-  bool isFavorite(int id) => state.contains(id);
+  bool isFavorite(int id) => state.containsKey(id);
 
-  void toggle(int id) {
-    // Создаём НОВОЕ множество: Riverpod замечает замену, а не правку на месте.
-    if (state.contains(id)) {
-      state = {...state}..remove(id);
+  void toggle(MediaItem item) {
+    // Создаём НОВУЮ карту: Riverpod замечает замену, а не правку на месте.
+    if (state.containsKey(item.id)) {
+      state = {...state}..remove(item.id);
     } else {
-      state = {...state, id};
+      state = {...state, item.id: item};
     }
   }
 }
 
-final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<int>>(
+final favoritesProvider =
+NotifierProvider<FavoritesNotifier, Map<int, MediaItem>>(
   FavoritesNotifier.new,
 );

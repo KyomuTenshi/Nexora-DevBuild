@@ -18,6 +18,7 @@ class MediaItem {
     this.status = AiringStatus.finished,
     this.popularity = 9999,
     this.votes = 0,
+    this.imageUrl,
   });
 
   final int id;
@@ -39,6 +40,9 @@ class MediaItem {
 
   /// Сколько пользователей поставили оценку.
   final int votes;
+
+  /// Ссылка на обложку. null значит «обложки нет», тогда рисуется градиент.
+  final String? imageUrl;
 
   // Два тайтла равны, если равны id. Это нужно для FutureProvider.family.
   @override

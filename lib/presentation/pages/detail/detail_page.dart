@@ -37,12 +37,12 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   _DetailTab _tab = _DetailTab.description;
 
   String _tabLabel(_DetailTab tab) => switch (tab) {
-        _DetailTab.description => 'Описание',
-        _DetailTab.episodes =>
-          widget.item.type == MediaType.anime ? 'Серии' : 'Главы',
-        _DetailTab.reviews => 'Отзывы',
-        _DetailTab.similar => 'Похожее',
-      };
+    _DetailTab.description => 'Описание',
+    _DetailTab.episodes =>
+    widget.item.type == MediaType.anime ? 'Серии' : 'Главы',
+    _DetailTab.reviews => 'Отзывы',
+    _DetailTab.similar => 'Похожее',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +108,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         Container(
                           height: 2,
                           color:
-                              tab == _tab ? scheme.primary : Colors.transparent,
+                          tab == _tab ? scheme.primary : Colors.transparent,
                         ),
                       ],
                     ),
@@ -122,10 +122,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   }
 
   List<Widget> _buildTabContent(
-    BuildContext context,
-    MediaItem item,
-    LibraryEntry? entry,
-  ) {
+      BuildContext context,
+      MediaItem item,
+      LibraryEntry? entry,
+      ) {
     final scheme = Theme.of(context).colorScheme;
 
     switch (_tab) {
@@ -246,6 +246,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             ),
             error: (e, _) => SliverToBoxAdapter(
               child: ErrorView(
+                error: e,
                 onRetry: () => ref.invalidate(similarProvider(item)),
               ),
             ),
@@ -321,15 +322,15 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         final profile = ref.read(profileProvider);
                         final rating = ref.read(ratingsProvider)[item.id] ?? 0;
                         ref.read(reviewsProvider.notifier).add(
-                              item.id,
-                              Review(
-                                author: profile.name,
-                                rating: rating,
-                                text: text,
-                                ago: 'только что',
-                                mine: true,
-                              ),
-                            );
+                          item.id,
+                          Review(
+                            author: profile.name,
+                            rating: rating,
+                            text: text,
+                            ago: 'только что',
+                            mine: true,
+                          ),
+                        );
                         Navigator.of(sheetContext).pop();
                         showInfo(context, 'Отзыв опубликован · +50 очков');
                       },

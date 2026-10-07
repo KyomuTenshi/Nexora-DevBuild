@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 
 /// Открывает демо-плеер. Настоящего видео пока нет: плеер имитирует просмотр
@@ -70,9 +70,9 @@ class _WatchPageState extends ConsumerState<WatchPage> {
     final entry = ref.read(libraryProvider)[widget.item.id];
     if (entry == null) {
       ref.read(libraryProvider.notifier).setStatus(
-            widget.item,
-            LibraryStatus.inProgress,
-          );
+        widget.item,
+        LibraryStatus.inProgress,
+      );
     }
     if (_finished) {
       _playing = false;
@@ -131,7 +131,7 @@ class _WatchPageState extends ConsumerState<WatchPage> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Opacity(opacity: 0.85, child: CoverArt(seed: item.id)),
+              Opacity(opacity: 0.85, child: MediaCover(item: item)),
               ColoredBox(color: Colors.black.withValues(alpha: 0.35)),
               AnimatedOpacity(
                 opacity: _controlsVisible ? 1 : 0,
@@ -233,7 +233,7 @@ class _WatchPageState extends ConsumerState<WatchPage> {
                               iconSize: 40,
                               color: Colors.white,
                               onPressed:
-                                  _hasNext ? () => _goTo(_episode + 1) : null,
+                              _hasNext ? () => _goTo(_episode + 1) : null,
                               icon: const Icon(Icons.skip_next_rounded),
                             ),
                           ],

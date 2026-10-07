@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nexora/core/di/providers.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/presentation/providers/home_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
@@ -20,7 +21,7 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final feed = ref.watch(homeFeedProvider);
     final hasActive = ref.watch(libraryProvider.select(
-      (m) => m.values.any((e) => e.status == LibraryStatus.inProgress),
+          (m) => m.values.any((e) => e.status == LibraryStatus.inProgress),
     ));
 
     return Scaffold(
@@ -28,13 +29,20 @@ class HomePage extends ConsumerWidget {
         child: feed.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => ErrorView(
+            error: error,
             onRetry: () => ref.invalidate(homeFeedProvider),
           ),
           data: (data) => RefreshIndicator(
             onRefresh: () async {
+              // Сбрасываем кэш, иначе получим те же сохранённые данные
+              ref.read(mediaRepositoryProvider).clearCache();
               ref.invalidate(recommendedProvider);
               ref.invalidate(homeFeedProvider);
-              await ref.read(homeFeedProvider.future);
+              try {
+                await ref.read(homeFeedProvider.future);
+              } catch (_) {
+                // Ошибку покажет сам экран (ErrorView с кнопкой «Повторить»)
+              }
             },
             child: ListView(
               children: [

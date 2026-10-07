@@ -9,7 +9,7 @@ import 'package:nexora/presentation/pages/player/watch_page.dart';
 import 'package:nexora/presentation/pages/reader/reader_page.dart';
 import 'package:nexora/presentation/providers/favorites_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
 
@@ -24,7 +24,7 @@ class LibraryCard extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final item = entry.item;
     final isFavorite =
-        ref.watch(favoritesProvider.select((s) => s.contains(item.id)));
+    ref.watch(favoritesProvider.select((s) => s.containsKey(item.id)));
     final hasNew = item.type == MediaType.anime &&
         item.status == AiringStatus.airing &&
         entry.status == LibraryStatus.inProgress;
@@ -39,8 +39,8 @@ class LibraryCard extends ConsumerWidget {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: CoverArt(
-                seed: item.id,
+              child: MediaCover(
+                item: item,
                 child: Stack(
                   children: [
                     if (hasNew)
@@ -175,7 +175,7 @@ Future<void> showEntryActions(BuildContext context, LibraryEntry entry) {
                 leading: const Icon(Icons.favorite_border_rounded),
                 title: const Text('В избранное / из избранного'),
                 onTap: () {
-                  ref.read(favoritesProvider.notifier).toggle(item.id);
+                  ref.read(favoritesProvider.notifier).toggle(item);
                   Navigator.of(sheetContext).pop();
                 },
               ),

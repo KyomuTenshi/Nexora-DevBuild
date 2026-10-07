@@ -9,7 +9,7 @@ import 'package:nexora/presentation/pages/player/watch_page.dart';
 import 'package:nexora/presentation/pages/reader/reader_page.dart';
 import 'package:nexora/presentation/providers/favorites_provider.dart';
 import 'package:nexora/presentation/providers/ratings_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/star_rating.dart';
 import 'detail_sheets.dart';
@@ -32,7 +32,7 @@ class DetailHero extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final background = Theme.of(context).scaffoldBackgroundColor;
     final isFavorite =
-        ref.watch(favoritesProvider.select((s) => s.contains(item.id)));
+    ref.watch(favoritesProvider.select((s) => s.containsKey(item.id)));
 
     final subtitle = [
       if (item.year != null) '${item.year}',
@@ -45,7 +45,7 @@ class DetailHero extends ConsumerWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CoverArt(seed: item.id),
+          MediaCover(item: item),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -79,7 +79,7 @@ class DetailHero extends ConsumerWidget {
                           : Icons.favorite_border_rounded,
                       color: isFavorite ? AppColors.pink : Colors.white,
                       onTap: () {
-                        ref.read(favoritesProvider.notifier).toggle(item.id);
+                        ref.read(favoritesProvider.notifier).toggle(item);
                         showInfo(
                           context,
                           isFavorite
@@ -259,7 +259,7 @@ class DetailInfo extends ConsumerWidget {
               for (final tag in tags)
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(20),

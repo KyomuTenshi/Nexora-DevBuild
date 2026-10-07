@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'core/di/providers.dart';
+import 'core/di/retry.dart';
 
 Future<void> main() async {
   // Нужно, чтобы вызывать платформенный код до runApp
@@ -14,6 +15,7 @@ Future<void> main() async {
   runApp(
     // ProviderScope хранит все Riverpod-провайдеры приложения
     ProviderScope(
+      retry: noAutoRetry,
       overrides: [prefsProvider.overrideWithValue(prefs)],
       child: const NexoraApp(),
     ),

@@ -4,7 +4,7 @@ import 'package:nexora/domain/entities/home_feed.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/domain/repositories/media_repository.dart';
 
-/// Тестовый репозиторий. На этапе 5 появится реальный API-репозиторий.
+/// Репозиторий с тестовыми данными: нужен для тестов и работы без сети.
 class MockMediaRepository implements MediaRepository {
   MockMediaRepository({
     this.homeDelay = const Duration(milliseconds: 600),
@@ -82,4 +82,10 @@ class MockMediaRepository implements MediaRepository {
     }
     return result;
   }
+
+  @override
+  Future<String?> findCoverUrl(MediaItem item) async => null;
+
+  @override
+  void clearCache() {}
 }

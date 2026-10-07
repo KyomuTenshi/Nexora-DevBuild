@@ -4,7 +4,7 @@ import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/detail/detail_sheets.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/rating_badge.dart';
 
@@ -54,8 +54,8 @@ class CatalogCard extends ConsumerWidget {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: CoverArt(
-                seed: item.id,
+              child: MediaCover(
+                item: item,
                 child: Stack(
                   children: [
                     Positioned(
