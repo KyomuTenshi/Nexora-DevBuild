@@ -8,10 +8,9 @@ import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/profile_widgets.dart';
 
-enum _StoreTab { banner, frame, badge, showcase }
-
-/// Магазин оформления: фон, рамка аватара, значок, витрины. Покупается за очки,
+/// Магазин оформления: фон, рамка аватара, значок. Покупается за очки,
 /// которые начисляются за серии, главы, отзывы и завершённые тайтлы.
+/// Витрины профиля покупаются в редакторе витрин.
 class StorePage extends ConsumerStatefulWidget {
   const StorePage({super.key});
 
@@ -24,10 +23,7 @@ class _StorePageState extends ConsumerState<StorePage> {
   late String _banner;
   late String _frame;
   late String _badge;
-  late bool _showFavorites;
-  late bool _showAchievements;
-  late bool _showStats;
-  _StoreTab _tab = _StoreTab.banner;
+  StoreCategory _category = StoreCategory.banner;
 
   @override
   void initState() {
@@ -40,23 +36,13 @@ class _StorePageState extends ConsumerState<StorePage> {
     _banner = p.bannerId;
     _frame = p.frameId;
     _badge = p.badgeId;
-    _showFavorites = p.showFavorites;
-    _showAchievements = p.showAchievements;
-    _showStats = p.showStats;
   }
 
-  StoreCategory? get _category => switch (_tab) {
-        _StoreTab.banner => StoreCategory.banner,
-        _StoreTab.frame => StoreCategory.frame,
-        _StoreTab.badge => StoreCategory.badge,
-        _StoreTab.showcase => null,
-      };
-
   String _selectedIdOf(StoreCategory c) => switch (c) {
-        StoreCategory.banner => _banner,
-        StoreCategory.frame => _frame,
-        StoreCategory.badge => _badge,
-      };
+    StoreCategory.banner => _banner,
+    StoreCategory.frame => _frame,
+    StoreCategory.badge => _badge,
+  };
 
   void _select(StoreItem item) {
     setState(() {
@@ -86,9 +72,9 @@ class _StorePageState extends ConsumerState<StorePage> {
         content: Text(
           canBuy
               ? 'Стоимость: ${formatNumber(item.price)} очков. '
-                  'У вас ${formatNumber(profile.points)}.'
+              'У вас ${formatNumber(profile.points)}.'
               : 'Не хватает ${formatNumber(item.price - profile.points)} очков. '
-                  'Смотрите серии, читайте главы и пишите отзывы.',
+              'Смотрите серии, читайте главы и пишите отзывы.',
         ),
         actions: [
           TextButton(
@@ -115,14 +101,11 @@ class _StorePageState extends ConsumerState<StorePage> {
   void _save() {
     ref.read(profileProvider.notifier).edit(
           (p) => p.copyWith(
-            bannerId: _banner,
-            frameId: _frame,
-            badgeId: _badge,
-            showFavorites: _showFavorites,
-            showAchievements: _showAchievements,
-            showStats: _showStats,
-          ),
-        );
+        bannerId: _banner,
+        frameId: _frame,
+        badgeId: _badge,
+      ),
+    );
     Navigator.of(context).pop();
     showInfo(context, 'Оформление сохранено');
   }
@@ -135,16 +118,14 @@ class _StorePageState extends ConsumerState<StorePage> {
     final animeCount =
         library.where((e) => e.item.type == MediaType.anime).length;
     final mangaCount = library.length - animeCount;
-    final category = _category;
 
-    final sectionTitle = switch (_tab) {
-      _StoreTab.banner => 'Фоны профиля',
-      _StoreTab.frame => 'Рамки аватара',
-      _StoreTab.badge => 'Значки',
-      _StoreTab.showcase => 'Витрины профиля',
+    final sectionTitle = switch (_category) {
+      StoreCategory.banner => 'Фоны профиля',
+      StoreCategory.frame => 'Рамки аватара',
+      StoreCategory.badge => 'Значки',
     };
 
-    final items = category == null ? const <StoreItem>[] : storeItemsOf(category);
+    final items = storeItemsOf(_category);
     final openCount = items.where((i) => profile.unlocked.contains(i.id)).length;
 
     return Scaffold(
@@ -304,29 +285,22 @@ class _StorePageState extends ConsumerState<StorePage> {
                 _TabChip(
                   icon: Icons.image_outlined,
                   label: 'Фон',
-                  selected: _tab == _StoreTab.banner,
-                  onTap: () => setState(() => _tab = _StoreTab.banner),
+                  selected: _category == StoreCategory.banner,
+                  onTap: () => setState(() => _category = StoreCategory.banner),
                 ),
                 const SizedBox(width: 8),
                 _TabChip(
                   icon: Icons.tag_rounded,
                   label: 'Рамка',
-                  selected: _tab == _StoreTab.frame,
-                  onTap: () => setState(() => _tab = _StoreTab.frame),
+                  selected: _category == StoreCategory.frame,
+                  onTap: () => setState(() => _category = StoreCategory.frame),
                 ),
                 const SizedBox(width: 8),
                 _TabChip(
                   icon: Icons.shield_outlined,
                   label: 'Значок',
-                  selected: _tab == _StoreTab.badge,
-                  onTap: () => setState(() => _tab = _StoreTab.badge),
-                ),
-                const SizedBox(width: 8),
-                _TabChip(
-                  icon: Icons.dashboard_outlined,
-                  label: 'Витрины',
-                  selected: _tab == _StoreTab.showcase,
-                  onTap: () => setState(() => _tab = _StoreTab.showcase),
+                  selected: _category == StoreCategory.badge,
+                  onTap: () => setState(() => _category = StoreCategory.badge),
                 ),
               ],
             ),
@@ -343,66 +317,37 @@ class _StorePageState extends ConsumerState<StorePage> {
                   ),
                 ),
               ),
-              if (category != null)
-                Text(
-                  '$openCount из ${items.length} открыто',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: scheme.onSurfaceVariant,
-                  ),
+              Text(
+                '$openCount из ${items.length} открыто',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: scheme.onSurfaceVariant,
                 ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          if (category != null)
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                mainAxisExtent: 172,
-              ),
-              itemCount: items.length,
-              itemBuilder: (context, i) {
-                final item = items[i];
-                return _StoreTile(
-                  item: item,
-                  selected: _selectedIdOf(category) == item.id,
-                  unlocked: profile.unlocked.contains(item.id),
-                  avatarText: profile.avatarText,
-                  onTap: () => _onTapItem(item),
-                );
-              },
-            )
-          else
-            Container(
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    title: const Text('Статистика'),
-                    subtitle: const Text('Списки, завершённые, избранное'),
-                    value: _showStats,
-                    onChanged: (v) => setState(() => _showStats = v),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Любимое аниме'),
-                    value: _showFavorites,
-                    onChanged: (v) => setState(() => _showFavorites = v),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Достижения'),
-                    value: _showAchievements,
-                    onChanged: (v) => setState(() => _showAchievements = v),
-                  ),
-                ],
-              ),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              mainAxisExtent: 172,
             ),
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final item = items[i];
+              return _StoreTile(
+                item: item,
+                selected: _selectedIdOf(_category) == item.id,
+                unlocked: profile.unlocked.contains(item.id),
+                avatarText: profile.avatarText,
+                onTap: () => _onTapItem(item),
+              );
+            },
+          ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
@@ -515,46 +460,46 @@ class _StoreTile extends StatelessWidget {
     final Widget preview = switch (item.category) {
       StoreCategory.banner => BannerArt(bannerId: item.id),
       StoreCategory.frame => ColoredBox(
-          color: scheme.surfaceContainerHighest,
-          child: Center(
-            child: ProfileAvatar(
-              text: avatarText,
-              frameId: item.id,
-              size: 84,
-            ),
+        color: scheme.surfaceContainerHighest,
+        child: Center(
+          child: ProfileAvatar(
+            text: avatarText,
+            frameId: item.id,
+            size: 84,
           ),
         ),
+      ),
       StoreCategory.badge => ColoredBox(
-          color: scheme.surfaceContainerHighest,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.workspace_premium_rounded,
-                      size: 16, color: scheme.primary),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      item.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
+        color: scheme.surfaceContainerHighest,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.workspace_premium_rounded,
+                    size: 16, color: scheme.primary),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
     };
 
     final String caption;

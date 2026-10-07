@@ -14,6 +14,7 @@ import 'package:nexora/domain/errors/app_exception.dart';
 import 'package:nexora/domain/repositories/media_repository.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
+import 'package:nexora/presentation/widgets/skeleton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Репозиторий, который всегда падает: проверяем экран ошибки.
@@ -65,11 +66,12 @@ void usePhoneScreen(WidgetTester tester) {
 }
 
 void main() {
-  testWidgets('главная показывает загрузку, затем разделы', (tester) async {
+  testWidgets('главная показывает скелетон, затем разделы', (tester) async {
     usePhoneScreen(tester);
     await pumpApp(tester);
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    // Вместо крутилки серые заготовки
+    expect(find.byType(SkeletonBox), findsWidgets);
 
     await tester.pump(const Duration(seconds: 1)); // ждём загрузку главной
     await tester.pump();
@@ -124,9 +126,21 @@ void main() {
     await tester.tap(find.text('One Piece'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Описание'), findsOneWidget);
     // В библиотеке просмотрено 1142 серии, значит следующая 1143
     expect(find.text('Смотреть · серия 1143'), findsOneWidget);
+
+    // Вкладки лежат под обложкой и выжимкой: прокручиваем страницу до них
+    await tester.scrollUntilVisible(
+      find.text('Описание'),
+      200,
+      scrollable: find
+          .descendant(
+        of: find.byType(CustomScrollView),
+        matching: find.byType(Scrollable),
+      )
+          .first,
+    );
+    expect(find.text('Описание'), findsOneWidget);
   });
 
   testWidgets('при сбое сети главная показывает ошибку и «Повторить»',

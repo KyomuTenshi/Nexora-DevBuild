@@ -11,6 +11,7 @@ class KitsuMediaDto {
     required this.id,
     required this.title,
     this.imageUrl,
+    this.posterHdUrl,
     this.averageRating,
     this.userCount,
     this.popularityRank,
@@ -25,6 +26,9 @@ class KitsuMediaDto {
   final int id;
   final String title;
   final String? imageUrl;
+
+  /// Постер в высоком качестве (original) для больших карточек.
+  final String? posterHdUrl;
 
   /// У Kitsu оценка в процентах (82.5 значит 8.25 из 10).
   final double? averageRating;
@@ -64,6 +68,8 @@ class KitsuMediaDto {
       imageUrl: _text(_dig(attributes, ['posterImage', 'large'])) ??
           _text(_dig(attributes, ['posterImage', 'original'])) ??
           _text(_dig(attributes, ['posterImage', 'medium'])),
+      posterHdUrl: _text(_dig(attributes, ['posterImage', 'original'])) ??
+          _text(_dig(attributes, ['posterImage', 'large'])),
       averageRating: double.tryParse('${attributes['averageRating']}'),
       userCount: _int(attributes['userCount']),
       popularityRank: _int(attributes['popularityRank']),
@@ -92,6 +98,7 @@ class KitsuMediaDto {
       popularity: popularityRank ?? 99999,
       votes: userCount ?? 0,
       imageUrl: imageUrl,
+      posterHdUrl: posterHdUrl,
     );
   }
 

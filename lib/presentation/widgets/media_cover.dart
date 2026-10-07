@@ -6,15 +6,23 @@ import 'package:nexora/presentation/widgets/cover_art.dart';
 
 /// Обложка тайтла: настоящая картинка, а пока она грузится или недоступна,
 /// красивый градиент. Если у тайтла нет ссылки, пробуем найти её через API.
+/// hd: true берёт постер в высоком качестве (для больших карточек).
 class MediaCover extends ConsumerWidget {
-  const MediaCover({super.key, required this.item, this.child});
+  const MediaCover({
+    super.key,
+    required this.item,
+    this.child,
+    this.hd = false,
+  });
 
   final MediaItem item;
   final Widget? child;
+  final bool hd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final url = item.imageUrl ?? ref.watch(coverUrlProvider(item)).value;
+    final direct = (hd ? item.posterHdUrl : null) ?? item.imageUrl;
+    final url = direct ?? ref.watch(coverUrlProvider(item)).value;
     return CoverArt(seed: item.id, imageUrl: url, child: child);
   }
 }

@@ -4,8 +4,10 @@ import 'package:nexora/core/di/providers.dart';
 import 'package:nexora/core/utils/russian_plural.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
 import 'package:nexora/presentation/providers/catalog_provider.dart';
+import 'package:nexora/presentation/widgets/cached_data_banner.dart';
 import 'package:nexora/presentation/widgets/empty_view.dart';
 import 'package:nexora/presentation/widgets/error_view.dart';
+import 'package:nexora/presentation/widgets/skeleton.dart';
 import 'catalog_grid.dart';
 import 'catalog_labels.dart';
 import 'catalog_search_bar.dart';
@@ -35,6 +37,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
               onToggleFilters: () =>
                   setState(() => _filtersVisible = !_filtersVisible),
             ),
+            const CachedDataBanner(),
             const CategoryChips(),
             AnimatedSize(
               duration: const Duration(milliseconds: 200),
@@ -48,8 +51,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
               child: results.when(
                 // Пока грузятся новые результаты, держим старые на экране
                 skipLoadingOnReload: true,
-                loading: () =>
-                const Center(child: CircularProgressIndicator()),
+                loading: () => const CatalogSkeleton(),
                 error: (error, _) => ErrorView(
                   error: error,
                   onRetry: () => ref.invalidate(catalogResultsProvider),

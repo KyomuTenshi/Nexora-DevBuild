@@ -2,19 +2,29 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:nexora/core/constants/store_catalog.dart';
+import 'package:nexora/domain/entities/image_adjust.dart';
+import 'package:nexora/presentation/widgets/adjusted_image.dart';
 
-/// Аватар с инициалами, рамкой из магазина и значком уровня.
+/// Аватар (своё фото или инициалы) с рамкой из магазина и значком уровня.
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({
     super.key,
     required this.text,
     required this.frameId,
+    this.imagePath = '',
+    this.adjust = const ImageAdjust(),
     this.level,
     this.size = 96,
   });
 
   final String text;
   final String frameId;
+
+  /// Путь к своему фото. Пустая строка значит «показывать инициалы».
+  final String imagePath;
+
+  /// Как показывать своё фото: сдвиг и приближение.
+  final ImageAdjust adjust;
   final int? level;
   final double size;
 
@@ -23,9 +33,18 @@ class ProfileAvatar extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final frame = storeItemById(frameId);
     final ringColor =
-        frame.colors.isEmpty ? Colors.transparent : frame.colors.first;
+    frame.colors.isEmpty ? Colors.transparent : frame.colors.first;
     final hasRing = ringColor != Colors.transparent;
     final inner = hasRing ? size - 16 : size - 4;
+
+    final initials = Text(
+      text,
+      style: TextStyle(
+        fontSize: size * 0.32,
+        fontWeight: FontWeight.w800,
+        color: scheme.primary,
+      ),
+    );
 
     return SizedBox(
       width: size,
@@ -61,16 +80,22 @@ class ProfileAvatar extends StatelessWidget {
             width: inner,
             height: inner,
             alignment: Alignment.center,
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: scheme.primary.withValues(alpha: 0.22),
             ),
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: size * 0.32,
-                fontWeight: FontWeight.w800,
-                color: scheme.primary,
+            child: imagePath.isEmpty
+                ? initials
+                : SizedBox(
+              width: inner,
+              height: inner,
+              child: AdjustedImage(
+                path: imagePath,
+                adjust: adjust,
+                cacheWidth: (inner * 3).round(),
+                // Файл пропал или повреждён: возвращаемся к инициалам
+                fallback: Center(child: initials),
               ),
             ),
           ),
@@ -102,45 +127,83 @@ class ProfileAvatar extends StatelessWidget {
   }
 }
 
-/// Фон профиля: градиент из магазина и силуэт ночного города.
+/// Фон профиля: своё фото или градиент из магазина с силуэтом города.
 class BannerArt extends StatelessWidget {
-  const BannerArt({super.key, required this.bannerId, this.child});
+  const BannerArt({
+    super.key,
+    required this.bannerId,
+    this.imagePath = '',
+    this.adjust = const ImageAdjust(),
+    this.child,
+  });
 
   final String bannerId;
+
+  /// Путь к своему фото. Пустая строка значит «готовый фон из магазина».
+  final String imagePath;
+
+  /// Как показывать своё фото: сдвиг, приближение, затемнение, размытие.
+  final ImageAdjust adjust;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
     final colors = storeItemById(bannerId).colors;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: colors.length >= 2 ? colors : [colors.first, colors.first],
+    return Stack(
+      fit: StackFit.expand,
+      clipBehavior: Clip.hardEdge,
+      children: [
+        // Градиент всегда внизу: он же запасной вариант, если фото не открылось
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors:
+              colors.length >= 2 ? colors : [colors.first, colors.first],
+            ),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Positioned(
+                right: -70,
+                top: -90,
+                child: Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.07),
+                  ),
+                ),
+              ),
+              Positioned.fill(child: CustomPaint(painter: _SkylinePainter())),
+            ],
+          ),
         ),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        clipBehavior: Clip.hardEdge,
-        children: [
-          Positioned(
-            right: -70,
-            top: -90,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.07),
+        if (imagePath.isNotEmpty) ...[
+          AdjustedImage(path: imagePath, adjust: adjust, cacheWidth: 1200),
+          // Затемнение снизу, чтобы имя и кнопки читались на любом фото
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.10),
+                  Colors.black.withValues(alpha: 0.45),
+                ],
               ),
             ),
           ),
-          Positioned.fill(child: CustomPaint(painter: _SkylinePainter())),
-          ?child,
+          // Общее затемнение по выбору пользователя
+          if (adjust.dim > 0)
+            ColoredBox(color: Colors.black.withValues(alpha: adjust.dim)),
         ],
-      ),
+        ?child,
+      ],
     );
   }
 }

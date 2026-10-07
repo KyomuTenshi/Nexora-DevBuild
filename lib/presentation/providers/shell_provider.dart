@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Какая вкладка нижнего меню открыта: 0 главная, 1 каталог, 2 библиотека,
-/// 3 уведомления, 4 профиль.
+/// 3 уведомления, 4 меню.
 class ShellTabNotifier extends Notifier<int> {
   @override
   int build() => 0;

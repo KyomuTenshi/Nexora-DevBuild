@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/domain/entities/media_item.dart';
+import 'package:nexora/domain/entities/media_summary.dart';
 import 'package:nexora/presentation/pages/library/library_labels.dart';
 import 'package:nexora/presentation/pages/player/watch_page.dart';
 import 'package:nexora/presentation/pages/reader/reader_page.dart';
@@ -12,6 +13,7 @@ import 'package:nexora/presentation/providers/ratings_provider.dart';
 import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/star_rating.dart';
+import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
 import 'detail_sheets.dart';
 
 /// «Поделиться»: пока копируем текст со ссылкой в буфер обмена.
@@ -41,18 +43,19 @@ class DetailHero extends ConsumerWidget {
     ].join(' · ');
 
     return SizedBox(
-      height: 340,
+      height: 400,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          MediaCover(item: item),
+          // Постер в высоком качестве: он занимает почти весь экран
+          MediaCover(item: item, hd: true),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Colors.transparent, background],
-                stops: const [0.4, 1.0],
+                stops: const [0.45, 1.0],
               ),
             ),
           ),
@@ -105,9 +108,10 @@ class DetailHero extends ConsumerWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 32,
+                    fontSize: 34,
                     fontWeight: FontWeight.w800,
-                    height: 1.1,
+                    height: 1.08,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -156,7 +160,7 @@ class _RoundButton extends StatelessWidget {
   }
 }
 
-/// Рейтинг, жанры, главная кнопка и быстрые действия.
+/// Рейтинг, жанры, главная кнопка, прогресс, быстрые действия и выжимка.
 class DetailInfo extends ConsumerWidget {
   const DetailInfo({super.key, required this.item, required this.entry});
 
@@ -178,6 +182,7 @@ class DetailInfo extends ConsumerWidget {
         : '${done ? 'Перечитать' : 'Читать'} · глава $unit';
 
     final tags = [...item.genres, ?item.studio];
+    final summary = shortSummary(item);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -291,6 +296,13 @@ class DetailInfo extends ConsumerWidget {
               ),
             ),
           ),
+
+          // Прогресс просмотра или чтения (если тайтл в списках)
+          if (entry != null && item.totalUnits > 0) ...[
+            const SizedBox(height: 12),
+            _ProgressStrip(item: item, entry: entry!),
+          ],
+
           const SizedBox(height: 10),
           Row(
             children: [
@@ -325,7 +337,98 @@ class DetailInfo extends ConsumerWidget {
               ),
             ],
           ),
+
+          // Выжимка: о чём и чем удивит (1–2 предложения)
+          if (summary != null) ...[
+            const SizedBox(height: 18),
+            _SummaryCard(text: summary),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// «Просмотрено 5 из 12 серий» и полоса прогресса.
+class _ProgressStrip extends StatelessWidget {
+  const _ProgressStrip({required this.item, required this.entry});
+
+  final MediaItem item;
+  final LibraryEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final verb = item.type == MediaType.anime ? 'Просмотрено' : 'Прочитано';
+    final percent = (entry.fraction * 100).round();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '$verb ${entry.progress} из ${item.totalUnits} '
+                    '${unitWord(item.type, item.totalUnits)}',
+                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+              ),
+            ),
+            Text(
+              '$percent%',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ThinProgressBar(
+          value: entry.fraction,
+          color: scheme.primary,
+          trackColor: scheme.surfaceContainerHighest,
+          height: 6,
+        ),
+      ],
+    );
+  }
+}
+
+/// Короткая выжимка с акцентной полосой слева.
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: scheme.primary),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.4,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/shell_provider.dart';
 import 'package:nexora/presentation/widgets/empty_view.dart';
+import 'package:nexora/presentation/widgets/profile_avatar_button.dart';
 import 'library_card.dart';
 import 'library_labels.dart';
 
@@ -13,10 +14,10 @@ enum _LibrarySort { recent, title, progress }
 
 extension on _LibrarySort {
   String get label => switch (this) {
-        _LibrarySort.recent => 'Недавние сверху',
-        _LibrarySort.title => 'По названию',
-        _LibrarySort.progress => 'По прогрессу',
-      };
+    _LibrarySort.recent => 'Недавние сверху',
+    _LibrarySort.title => 'По названию',
+    _LibrarySort.progress => 'По прогрессу',
+  };
 }
 
 class LibraryPage extends ConsumerStatefulWidget {
@@ -69,8 +70,8 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
     final query = _search.trim().toLowerCase();
     final shown = ofType
         .where((e) =>
-            e.status == _status &&
-            (query.isEmpty || e.item.title.toLowerCase().contains(query)))
+    e.status == _status &&
+        (query.isEmpty || e.item.title.toLowerCase().contains(query)))
         .toList();
     switch (_sort) {
       case _LibrarySort.recent:
@@ -83,6 +84,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false, // список заезжает под размытую панель
         child: Column(
           children: [
             _buildHeader(scheme),
@@ -170,18 +172,23 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
               child: shown.isEmpty
                   ? _buildEmpty()
                   : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 140,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 0.54,
-                      ),
-                      itemCount: shown.length,
-                      itemBuilder: (context, i) =>
-                          LibraryCard(entry: shown[i]),
-                    ),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  8,
+                  16,
+                  24 + MediaQuery.paddingOf(context).bottom,
+                ),
+                gridDelegate:
+                const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 140,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.54,
+                ),
+                itemCount: shown.length,
+                itemBuilder: (context, i) =>
+                    LibraryCard(entry: shown[i]),
+              ),
             ),
           ],
         ),
@@ -213,56 +220,58 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       child: _searching
           ? Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    onChanged: (v) => setState(() => _search = v),
-                    decoration: InputDecoration(
-                      hintText: 'Поиск в библиотеке',
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      suffixIcon: _search.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, size: 20),
-                              onPressed: _resetSearch,
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: scheme.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              onChanged: (v) => setState(() => _search = v),
+              decoration: InputDecoration(
+                hintText: 'Поиск в библиотеке',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: _search.isNotEmpty
+                    ? IconButton(
+                  icon: const Icon(Icons.clear_rounded, size: 20),
+                  onPressed: _resetSearch,
+                )
+                    : null,
+                filled: true,
+                fillColor: scheme.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
                 ),
-                IconButton(
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searching = false;
-                      _search = '';
-                    });
-                  },
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Библиотека',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => setState(() => _searching = true),
-                  icon: const Icon(Icons.search_rounded),
-                ),
-              ],
+              ),
             ),
+          ),
+          IconButton(
+            onPressed: () {
+              _searchController.clear();
+              setState(() {
+                _searching = false;
+                _search = '';
+              });
+            },
+            icon: const Icon(Icons.close_rounded),
+          ),
+        ],
+      )
+          : Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Библиотека',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
+            ),
+          ),
+          IconButton(
+            onPressed: () => setState(() => _searching = true),
+            icon: const Icon(Icons.search_rounded),
+          ),
+          const ProfileAvatarButton(),
+          const SizedBox(width: 8),
+        ],
+      ),
     );
   }
 

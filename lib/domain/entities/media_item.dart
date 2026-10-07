@@ -19,6 +19,8 @@ class MediaItem {
     this.popularity = 9999,
     this.votes = 0,
     this.imageUrl,
+    this.posterHdUrl,
+    this.tagline,
   });
 
   final int id;
@@ -43,6 +45,14 @@ class MediaItem {
 
   /// Ссылка на обложку. null значит «обложки нет», тогда рисуется градиент.
   final String? imageUrl;
+
+  /// Постер в высоком качестве для больших карточек. null значит «нет»,
+  /// тогда используется обычный imageUrl.
+  final String? posterHdUrl;
+
+  /// Короткая фраза «о чём и чем удивит» (1–2 предложения). Заполняется
+  /// вручную или сервером. Если null, выжимка собирается из synopsis.
+  final String? tagline;
 
   // Два тайтла равны, если равны id. Это нужно для FutureProvider.family.
   @override

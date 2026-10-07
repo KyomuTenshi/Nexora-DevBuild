@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nexora/core/l10n/app_strings.dart';
 import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/presentation/pages/profile/profile_edit_page.dart';
 import 'package:nexora/presentation/pages/profile/store_page.dart';
+import 'package:nexora/presentation/providers/language_provider.dart';
 import 'package:nexora/presentation/providers/onboarding_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/providers/theme_provider.dart';
@@ -14,45 +16,47 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
+    final s = ref.watch(stringsProvider);
+    final language = ref.watch(languageProvider);
     final themeMode = ref.watch(themeProvider);
     final accent = ref.watch(profileProvider.select((p) => p.accentIndex));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: Text(s.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
         children: [
-          const _SectionTitle('Внешний вид'),
+          _SectionTitle(s.appearance),
           _Block(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Тема',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  Text(
+                    s.theme,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: SegmentedButton<ThemeMode>(
                       showSelectedIcon: false,
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                           value: ThemeMode.dark,
-                          icon: Icon(Icons.dark_mode_outlined),
-                          label: Text('Тёмная'),
+                          icon: const Icon(Icons.dark_mode_outlined),
+                          label: Text(s.themeDark),
                         ),
                         ButtonSegment(
                           value: ThemeMode.light,
-                          icon: Icon(Icons.light_mode_outlined),
-                          label: Text('Светлая'),
+                          icon: const Icon(Icons.light_mode_outlined),
+                          label: Text(s.themeLight),
                         ),
                         ButtonSegment(
                           value: ThemeMode.system,
-                          icon: Icon(Icons.brightness_auto_outlined),
-                          label: Text('Авто'),
+                          icon: const Icon(Icons.brightness_auto_outlined),
+                          label: Text(s.themeAuto),
                         ),
                       ],
                       selected: {themeMode},
@@ -61,9 +65,32 @@ class SettingsPage extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Цвет приложения',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  Text(
+                    s.languageTitle,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<AppLanguage>(
+                      showSelectedIcon: false,
+                      segments: [
+                        for (final l in AppLanguage.values)
+                          ButtonSegment(
+                            value: l,
+                            icon: const Icon(Icons.language_rounded),
+                            label: Text(l.label),
+                          ),
+                      ],
+                      selected: {language},
+                      onSelectionChanged: (v) =>
+                          ref.read(languageProvider.notifier).set(v.first),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    s.accentColor,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -92,7 +119,7 @@ class SettingsPage extends ConsumerWidget {
                               ),
                               child: i == accent
                                   ? const Icon(Icons.check_rounded,
-                                      color: Colors.white, size: 20)
+                                  color: Colors.white, size: 20)
                                   : null,
                             ),
                           ),
@@ -103,13 +130,13 @@ class SettingsPage extends ConsumerWidget {
               ),
             ),
           ),
-          const _SectionTitle('Профиль'),
+          _SectionTitle(s.profileSection),
           _Block(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.person_outline_rounded),
-                  title: const Text('Редактировать профиль'),
+                  title: Text(s.editProfile),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
@@ -120,7 +147,7 @@ class SettingsPage extends ConsumerWidget {
                 const Divider(indent: 56),
                 ListTile(
                   leading: const Icon(Icons.palette_outlined),
-                  title: const Text('Оформление и магазин'),
+                  title: Text(s.storeAndStyle),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(builder: (_) => const StorePage()),
@@ -129,13 +156,13 @@ class SettingsPage extends ConsumerWidget {
               ],
             ),
           ),
-          const _SectionTitle('Данные'),
+          _SectionTitle(s.dataSection),
           _Block(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.waving_hand_outlined),
-                  title: const Text('Показать приветствие снова'),
+                  title: Text(s.showWelcome),
                   onTap: () {
                     ref.read(onboardedProvider.notifier).reset();
                     // Возвращаемся к корню: там теперь приветствие
@@ -146,7 +173,7 @@ class SettingsPage extends ConsumerWidget {
                 ListTile(
                   leading: Icon(Icons.restart_alt_rounded, color: scheme.error),
                   title: Text(
-                    'Сбросить профиль и очки',
+                    s.resetProfile,
                     style: TextStyle(color: scheme.error),
                   ),
                   onTap: () => _confirmReset(context, ref),
@@ -154,20 +181,20 @@ class SettingsPage extends ConsumerWidget {
               ],
             ),
           ),
-          const _SectionTitle('О приложении'),
-          const _Block(
+          _SectionTitle(s.aboutSection),
+          _Block(
             child: Column(
               children: [
                 ListTile(
-                  leading: Icon(Icons.info_outline_rounded),
-                  title: Text('Nexora'),
-                  subtitle: Text('Версия 1.0.0 · учебный проект'),
+                  leading: const Icon(Icons.info_outline_rounded),
+                  title: const Text('Nexora'),
+                  subtitle: Text(s.versionLine),
                 ),
-                Divider(indent: 56),
+                const Divider(indent: 56),
                 ListTile(
-                  leading: Icon(Icons.code_rounded),
-                  title: Text('Разработчик'),
-                  subtitle: Text('Piperite Games'),
+                  leading: const Icon(Icons.code_rounded),
+                  title: Text(s.developer),
+                  subtitle: const Text('Piperite Games'),
                 ),
               ],
             ),
@@ -178,29 +205,27 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
+    final s = ref.read(stringsProvider);
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Сбросить профиль?'),
-        content: const Text(
-          'Имя, оформление, очки и уровень вернутся к начальным значениям. '
-          'Библиотека не изменится.',
-        ),
+        title: Text(s.resetTitle),
+        content: Text(s.resetText),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Отмена'),
+            child: Text(s.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Сбросить'),
+            child: Text(s.reset),
           ),
         ],
       ),
     );
     if (ok == true && context.mounted) {
       ref.read(profileProvider.notifier).edit((_) => ProfileState.initial());
-      showInfo(context, 'Профиль сброшен');
+      showInfo(context, s.profileWasReset);
     }
   }
 }
