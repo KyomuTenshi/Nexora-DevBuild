@@ -5,16 +5,16 @@ import 'package:nexora/core/constants/store_catalog.dart';
 import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/domain/entities/media_item.dart';
-import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/profile/favorites_page.dart';
-import 'package:nexora/presentation/pages/profile/profile_edit_page.dart';
-import 'package:nexora/presentation/pages/profile/settings_page.dart';
-import 'package:nexora/presentation/pages/profile/store_page.dart';
+import 'package:nexora/presentation/pages/profile/profile_editor_page.dart';
+import 'package:nexora/presentation/pages/profile/profile_sections_pages.dart';
+import 'package:nexora/presentation/pages/profile/showcase_blocks.dart';
 import 'package:nexora/presentation/providers/favorites_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
+import 'package:nexora/presentation/providers/profile_layout_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
-import 'package:nexora/presentation/providers/ratings_provider.dart';
-import 'package:nexora/presentation/widgets/media_cover.dart';
+import 'package:nexora/presentation/providers/reviews_provider.dart';
+import 'package:nexora/presentation/providers/shell_provider.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/profile_widgets.dart';
 import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
@@ -32,14 +32,21 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final profile = ref.watch(profileProvider);
+    final layout = ref.watch(profileLayoutProvider);
     final library = ref.watch(libraryProvider);
     final favorites = ref.watch(favoritesProvider);
-    final ratings = ref.watch(ratingsProvider);
+    final reviews = ref.watch(reviewsProvider);
     final top = MediaQuery.paddingOf(context).top;
 
     final entries = library.values.toList();
-    final completed =
-        entries.where((e) => e.status == LibraryStatus.completed).length;
+    final animeCount =
+        entries.where((e) => e.item.type == MediaType.anime).length;
+    final mangaCount = entries.length - animeCount;
+    final myReviews = [
+      for (final list in reviews.values)
+        for (final r in list)
+          if (r.mine) r,
+    ].length;
 
     // Что смотрит прямо сейчас: самая свежая запись аниме со статусом «Смотрю»
     final watching = entries
@@ -52,56 +59,9 @@ class ProfilePage extends ConsumerWidget {
         ? 'В сети'
         : 'В сети · смотрит ${watching.first.item.title}';
 
-    final totalProgress = entries.fold<int>(0, (sum, e) => sum + e.progress);
-    final achievements = [
-      _Achievement(
-        'Первый шаг',
-        'Добавьте первый тайтл в библиотеку',
-        Icons.emoji_events_outlined,
-        AppColors.star,
-        entries.isNotEmpty,
-      ),
-      _Achievement(
-        'Марафонец',
-        'Завершите хотя бы один тайтл',
-        Icons.local_fire_department_outlined,
-        const Color(0xFFFF8A3D),
-        completed > 0,
-      ),
-      _Achievement(
-        'Книжный червь',
-        'Прочитайте главу манги',
-        Icons.menu_book_outlined,
-        scheme.primary,
-        entries.any((e) => e.item.type == MediaType.manga && e.progress > 0),
-      ),
-      _Achievement(
-        'Критик',
-        'Поставьте оценку любому тайтлу',
-        Icons.workspace_premium_outlined,
-        AppColors.pink,
-        ratings.isNotEmpty,
-      ),
-      _Achievement(
-        'Зритель',
-        'Посмотрите или прочитайте 100 серий и глав',
-        Icons.visibility_outlined,
-        const Color(0xFF3AA0F5),
-        totalProgress >= 100,
-      ),
-      _Achievement(
-        'Любимчик',
-        'Добавьте 3 тайтла в избранное',
-        Icons.favorite_border_rounded,
-        const Color(0xFFFF5C6C),
-        favorites.length >= 3,
-      ),
-    ];
-    final unlockedCount = achievements.where((a) => a.unlocked).length;
-
-    final animeCount =
-        entries.where((e) => e.item.type == MediaType.anime).length;
-    final mangaCount = entries.length - animeCount;
+    final realName = layout.showRealName ? layout.realName.trim() : '';
+    final location = layout.showLocation ? layout.location.trim() : '';
+    final status = layout.showStatus ? layout.status.trim() : '';
 
     return Scaffold(
       body: ListView(
@@ -117,25 +77,19 @@ class ProfilePage extends ConsumerWidget {
                   left: 0,
                   right: 0,
                   height: _bannerHeight + top,
-                  child: BannerArt(bannerId: profile.bannerId),
+                  child: BannerArt(
+                    bannerId: profile.bannerId,
+                    imagePath: profile.bannerPath,
+                    adjust: profile.bannerAdjust,
+                  ),
                 ),
                 Positioned(
                   top: top + 8,
                   right: 12,
-                  child: Row(
-                    children: [
-                      _BannerButton(
-                        icon: Icons.palette_outlined,
-                        tooltip: 'Оформление',
-                        onTap: () => _push(context, const StorePage()),
-                      ),
-                      const SizedBox(width: 8),
-                      _BannerButton(
-                        icon: Icons.settings_outlined,
-                        tooltip: 'Настройки',
-                        onTap: () => _push(context, const SettingsPage()),
-                      ),
-                    ],
+                  child: _BannerButton(
+                    icon: Icons.edit_outlined,
+                    tooltip: 'Редактировать',
+                    onTap: () => _push(context, const ProfileEditorPage()),
                   ),
                 ),
                 Positioned(
@@ -144,6 +98,8 @@ class ProfilePage extends ConsumerWidget {
                   child: ProfileAvatar(
                     text: profile.avatarText,
                     frameId: profile.frameId,
+                    imagePath: profile.avatarPath,
+                    adjust: profile.avatarAdjust,
                     level: profile.level,
                     size: 112,
                   ),
@@ -165,28 +121,30 @@ class ProfilePage extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.circle,
-                            size: 9,
-                            color: AppColors.success,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              presence,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.success,
+                      if (layout.showPresence) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.circle,
+                              size: 9,
+                              color: AppColors.success,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                presence,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.success,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -223,9 +181,35 @@ class ProfilePage extends ConsumerWidget {
             ),
           ),
 
-          if (profile.bio.isNotEmpty)
+          // Настоящее имя, город, статус, о себе
+          if (realName.isNotEmpty || location.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 4,
+                children: [
+                  if (realName.isNotEmpty)
+                    _InfoChip(icon: Icons.badge_outlined, text: realName),
+                  if (location.isNotEmpty)
+                    _InfoChip(icon: Icons.place_outlined, text: location),
+                ],
+              ),
+            ),
+          if (status.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                '«$status»',
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          if (profile.bio.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Text(
                 profile.bio,
                 style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
@@ -239,7 +223,7 @@ class ProfilePage extends ConsumerWidget {
               children: [
                 Expanded(
                   child: FilledButton.tonalIcon(
-                    onPressed: () => _push(context, const ProfileEditPage()),
+                    onPressed: () => _push(context, const ProfileEditorPage()),
                     icon: const Icon(Icons.edit_outlined, size: 20),
                     label: const Text('Редактировать профиль'),
                     style: FilledButton.styleFrom(
@@ -260,164 +244,108 @@ class ProfilePage extends ConsumerWidget {
                     }
                   },
                 ),
-                const SizedBox(width: 8),
-                PopupMenuButton<String>(
-                  onSelected: (v) => _push(
-                    context,
-                    v == 'store' ? const StorePage() : const SettingsPage(),
-                  ),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'store', child: Text('Оформление')),
-                    PopupMenuItem(value: 'settings', child: Text('Настройки')),
-                  ],
-                  child: const _SquareButton(icon: Icons.more_horiz_rounded),
-                ),
               ],
             ),
           ),
 
           // Уровень
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: Column(
-              children: [
-                Row(
+          if (layout.showLevel)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Уровень ${profile.level}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${formatNumber(profile.xpInLevel)} / ${formatNumber(kXpPerLevel)} XP',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ThinProgressBar(
+                    value: profile.xpInLevel / kXpPerLevel,
+                    color: scheme.primary,
+                    trackColor: scheme.surfaceContainerHighest,
+                    height: 8,
+                  ),
+                ],
+              ),
+            ),
+
+          // Разделы профиля (как «Игры, Друзья, Отзывы» в Steam)
+          if (layout.showSections)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              child: Material(
+                color: scheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
                   children: [
-                    Text(
-                      'Уровень ${profile.level}',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                    _SectionRow(
+                      icon: Icons.movie_outlined,
+                      title: 'Аниме',
+                      count: animeCount,
+                      onTap: () => _push(
+                        context,
+                        const ProfileTitlesPage(type: MediaType.anime),
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      '${formatNumber(profile.xpInLevel)} / ${formatNumber(kXpPerLevel)} XP',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
+                    const Divider(height: 1, indent: 56),
+                    _SectionRow(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Манга',
+                      count: mangaCount,
+                      onTap: () => _push(
+                        context,
+                        const ProfileTitlesPage(type: MediaType.manga),
                       ),
+                    ),
+                    const Divider(height: 1, indent: 56),
+                    _SectionRow(
+                      icon: Icons.favorite_border_rounded,
+                      title: 'Избранное',
+                      count: favorites.length,
+                      onTap: () => _push(context, const FavoritesPage()),
+                    ),
+                    const Divider(height: 1, indent: 56),
+                    _SectionRow(
+                      icon: Icons.bookmarks_outlined,
+                      title: 'Списки',
+                      count: entries.length,
+                      onTap: () {
+                        // Закрываем профиль и открываем вкладку «Библиотека»
+                        Navigator.of(context).popUntil((r) => r.isFirst);
+                        ref.read(shellTabProvider.notifier).setTab(2);
+                      },
+                    ),
+                    const Divider(height: 1, indent: 56),
+                    _SectionRow(
+                      icon: Icons.rate_review_outlined,
+                      title: 'Отзывы',
+                      count: myReviews,
+                      onTap: () => _push(context, const MyReviewsPage()),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                ThinProgressBar(
-                  value: profile.xpInLevel / kXpPerLevel,
-                  color: scheme.primary,
-                  trackColor: scheme.surfaceContainerHighest,
-                  height: 8,
-                ),
-              ],
-            ),
-          ),
-
-          if (profile.showStats)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: Row(
-                children: [
-                  _StatCard(
-                    value: '${entries.length}',
-                    title: 'В списках',
-                    icon: Icons.bookmark_outline_rounded,
-                  ),
-                  const SizedBox(width: 10),
-                  _StatCard(
-                    value: '$completed',
-                    title: 'Завершено',
-                    icon: Icons.check_circle_outline_rounded,
-                  ),
-                  const SizedBox(width: 10),
-                  _StatCard(
-                    value: '${favorites.length}',
-                    title: 'Избранное',
-                    icon: Icons.favorite_border_rounded,
-                  ),
-                ],
               ),
             ),
 
-          if (profile.showFavorites)
-            _Card(
-              title: 'Любимое аниме',
-              onTap: () => _push(context, const FavoritesPage()),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              child: _FavoritesRow(items: favorites.values.take(3).toList()),
-            ),
+          // Витрины в выбранном порядке
+          for (final type in layout.shown) ShowcaseBlock(type: type),
 
-          if (profile.showAchievements)
-            _Card(
-              title: 'Достижения',
-              trailing: Text(
-                '$unlockedCount из ${achievements.length}',
-                style: TextStyle(color: scheme.onSurfaceVariant),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  for (final a in achievements)
-                    GestureDetector(
-                      onTap: () => showInfo(
-                        context,
-                        '${a.title}: ${a.description}'
-                            '${a.unlocked ? ' ✓' : ''}',
-                      ),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: a.unlocked
-                                ? a.color
-                                : scheme.onSurfaceVariant
-                                .withValues(alpha: 0.35),
-                            width: 2,
-                          ),
-                        ),
-                        child: Icon(
-                          a.icon,
-                          size: 22,
-                          color: a.unlocked
-                              ? a.color
-                              : scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-          // Быстрые переходы.
-          // Material, а не Container: ListTile рисует фон и «волну» на ближайшем Material.
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Material(
-              color: scheme.surface,
-              borderRadius: BorderRadius.circular(20),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.palette_outlined, color: scheme.primary),
-                    title: const Text('Оформление профиля'),
-                    subtitle: Text(
-                      '${formatNumber(profile.points)} очков · $animeCount аниме · $mangaCount манги',
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _push(context, const StorePage()),
-                  ),
-                  const Divider(indent: 56),
-                  ListTile(
-                    leading: const Icon(Icons.settings_outlined),
-                    title: const Text('Настройки'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _push(context, const SettingsPage()),
-                  ),
-                ],
-              ),
-            ),
-          ),
           const SizedBox(height: 28),
         ],
       ),
@@ -425,20 +353,72 @@ class ProfilePage extends ConsumerWidget {
   }
 }
 
-class _Achievement {
-  const _Achievement(
-      this.title,
-      this.description,
-      this.icon,
-      this.color,
-      this.unlocked,
-      );
+class _SectionRow extends StatelessWidget {
+  const _SectionRow({
+    required this.icon,
+    required this.title,
+    required this.count,
+    required this.onTap,
+  });
 
-  final String title;
-  final String description;
   final IconData icon;
-  final Color color;
-  final bool unlocked;
+  final String title;
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        child: Row(
+          children: [
+            Icon(icon, color: scheme.primary, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
+            Text(
+              '$count',
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 6),
+        Text(text, style: TextStyle(fontSize: 14, color: color)),
+      ],
+    );
+  }
 }
 
 class _BannerButton extends StatelessWidget {
@@ -489,146 +469,6 @@ class _SquareButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: SizedBox(width: 50, height: 50, child: Icon(icon)),
-      ),
-    );
-  }
-}
-
-/// Блок на экране профиля с заголовком (как «Любимое аниме» в макете).
-class _Card extends StatelessWidget {
-  const _Card({
-    required this.title,
-    required this.child,
-    this.trailing,
-    this.onTap,
-  });
-
-  final String title;
-  final Widget child;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InkWell(
-              onTap: onTap,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  ?trailing,
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FavoritesRow extends StatelessWidget {
-  const _FavoritesRow({required this.items});
-
-  final List<MediaItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    if (items.isEmpty) {
-      return Text(
-        'Нажмите на сердечко на странице тайтла, и он появится здесь.',
-        style: TextStyle(color: scheme.onSurfaceVariant),
-      );
-    }
-
-    return Row(
-      children: [
-        for (var i = 0; i < 3; i++) ...[
-          if (i > 0) const SizedBox(width: 10),
-          Expanded(
-            child: i < items.length
-                ? GestureDetector(
-              onTap: () => openDetail(context, items[i]),
-              child: AspectRatio(
-                aspectRatio: 0.72,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: MediaCover(item: items[i]),
-                ),
-              ),
-            )
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.value,
-    required this.title,
-    required this.icon,
-  });
-
-  final String value;
-  final String title;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 22, color: scheme.primary),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
-            ),
-          ],
-        ),
       ),
     );
   }

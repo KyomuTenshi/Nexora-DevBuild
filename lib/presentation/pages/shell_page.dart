@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nexora/presentation/providers/language_provider.dart';
 import 'package:nexora/presentation/providers/notifications_provider.dart';
 import 'package:nexora/presentation/providers/shell_provider.dart';
 import 'catalog/catalog_page.dart';
 import 'home/home_page.dart';
 import 'library/library_page.dart';
+import 'menu/menu_page.dart';
 import 'notifications/notifications_page.dart';
-import 'profile/profile_page.dart';
 
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
@@ -16,13 +17,14 @@ class ShellPage extends ConsumerWidget {
     CatalogPage(),
     LibraryPage(),
     NotificationsPage(),
-    ProfilePage(),
+    MenuPage(),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final index = ref.watch(shellTabProvider);
     final unread = ref.watch(unreadCountProvider);
+    final s = ref.watch(stringsProvider);
 
     // Кнопка «Назад» с любой вкладки возвращает на Главную, а не закрывает приложение
     return PopScope(
@@ -37,20 +39,20 @@ class ShellPage extends ConsumerWidget {
           onDestinationSelected: (i) =>
               ref.read(shellTabProvider.notifier).setTab(i),
           destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded),
-              label: 'Главная',
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home_rounded),
+              label: s.navHome,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.desktop_windows_outlined),
-              selectedIcon: Icon(Icons.desktop_windows_rounded),
-              label: 'Каталог',
+            NavigationDestination(
+              icon: const Icon(Icons.desktop_windows_outlined),
+              selectedIcon: const Icon(Icons.desktop_windows_rounded),
+              label: s.navCatalog,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.menu_book_outlined),
-              selectedIcon: Icon(Icons.menu_book_rounded),
-              label: 'Библиотека',
+            NavigationDestination(
+              icon: const Icon(Icons.menu_book_outlined),
+              selectedIcon: const Icon(Icons.menu_book_rounded),
+              label: s.navLibrary,
             ),
             NavigationDestination(
               icon: Badge(
@@ -63,12 +65,12 @@ class ShellPage extends ConsumerWidget {
                 label: Text('$unread'),
                 child: const Icon(Icons.notifications_rounded),
               ),
-              label: 'Уведомления',
+              label: s.navNotifications,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Профиль',
+            NavigationDestination(
+              icon: const Icon(Icons.menu_rounded),
+              selectedIcon: const Icon(Icons.menu_rounded),
+              label: s.navMenu,
             ),
           ],
         ),

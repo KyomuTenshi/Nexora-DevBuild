@@ -6,8 +6,10 @@ import 'package:nexora/presentation/providers/home_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/shell_provider.dart';
 import 'package:nexora/presentation/providers/similar_provider.dart';
+import 'package:nexora/presentation/widgets/cached_data_banner.dart';
 import 'package:nexora/presentation/widgets/error_view.dart';
 import 'package:nexora/presentation/widgets/section_header.dart';
+import 'package:nexora/presentation/widgets/skeleton.dart';
 import 'continue_reading_section.dart';
 import 'continue_watching_section.dart';
 import 'featured_carousel.dart';
@@ -26,8 +28,13 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false, // список заезжает под размытую панель
         child: feed.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          // Вместо крутилки: поиск остаётся доступным, ниже серые заготовки
+          loading: () => ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: const [HomeTopBar(), HomeSkeleton()],
+          ),
           error: (error, _) => ErrorView(
             error: error,
             onRetry: () => ref.invalidate(homeFeedProvider),
@@ -47,6 +54,7 @@ class HomePage extends ConsumerWidget {
             child: ListView(
               children: [
                 const HomeTopBar(),
+                const CachedDataBanner(),
                 FeaturedCarousel(banners: data.featured),
                 if (hasActive) ...[
                   const ContinueWatchingSection(),
