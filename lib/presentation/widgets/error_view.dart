@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:nexora/domain/errors/app_exception.dart';
 
+/// Экран ошибки: Причина, Решение и кнопка «Повторить».
+/// Тексты зависят от типа ошибки, поэтому человек понимает, что делать.
 class ErrorView extends StatelessWidget {
-  const ErrorView({super.key, required this.onRetry});
+  const ErrorView({super.key, required this.onRetry, this.error});
 
   final VoidCallback onRetry;
+
+  /// Что именно произошло. Если не передать, покажется общий текст.
+  final Object? error;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final info = _describe(error);
 
     return Center(
       child: Padding(
@@ -15,16 +22,16 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, size: 56, color: scheme.onSurfaceVariant),
+            Icon(info.icon, size: 56, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
-            const Text(
-              'Не удалось загрузить данные',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            Text(
+              info.title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Проверьте подключение к интернету.',
+              info.hint,
               style: TextStyle(color: scheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -34,5 +41,35 @@ class ErrorView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static ({IconData icon, String title, String hint}) _describe(Object? e) {
+    return switch (e) {
+      NetworkException() => (
+      icon: Icons.wifi_off_rounded,
+      title: 'Нет соединения',
+      hint: 'Проверьте интернет и нажмите «Повторить».',
+      ),
+      RateLimitException() => (
+      icon: Icons.hourglass_top_rounded,
+      title: 'Слишком много запросов',
+      hint: 'Сервис просит подождать. Повторите через несколько секунд.',
+      ),
+      ServerException(:final statusCode) => (
+      icon: Icons.cloud_off_rounded,
+      title: 'Сервер временно недоступен',
+      hint: 'Это не ваша вина (код $statusCode). Попробуйте чуть позже.',
+      ),
+      ParseException() => (
+      icon: Icons.report_problem_outlined,
+      title: 'Неожиданный ответ сервера',
+      hint: 'Данные пришли в неизвестном формате. Попробуйте позже.',
+      ),
+      _ => (
+      icon: Icons.error_outline_rounded,
+      title: 'Не удалось загрузить данные',
+      hint: 'Проверьте подключение к интернету.',
+      ),
+    };
   }
 }

@@ -7,7 +7,7 @@ import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/reader/reader_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/shell_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/section_header.dart';
 import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
 
@@ -21,8 +21,8 @@ class ContinueReadingSection extends ConsumerWidget {
         .watch(libraryProvider)
         .values
         .where((e) =>
-            e.status == LibraryStatus.inProgress &&
-            e.item.type == MediaType.manga)
+    e.status == LibraryStatus.inProgress &&
+        e.item.type == MediaType.manga)
         .toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -54,7 +54,7 @@ class ContinueReadingSection extends ConsumerWidget {
                   height: 64,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: CoverArt(seed: item.id),
+                    child: MediaCover(item: item),
                   ),
                 ),
                 const SizedBox(width: 14),

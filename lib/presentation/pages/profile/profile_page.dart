@@ -10,12 +10,11 @@ import 'package:nexora/presentation/pages/profile/favorites_page.dart';
 import 'package:nexora/presentation/pages/profile/profile_edit_page.dart';
 import 'package:nexora/presentation/pages/profile/settings_page.dart';
 import 'package:nexora/presentation/pages/profile/store_page.dart';
-import 'package:nexora/presentation/providers/all_items_provider.dart';
 import 'package:nexora/presentation/providers/favorites_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/providers/ratings_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/profile_widgets.dart';
 import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
@@ -343,7 +342,7 @@ class ProfilePage extends ConsumerWidget {
               title: 'Любимое аниме',
               onTap: () => _push(context, const FavoritesPage()),
               trailing: const Icon(Icons.chevron_right_rounded),
-              child: _FavoritesRow(ids: favorites),
+              child: _FavoritesRow(items: favorites.values.take(3).toList()),
             ),
 
           if (profile.showAchievements)
@@ -551,16 +550,14 @@ class _Card extends StatelessWidget {
   }
 }
 
-class _FavoritesRow extends ConsumerWidget {
-  const _FavoritesRow({required this.ids});
+class _FavoritesRow extends StatelessWidget {
+  const _FavoritesRow({required this.items});
 
-  final Set<int> ids;
+  final List<MediaItem> items;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final all = ref.watch(allItemsProvider).value ?? const <MediaItem>[];
-    final items = all.where((i) => ids.contains(i.id)).take(3).toList();
 
     if (items.isEmpty) {
       return Text(
@@ -581,7 +578,7 @@ class _FavoritesRow extends ConsumerWidget {
                 aspectRatio: 0.72,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child: CoverArt(seed: items[i].id),
+                  child: MediaCover(item: items[i]),
                 ),
               ),
             )

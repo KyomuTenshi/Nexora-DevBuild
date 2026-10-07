@@ -7,7 +7,7 @@ import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/detail/detail_sheets.dart';
 import 'package:nexora/presentation/pages/player/watch_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 
 /// Карусель сверху: сама листается раз в 5 секунд, точки кликабельны.
 class FeaturedCarousel extends StatefulWidget {
@@ -119,8 +119,8 @@ class _Slide extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () => openDetail(context, item),
-      child: CoverArt(
-        seed: item.id,
+      child: MediaCover(
+        item: item,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -128,7 +128,7 @@ class _Slide extends ConsumerWidget {
             children: [
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// Набор градиентов. Цвет выбирается по id: id % 8.
@@ -19,9 +20,17 @@ class CoverPalette {
 }
 
 class CoverArt extends StatelessWidget {
-  const CoverArt({super.key, required this.seed, this.child});
+  const CoverArt({
+    super.key,
+    required this.seed,
+    this.imageUrl,
+    this.child,
+  });
 
   final int seed;
+
+  /// Настоящая обложка. Пока null или не загрузилась, виден градиент.
+  final String? imageUrl;
   final Widget? child;
 
   @override
@@ -56,6 +65,31 @@ class CoverArt extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.12),
                 ),
               ),
+              if (imageUrl != null) ...[
+                Positioned.fill(
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl!,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    fadeInDuration: const Duration(milliseconds: 200),
+                    placeholder: (_, _) => const SizedBox.shrink(),
+                    errorWidget: (_, _, _) => const SizedBox.shrink(),
+                  ),
+                ),
+                // Лёгкое затемнение снизу, чтобы белый текст читался на любом постере
+                const Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0x00000000), Color(0x8C000000)],
+                        stops: [0.45, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               ?child,
             ],
           ),

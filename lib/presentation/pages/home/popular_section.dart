@@ -4,7 +4,7 @@ import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/similar_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/rating_badge.dart';
 import 'package:nexora/presentation/widgets/section_header.dart';
 
@@ -51,8 +51,8 @@ class _PosterCard extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: CoverArt(
-                  seed: item.id,
+                child: MediaCover(
+                  item: item,
                   child: Stack(
                     children: [
                       Positioned(

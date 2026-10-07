@@ -3,20 +3,54 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexora/app.dart';
 import 'package:nexora/core/di/providers.dart';
+import 'package:nexora/core/di/retry.dart';
 import 'package:nexora/data/mock/mock_data.dart';
+import 'package:nexora/data/repositories/mock_media_repository.dart';
+import 'package:nexora/domain/entities/catalog_query.dart';
+import 'package:nexora/domain/entities/home_feed.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
+import 'package:nexora/domain/entities/media_item.dart';
+import 'package:nexora/domain/errors/app_exception.dart';
+import 'package:nexora/domain/repositories/media_repository.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Репозиторий, который всегда падает: проверяем экран ошибки.
+class FailingMediaRepository implements MediaRepository {
+  @override
+  Future<HomeFeed> getHomeFeed() async =>
+      throw const NetworkException('Нет подключения к интернету');
+
+  @override
+  Future<List<MediaItem>> searchCatalog(CatalogQuery query) async =>
+      throw const NetworkException('Нет подключения к интернету');
+
+  @override
+  Future<String?> findCoverUrl(MediaItem item) async => null;
+
+  @override
+  void clearCache() {}
+}
+
 /// Запускает приложение с «настоящим» SharedPreferences из памяти.
-Future<void> pumpApp(WidgetTester tester, {bool onboarded = true}) async {
+/// В тестах вместо реального API подставляем тестовый репозиторий.
+Future<void> pumpApp(
+    WidgetTester tester, {
+      bool onboarded = true,
+      MediaRepository? repository,
+    }) async {
   SharedPreferences.setMockInitialValues({'onboarded': onboarded});
   final prefs = await SharedPreferences.getInstance();
 
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [prefsProvider.overrideWithValue(prefs)],
+      retry: noAutoRetry,
+      overrides: [
+        prefsProvider.overrideWithValue(prefs),
+        mediaRepositoryProvider
+            .overrideWithValue(repository ?? MockMediaRepository()),
+      ],
       child: const NexoraApp(),
     ),
   );
@@ -94,6 +128,18 @@ void main() {
     // В библиотеке просмотрено 1142 серии, значит следующая 1143
     expect(find.text('Смотреть · серия 1143'), findsOneWidget);
   });
+
+  testWidgets('при сбое сети главная показывает ошибку и «Повторить»',
+          (tester) async {
+        usePhoneScreen(tester);
+        await pumpApp(tester, repository: FailingMediaRepository());
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.text('Нет соединения'), findsOneWidget);
+        expect(find.text('Повторить'), findsOneWidget);
+        expect(find.text('Продолжить просмотр'), findsNothing);
+      });
 
   test('уровень и инициалы считаются правильно', () {
     final profile = ProfileState.initial();

@@ -33,13 +33,6 @@ class FilterRow extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           _FilterPill(
-            label: 'Студия',
-            value: query.studio,
-            options: kStudios,
-            onSelected: notifier.setStudio,
-          ),
-          const SizedBox(width: 8),
-          _FilterPill(
             label: 'Сезон',
             value: query.season,
             options: kSeasons,

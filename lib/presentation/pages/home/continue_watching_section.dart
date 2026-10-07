@@ -6,7 +6,7 @@ import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/player/watch_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/shell_provider.dart';
-import 'package:nexora/presentation/widgets/cover_art.dart';
+import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/section_header.dart';
 import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
 
@@ -21,8 +21,8 @@ class ContinueWatchingSection extends ConsumerWidget {
         .watch(libraryProvider)
         .values
         .where((e) =>
-            e.status == LibraryStatus.inProgress &&
-            e.item.type == MediaType.anime)
+    e.status == LibraryStatus.inProgress &&
+        e.item.type == MediaType.anime)
         .toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
@@ -73,8 +73,8 @@ class _WatchCard extends StatelessWidget {
               aspectRatio: 16 / 9,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(18),
-                child: CoverArt(
-                  seed: item.id,
+                child: MediaCover(
+                  item: item,
                   child: Stack(
                     children: [
                       Center(
