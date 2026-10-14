@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nexora/core/l10n/app_strings.dart';
+import 'package:nexora/core/router/app_router.dart';
 import 'package:nexora/domain/entities/achievement.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
-import 'package:nexora/presentation/pages/profile/achievements_page.dart';
-import 'package:nexora/presentation/pages/profile/favorites_page.dart';
 import 'package:nexora/presentation/pages/profile/profile_screen.dart';
-import 'package:nexora/presentation/pages/profile/settings_page.dart';
-import 'package:nexora/presentation/pages/profile/store_page.dart';
 import 'package:nexora/presentation/providers/achievements_provider.dart';
 import 'package:nexora/presentation/providers/catalog_provider.dart';
 import 'package:nexora/presentation/providers/favorites_provider.dart';
@@ -40,10 +38,6 @@ class MenuPage extends ConsumerStatefulWidget {
 
 class _MenuPageState extends ConsumerState<MenuPage> {
   bool _catalogOpen = false;
-
-  void _push(Widget page) {
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
-  }
 
   /// Открывает каталог сразу с выбранной категорией.
   void _openCatalog(CatalogCategory category) {
@@ -231,7 +225,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                   color: _pink,
                   title: s.favorites,
                   value: '$favoritesCount',
-                  onTap: () => _push(const FavoritesPage()),
+                  onTap: () => context.pushNamed(AppRoute.favorites),
                 ),
                 const _Line(),
                 _MenuTile(
@@ -242,7 +236,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                     unlockedCount,
                     kAchievements.length,
                   ),
-                  onTap: () => _push(const AchievementsPage()),
+                  onTap: () => context.pushNamed(AppRoute.achievements),
                 ),
                 const _Line(),
                 _MenuTile(
@@ -250,7 +244,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                   color: _purple,
                   title: s.pointsStore,
                   value: formatNumber(profile.points),
-                  onTap: () => _push(const StorePage()),
+                  onTap: () => context.pushNamed(AppRoute.store),
                 ),
               ],
             ),
@@ -263,7 +257,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                   icon: Icons.settings_rounded,
                   color: _gray,
                   title: s.settings,
-                  onTap: () => _push(const SettingsPage()),
+                  onTap: () => context.pushNamed(AppRoute.settings),
                 ),
                 const _Line(),
                 _MenuTile(

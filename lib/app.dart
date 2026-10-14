@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'presentation/pages/onboarding/onboarding_page.dart';
-import 'presentation/pages/shell_page.dart';
 import 'presentation/providers/language_provider.dart';
-import 'presentation/providers/onboarding_provider.dart';
 import 'presentation/providers/profile_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/widgets/achievement_toast.dart';
@@ -19,7 +17,7 @@ class NexoraApp extends ConsumerWidget {
     final language = ref.watch(languageProvider);
     final accent = ref.watch(profileProvider.select((p) => p.accent));
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Nexora',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(accent),
@@ -33,22 +31,11 @@ class NexoraApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // Всеми переходами теперь управляет GoRouter
+      routerConfig: ref.watch(routerProvider),
       // Плашка «Достижение получено» поверх любого экрана
       builder: (context, child) =>
           AchievementToastHost(child: child ?? const SizedBox.shrink()),
-      home: const _StartGate(),
     );
-  }
-}
-
-/// Решает, что показать при запуске: приветствие или приложение.
-/// Переключение живёт внутри маршрута, поэтому срабатывает сразу при complete().
-class _StartGate extends ConsumerWidget {
-  const _StartGate();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final onboarded = ref.watch(onboardedProvider);
-    return onboarded ? const ShellPage() : const OnboardingPage();
   }
 }

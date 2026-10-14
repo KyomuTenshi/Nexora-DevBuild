@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nexora/core/l10n/app_strings.dart';
+import 'package:nexora/core/router/app_router.dart';
 import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/presentation/pages/profile/profile_edit_page.dart';
-import 'package:nexora/presentation/pages/profile/store_page.dart';
 import 'package:nexora/presentation/providers/language_provider.dart';
 import 'package:nexora/presentation/providers/onboarding_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
@@ -149,9 +150,7 @@ class SettingsPage extends ConsumerWidget {
                   leading: const Icon(Icons.palette_outlined),
                   title: Text(s.storeAndStyle),
                   trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => const StorePage()),
-                  ),
+                  onTap: () => context.pushNamed(AppRoute.store),
                 ),
               ],
             ),
@@ -163,11 +162,9 @@ class SettingsPage extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.waving_hand_outlined),
                   title: Text(s.showWelcome),
-                  onTap: () {
-                    ref.read(onboardedProvider.notifier).reset();
-                    // Возвращаемся к корню: там теперь приветствие
-                    Navigator.of(context).popUntil((r) => r.isFirst);
-                  },
+                  // Достаточно сбросить флаг: redirect в GoRouter сам
+                  // перенаправит на экран приветствия
+                  onTap: () => ref.read(onboardedProvider.notifier).reset(),
                 ),
                 const Divider(indent: 56),
                 ListTile(

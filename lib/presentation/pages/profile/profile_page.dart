@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nexora/core/constants/store_catalog.dart';
+import 'package:nexora/core/router/app_router.dart';
 import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/domain/entities/media_item.dart';
-import 'package:nexora/presentation/pages/profile/favorites_page.dart';
 import 'package:nexora/presentation/pages/profile/profile_editor_page.dart';
 import 'package:nexora/presentation/pages/profile/profile_sections_pages.dart';
 import 'package:nexora/presentation/pages/profile/showcase_blocks.dart';
@@ -318,18 +319,17 @@ class ProfilePage extends ConsumerWidget {
                       icon: Icons.favorite_border_rounded,
                       title: 'Избранное',
                       count: favorites.length,
-                      onTap: () => _push(context, const FavoritesPage()),
+                      onTap: () => context.pushNamed(AppRoute.favorites),
                     ),
                     const Divider(height: 1, indent: 56),
                     _SectionRow(
                       icon: Icons.bookmarks_outlined,
                       title: 'Списки',
                       count: entries.length,
-                      onTap: () {
-                        // Закрываем профиль и открываем вкладку «Библиотека»
-                        Navigator.of(context).popUntil((r) => r.isFirst);
-                        ref.read(shellTabProvider.notifier).setTab(2);
-                      },
+                      // setTab(2) переключает вкладку через context.go,
+                      // а он сам закрывает страницу профиля
+                      onTap: () =>
+                          ref.read(shellTabProvider.notifier).setTab(2),
                     ),
                     const Divider(height: 1, indent: 56),
                     _SectionRow(

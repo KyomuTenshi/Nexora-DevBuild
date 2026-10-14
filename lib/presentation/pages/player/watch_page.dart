@@ -9,15 +9,17 @@ import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 
+import 'package:go_router/go_router.dart';
+import 'package:nexora/core/router/app_router.dart';
+
 /// Открывает демо-плеер. Настоящего видео пока нет: плеер имитирует просмотр
 /// серии (24 минуты проходят за ~24 секунды), чтобы работал весь сценарий
 /// «посмотрел серию → прогресс сохранился → очки начислены».
 void openWatch(BuildContext context, MediaItem item, {required int episode}) {
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      fullscreenDialog: true,
-      builder: (_) => WatchPage(item: item, episode: episode),
-    ),
+  context.pushNamed(
+    AppRoute.watch,
+    pathParameters: {'id': '${item.id}', 'episode': '$episode'},
+    extra: item,
   );
 }
 

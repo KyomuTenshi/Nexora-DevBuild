@@ -19,10 +19,15 @@ import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/skeleton.dart';
 import 'detail_header.dart';
 
-/// Открывает страницу тайтла. На неделе 7 заменим на GoRouter.
+import 'package:go_router/go_router.dart';
+import 'package:nexora/core/router/app_router.dart';
+
+/// Открывает страницу тайтла через GoRouter: /title/:id
 void openDetail(BuildContext context, MediaItem item) {
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(builder: (_) => DetailPage(item: item)),
+  context.pushNamed(
+    AppRoute.detail,
+    pathParameters: {'id': '${item.id}'},
+    extra: item,
   );
 }
 

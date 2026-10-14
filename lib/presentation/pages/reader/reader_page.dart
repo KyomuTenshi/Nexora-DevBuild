@@ -7,12 +7,15 @@ import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/pages/reader/manga_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 
+import 'package:go_router/go_router.dart';
+import 'package:nexora/core/router/app_router.dart';
+
 /// Открывает читалку на нужной главе.
 void openReader(BuildContext context, MediaItem item, {required int chapter}) {
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => ReaderPage(item: item, chapter: chapter),
-    ),
+  context.pushNamed(
+    AppRoute.read,
+    pathParameters: {'id': '${item.id}', 'chapter': '$chapter'},
+    extra: item,
   );
 }
 

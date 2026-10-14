@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nexora/core/router/app_router.dart';
 import 'package:nexora/presentation/pages/profile/profile_page.dart';
 
 /// Открывает профиль отдельной страницей (из Меню или по аватару в углу).
-void openProfile(BuildContext context) {
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(builder: (_) => const ProfileScreen()),
-  );
-}
+void openProfile(BuildContext context) => context.pushNamed(AppRoute.profile);
 
 /// Профиль с кнопкой «назад» поверх шапки.
 class ProfileScreen extends StatelessWidget {

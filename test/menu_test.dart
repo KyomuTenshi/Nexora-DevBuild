@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nexora/core/di/providers.dart';
+import 'package:nexora/core/router/app_router.dart';
 import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/core/theme/app_theme.dart';
 import 'package:nexora/data/repositories/mock_media_repository.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
 import 'package:nexora/presentation/pages/menu/menu_page.dart';
+import 'package:nexora/presentation/pages/profile/profile_screen.dart';
 import 'package:nexora/presentation/providers/catalog_provider.dart';
 import 'package:nexora/presentation/providers/shell_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Мини-роутер для теста: только те маршруты, которые нужны меню.
+GoRouter _testRouter() => GoRouter(
+  routes: [
+    GoRoute(path: '/', builder: (_, _) => const MenuPage()),
+    GoRoute(
+      path: '/profile',
+      name: AppRoute.profile,
+      builder: (_, _) => const ProfileScreen(),
+    ),
+    GoRoute(path: '/catalog', builder: (_, _) => const SizedBox()),
+  ],
+);
 
 Future<void> pumpMenu(WidgetTester tester) async {
   SharedPreferences.setMockInitialValues({});
@@ -21,10 +37,14 @@ Future<void> pumpMenu(WidgetTester tester) async {
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
+  final router = _testRouter();
+  addTearDown(router.dispose);
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         prefsProvider.overrideWithValue(prefs),
+        routerProvider.overrideWithValue(router),
         mediaRepositoryProvider.overrideWithValue(
           MockMediaRepository(
             homeDelay: Duration.zero,
@@ -32,12 +52,13 @@ Future<void> pumpMenu(WidgetTester tester) async {
           ),
         ),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         theme: AppTheme.dark(AppColors.primary),
-        home: const MenuPage(),
+        routerConfig: router,
       ),
     ),
   );
+  await tester.pump(); // GoRouter разбирает адрес асинхронно
 }
 
 void main() {
@@ -73,7 +94,7 @@ void main() {
         await tester.pump();
 
         final container = ProviderScope.containerOf(
-          tester.element(find.byType(MenuPage)),
+          tester.element(find.byType(MaterialApp)),
         );
         expect(container.read(catalogQueryProvider).category,
             CatalogCategory.airing);

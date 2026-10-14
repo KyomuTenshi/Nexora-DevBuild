@@ -55,6 +55,8 @@ Future<void> pumpApp(
       child: const NexoraApp(),
     ),
   );
+  // GoRouter разбирает начальный адрес асинхронно: нужен ещё один кадр
+  await tester.pump();
 }
 
 /// Размер экрана как у телефона (около 411×891 dp).
@@ -91,7 +93,7 @@ void main() {
     expect(find.text('Пропустить'), findsOneWidget);
 
     await tester.tap(find.text('Пропустить'));
-    await tester.pump(); // приложение заменяет приветствие на Главную
+    await tester.pump(); // redirect в GoRouter переключает приветствие на Главную
     await tester.pump(const Duration(seconds: 1)); // ждём тестовую задержку
     await tester.pump(const Duration(seconds: 1)); // запас на смену экрана
     await tester.pump();
