@@ -126,7 +126,8 @@ class ApiClient {
   bool _canUseSaved(AppException error) => switch (error) {
     NetworkException() || RateLimitException() => true,
     ServerException(:final statusCode) => statusCode >= 500,
-    ParseException() => false,
+  // Ошибки формата и авторизации кэшем не лечатся
+    ParseException() || AuthException() => false,
   };
 
   Future<void> _save(String key, String body) async {

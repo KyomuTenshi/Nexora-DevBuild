@@ -1,22 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
+import 'core/di/auth_providers.dart';
 import 'core/di/providers.dart';
 import 'core/di/retry.dart';
 import 'data/local/hive_favorites_repository.dart';
 import 'data/local/hive_library_repository.dart';
 import 'data/local/hive_ratings_repository.dart';
 import 'data/local/hive_response_cache.dart';
+import 'data/repositories/firebase_auth_repository.dart';
 import 'data/repositories/in_memory_favorites_repository.dart';
 import 'data/repositories/in_memory_library_repository.dart';
 import 'data/repositories/in_memory_ratings_repository.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   // Нужно, чтобы вызывать платформенный код до runApp
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Подключаемся к проекту Firebase (настройки создал flutterfire configure)
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Настройки читаем один раз при старте: дальше доступ к ним синхронный
   final prefs = await SharedPreferences.getInstance();
@@ -47,6 +55,9 @@ Future<void> main() async {
         favoritesRepositoryProvider.overrideWithValue(favorites),
         ratingsRepositoryProvider.overrideWithValue(ratings),
         responseCacheProvider.overrideWithValue(HiveResponseCache(cacheBox)),
+        authRepositoryProvider.overrideWithValue(
+          FirebaseAuthRepository(FirebaseAuth.instance),
+        ),
       ],
       child: const NexoraApp(),
     ),

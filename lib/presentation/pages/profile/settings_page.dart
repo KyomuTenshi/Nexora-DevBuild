@@ -9,6 +9,7 @@ import 'package:nexora/presentation/providers/language_provider.dart';
 import 'package:nexora/presentation/providers/onboarding_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/providers/theme_provider.dart';
+import 'package:nexora/presentation/widgets/account_tile.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -135,6 +136,9 @@ class SettingsPage extends ConsumerWidget {
           _Block(
             child: Column(
               children: [
+                // Аккаунт Firebase: вход, имя с почтой и кнопка «Выйти»
+                const AccountTile(),
+                const Divider(indent: 56),
                 ListTile(
                   leading: const Icon(Icons.person_outline_rounded),
                   title: Text(s.editProfile),

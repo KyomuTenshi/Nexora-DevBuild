@@ -32,3 +32,23 @@ class ServerException extends AppException {
 class ParseException extends AppException {
   const ParseException(super.message);
 }
+
+/// Причина, по которой не удался вход или регистрация.
+enum AuthFailure {
+  invalidCredentials,
+  invalidEmail,
+  emailInUse,
+  weakPassword,
+  tooManyRequests,
+  network,
+  unknown,
+}
+
+/// Ошибка входа или регистрации. Domain не знает про Firebase:
+/// реализация переводит свои коды в [AuthFailure].
+class AuthException extends AppException {
+  const AuthException(this.failure, [String details = ''])
+      : super('Ошибка авторизации: $details');
+
+  final AuthFailure failure;
+}
