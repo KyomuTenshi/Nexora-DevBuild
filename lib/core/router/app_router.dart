@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/pages/catalog/catalog_page.dart';
+import 'package:nexora/presentation/pages/demo/state_demo_page.dart';
 import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/home/home_page.dart';
 import 'package:nexora/presentation/pages/library/library_page.dart';
@@ -36,6 +37,7 @@ abstract final class AppRoute {
   static const achievements = 'achievements';
   static const store = 'store';
   static const settings = 'settings';
+  static const stateDemo = 'stateDemo';
 }
 
 /// Пути вкладок нижнего меню в том же порядке, что и кнопки.
@@ -51,7 +53,7 @@ const List<String> kTabPaths = [
 /// (для redirect) и его можно подменить в тестах.
 final routerProvider = Provider<GoRouter>((ref) {
   // GoRouter сам не следит за Riverpod. Этот ValueNotifier говорит ему:
-  // «состояние приглашения изменилось, пересчитай redirect».
+  // «состояние приветствия изменилось, пересчитай redirect».
   final onboardedSignal = ValueNotifier<bool>(ref.read(onboardedProvider));
   ref.listen<bool>(onboardedProvider, (_, next) {
     onboardedSignal.value = next;
@@ -139,7 +141,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: AppRoute.watch,
             pageBuilder: (context, state) {
               final item = state.extra;
-              final episode = int.tryParse(state.pathParameters['episode'] ?? '');
+              final episode =
+              int.tryParse(state.pathParameters['episode'] ?? '');
               return MaterialPage<void>(
                 key: state.pageKey,
                 // Плеер открывается снизу, как отдельный экран
@@ -155,7 +158,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: AppRoute.read,
             pageBuilder: (context, state) {
               final item = state.extra;
-              final chapter = int.tryParse(state.pathParameters['chapter'] ?? '');
+              final chapter =
+              int.tryParse(state.pathParameters['chapter'] ?? '');
               return MaterialPage<void>(
                 key: state.pageKey,
                 child: item is MediaItem && chapter != null
@@ -191,6 +195,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         name: AppRoute.settings,
         builder: (context, state) => const SettingsPage(),
+      ),
+      // Учебное демо недели 3: setState → InheritedWidget → provider
+      GoRoute(
+        path: '/demo/state',
+        name: AppRoute.stateDemo,
+        builder: (context, state) => const StateDemoPage(),
       ),
     ],
   );

@@ -160,6 +160,13 @@ class SettingsPage extends ConsumerWidget {
             child: Column(
               children: [
                 ListTile(
+                  leading: const Icon(Icons.science_outlined),
+                  title: const Text('Демо: способы управления состоянием'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.pushNamed(AppRoute.stateDemo),
+                ),
+                const Divider(indent: 56),
+                ListTile(
                   leading: const Icon(Icons.waving_hand_outlined),
                   title: Text(s.showWelcome),
                   // Достаточно сбросить флаг: redirect в GoRouter сам
