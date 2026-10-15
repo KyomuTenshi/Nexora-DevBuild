@@ -46,3 +46,49 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# ---------------------------------------------------------------------------
+# Личные данные и секреты: НИКОГДА не коммитить
+# ---------------------------------------------------------------------------
+
+# Firebase: настройки проекта (генерируются командой flutterfire configure)
+lib/firebase_options.dart
+**/google-services.json
+**/GoogleService-Info.plist
+.firebase/
+firebase.json
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+
+# Ключи подписи релиза (неделя 14) и их пароли
+key.properties
+**/key.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+*.mobileprovision
+*.cer
+
+# Локальные пути к SDK (в них имя пользователя и папки компьютера)
+local.properties
+**/local.properties
+
+# Переменные окружения и секреты
+.env
+.env.*
+*.secret
+secrets.json
+service-account*.json
+
+# Данные Xcode и Gradle, привязанные к твоему компьютеру
+**/xcuserdata/
+**/*.xcuserstate
+Pods/
+.gradle/
+.kotlin/
+
+# Служебные папки ассистентов и редакторов
+.claude/
+.vscode/android/build/
