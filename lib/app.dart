@@ -6,8 +6,10 @@ import 'core/theme/app_theme.dart';
 import 'presentation/providers/cloud_sync_provider.dart';
 import 'presentation/providers/language_provider.dart';
 import 'presentation/providers/profile_provider.dart';
+import 'presentation/providers/push_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/widgets/achievement_toast.dart';
+import 'presentation/widgets/root_messenger.dart';
 
 class NexoraApp extends ConsumerWidget {
   const NexoraApp({super.key});
@@ -18,12 +20,14 @@ class NexoraApp extends ConsumerWidget {
     final language = ref.watch(languageProvider);
     final accent = ref.watch(profileProvider.select((p) => p.accent));
 
-    // Держим синхронизацию с облаком включённой, пока работает приложение
+    // Держим включёнными синхронизацию с облаком и push, пока работает приложение
     ref.watch(cloudSyncProvider);
+    ref.watch(pushProvider);
 
     return MaterialApp.router(
       title: 'Nexora',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: rootMessengerKey,
       theme: AppTheme.light(accent),
       darkTheme: AppTheme.dark(accent),
       themeMode: themeMode,

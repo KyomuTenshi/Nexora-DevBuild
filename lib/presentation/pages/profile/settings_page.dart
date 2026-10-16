@@ -11,6 +11,7 @@ import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/providers/theme_provider.dart';
 import 'package:nexora/presentation/widgets/account_tile.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
+import 'package:nexora/presentation/widgets/push_tile.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -163,6 +164,8 @@ class SettingsPage extends ConsumerWidget {
           _Block(
             child: Column(
               children: [
+                const PushTile(),
+                const Divider(indent: 56),
                 ListTile(
                   leading: const Icon(Icons.science_outlined),
                   title: const Text('Демо: способы управления состоянием'),

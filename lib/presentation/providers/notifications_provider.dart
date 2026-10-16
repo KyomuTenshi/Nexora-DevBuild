@@ -25,53 +25,65 @@ class NotificationItem {
   final bool isRead;
 
   NotificationItem copyWith({bool? isRead}) => NotificationItem(
-        id: id,
-        title: title,
-        message: message,
-        timeAgo: timeAgo,
-        icon: icon,
-        item: item,
-        isRead: isRead ?? this.isRead,
-      );
+    id: id,
+    title: title,
+    message: message,
+    timeAgo: timeAgo,
+    icon: icon,
+    item: item,
+    isRead: isRead ?? this.isRead,
+  );
 }
 
 class NotificationsNotifier extends Notifier<List<NotificationItem>> {
   @override
   List<NotificationItem> build() => const [
-        NotificationItem(
-          id: '1',
-          title: 'Новая серия!',
-          message: 'Вышла 1143 серия аниме «One Piece».',
-          timeAgo: '10 мин назад',
-          icon: Icons.play_circle_fill_rounded,
-          item: MockData.onePiece,
-        ),
-        NotificationItem(
-          id: '2',
-          title: 'Обновление в библиотеке',
-          message: 'Добавлена новая глава 377 манги «Berserk».',
-          timeAgo: '2 часа назад',
-          icon: Icons.menu_book_rounded,
-          item: MockData.berserk,
-        ),
-        NotificationItem(
-          id: '3',
-          title: 'Новинка сезона',
-          message: 'Премьера «Solo Leveling» Сезон 2 уже в каталоге!',
-          timeAgo: 'Вчера',
-          icon: Icons.stars_rounded,
-          item: MockData.soloLeveling,
-          isRead: true,
-        ),
-        NotificationItem(
-          id: '4',
-          title: 'Награда получена',
-          message: '+100 очков за достижение «Марафонец».',
-          timeAgo: '2 дня назад',
-          icon: Icons.emoji_events_rounded,
-          isRead: true,
-        ),
-      ];
+    NotificationItem(
+      id: '1',
+      title: 'Новая серия!',
+      message: 'Вышла 1143 серия аниме «One Piece».',
+      timeAgo: '10 мин назад',
+      icon: Icons.play_circle_fill_rounded,
+      item: MockData.onePiece,
+    ),
+    NotificationItem(
+      id: '2',
+      title: 'Обновление в библиотеке',
+      message: 'Добавлена новая глава 377 манги «Berserk».',
+      timeAgo: '2 часа назад',
+      icon: Icons.menu_book_rounded,
+      item: MockData.berserk,
+    ),
+    NotificationItem(
+      id: '3',
+      title: 'Новинка сезона',
+      message: 'Премьера «Solo Leveling» Сезон 2 уже в каталоге!',
+      timeAgo: 'Вчера',
+      icon: Icons.stars_rounded,
+      item: MockData.soloLeveling,
+      isRead: true,
+    ),
+    NotificationItem(
+      id: '4',
+      title: 'Награда получена',
+      message: '+100 очков за достижение «Марафонец».',
+      timeAgo: '2 дня назад',
+      icon: Icons.emoji_events_rounded,
+      isRead: true,
+    ),
+  ];
+
+  /// Новое уведомление из push: встаёт первым и считается непрочитанным.
+  void addIncoming({required String title, required String message}) {
+    final item = NotificationItem(
+      id: 'push-${DateTime.now().microsecondsSinceEpoch}',
+      title: title,
+      message: message,
+      timeAgo: 'Только что',
+      icon: Icons.notifications_active_rounded,
+    );
+    state = [item, ...state];
+  }
 
   void markRead(String id) {
     state = [
@@ -91,7 +103,7 @@ class NotificationsNotifier extends Notifier<List<NotificationItem>> {
 }
 
 final notificationsProvider =
-    NotifierProvider<NotificationsNotifier, List<NotificationItem>>(
+NotifierProvider<NotificationsNotifier, List<NotificationItem>>(
   NotificationsNotifier.new,
 );
 
