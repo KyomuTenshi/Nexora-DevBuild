@@ -50,6 +50,8 @@ dependencies:
   firebase_auth: ^7.0.0
   cloud_firestore: ^7.0.0
   firebase_messaging: ^17.0.0
+  google_maps_flutter: ^2.19.0
+  geolocator: ^14.1.1
 
 dev_dependencies:
   flutter_test:

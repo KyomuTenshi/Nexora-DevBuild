@@ -10,6 +10,7 @@ import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/home/home_page.dart';
 import 'package:nexora/presentation/pages/library/library_page.dart';
 import 'package:nexora/presentation/pages/menu/menu_page.dart';
+import 'package:nexora/presentation/pages/nearby/nearby_page.dart';
 import 'package:nexora/presentation/pages/notifications/notifications_page.dart';
 import 'package:nexora/presentation/pages/onboarding/onboarding_page.dart';
 import 'package:nexora/presentation/pages/player/watch_page.dart';
@@ -41,6 +42,7 @@ abstract final class AppRoute {
   static const store = 'store';
   static const settings = 'settings';
   static const stateDemo = 'stateDemo';
+  static const nearby = 'nearby';
 }
 
 /// Пути вкладок нижнего меню в том же порядке, что и кнопки.
@@ -217,6 +219,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         name: AppRoute.settings,
         builder: (context, state) => const SettingsPage(),
+      ),
+      // Неделя 9: карта и места рядом
+      GoRoute(
+        path: '/nearby',
+        name: AppRoute.nearby,
+        builder: (context, state) => const NearbyPage(),
       ),
       // Учебное демо недели 3: setState → InheritedWidget → provider
       GoRoute(

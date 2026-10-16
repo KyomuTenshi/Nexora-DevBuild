@@ -205,6 +205,13 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                 ),
                 const _Line(),
                 _MenuTile(
+                  icon: Icons.place_rounded,
+                  color: _blue,
+                  title: 'Рядом',
+                  onTap: () => context.pushNamed(AppRoute.nearby),
+                ),
+                const _Line(),
+                _MenuTile(
                   icon: Icons.notifications_rounded,
                   color: _red,
                   title: s.notifications,

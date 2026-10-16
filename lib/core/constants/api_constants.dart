@@ -45,3 +45,6 @@ const Map<String, String> kGenreSlugs = {
   'Seinen': 'seinen',
   'Shounen': 'shounen',
 };
+
+/// Overpass API (поиск по данным OpenStreetMap): бесплатный, ключ не нужен.
+const String kOverpassBaseUrl = 'https://overpass-api.de/api';

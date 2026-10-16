@@ -8,16 +8,20 @@ import 'package:hive_ce/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
+import 'core/constants/api_constants.dart';
 import 'core/di/auth_providers.dart';
 import 'core/di/cloud_providers.dart';
+import 'core/di/places_providers.dart';
 import 'core/di/providers.dart';
 import 'core/di/push_providers.dart';
 import 'core/di/retry.dart';
+import 'data/api/api_client.dart';
 import 'data/cloud/firestore_cloud_sync_repository.dart';
 import 'data/local/hive_favorites_repository.dart';
 import 'data/local/hive_library_repository.dart';
 import 'data/local/hive_ratings_repository.dart';
 import 'data/local/hive_response_cache.dart';
+import 'data/location/geolocator_location_repository.dart';
 import 'data/push/firebase_push_background.dart';
 import 'data/push/firebase_push_repository.dart';
 import 'data/repositories/cloud_backed_favorites_repository.dart';
@@ -26,6 +30,7 @@ import 'data/repositories/firebase_auth_repository.dart';
 import 'data/repositories/in_memory_favorites_repository.dart';
 import 'data/repositories/in_memory_library_repository.dart';
 import 'data/repositories/in_memory_ratings_repository.dart';
+import 'data/repositories/overpass_places_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -64,6 +69,16 @@ Future<void> main() async {
   final push = FirebasePushRepository(FirebaseMessaging.instance, firestore);
   String? currentUid() => auth.currentUser?.uid;
 
+  // Места рядом: Overpass API с тем же дисковым кэшем, что и у каталога
+  final overpass = ApiClient(
+    baseUrl: kOverpassBaseUrl,
+    headers: const {
+      'Accept': 'application/json',
+      'User-Agent': 'Nexora/1.0 (student project)',
+    },
+    cache: HiveResponseCache(cacheBox),
+  );
+
   runApp(
     // ProviderScope хранит все Riverpod-провайдеры приложения
     ProviderScope(
@@ -92,6 +107,12 @@ Future<void> main() async {
         authRepositoryProvider.overrideWithValue(auth),
         cloudSyncRepositoryProvider.overrideWithValue(cloud),
         pushRepositoryProvider.overrideWithValue(push),
+        locationRepositoryProvider.overrideWithValue(
+          GeolocatorLocationRepository(),
+        ),
+        placesRepositoryProvider.overrideWithValue(
+          OverpassPlacesRepository(overpass),
+        ),
       ],
       child: const NexoraApp(),
     ),
