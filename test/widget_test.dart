@@ -16,6 +16,7 @@ import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/widgets/skeleton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nexora/domain/entities/catalog_result_page.dart';
 
 /// Репозиторий, который всегда падает: проверяем экран ошибки.
 class FailingMediaRepository implements MediaRepository {
@@ -25,6 +26,13 @@ class FailingMediaRepository implements MediaRepository {
 
   @override
   Future<List<MediaItem>> searchCatalog(CatalogQuery query) async =>
+      throw const NetworkException('Нет подключения к интернету');
+
+  @override
+  Future<CatalogResultPage> searchCatalogPage(
+      CatalogQuery query, {
+        int page = 0,
+      }) async =>
       throw const NetworkException('Нет подключения к интернету');
 
   @override

@@ -26,7 +26,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
 
   @override
   Widget build(BuildContext context) {
-    final results = ref.watch(catalogResultsProvider);
+    final results = ref.watch(catalogFeedProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -54,10 +54,10 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
                 loading: () => const CatalogSkeleton(),
                 error: (error, _) => ErrorView(
                   error: error,
-                  onRetry: () => ref.invalidate(catalogResultsProvider),
+                  onRetry: () => ref.invalidate(catalogFeedProvider),
                 ),
-                data: (items) {
-                  if (items.isEmpty) {
+                data: (feed) {
+                  if (feed.items.isEmpty) {
                     return EmptyView(
                       icon: Icons.search_off_rounded,
                       title: 'Ничего не найдено',
@@ -71,14 +71,14 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
                     onRefresh: () async {
                       // Сбрасываем кэш, иначе получим те же сохранённые данные
                       ref.read(mediaRepositoryProvider).clearCache();
-                      ref.invalidate(catalogResultsProvider);
+                      ref.invalidate(catalogFeedProvider);
                       try {
-                        await ref.read(catalogResultsProvider.future);
+                        await ref.read(catalogFeedProvider.future);
                       } catch (_) {
                         // Ошибку покажет сам экран (ErrorView с кнопкой «Повторить»)
                       }
                     },
-                    child: CatalogGrid(items: items),
+                    child: PagedCatalogGrid(feed: feed),
                   );
                 },
               ),
@@ -90,14 +90,21 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
   }
 }
 
-/// Строка «12 тайтлов» + выбор сортировки.
+/// Строка «40+ тайтлов» + выбор сортировки.
 class _ResultsInfoRow extends ConsumerWidget {
   const _ResultsInfoRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final count = ref.watch(catalogResultsProvider).value?.length;
+    // select: строка перерисовывается только при смене этих двух значений,
+    // а не при каждом изменении подвала списка (идёт подгрузка и т. п.)
+    final count = ref.watch(
+      catalogFeedProvider.select((s) => s.value?.items.length),
+    );
+    final hasMore = ref.watch(
+      catalogFeedProvider.select((s) => s.value?.hasMore ?? false),
+    );
     final sort = ref.watch(catalogQueryProvider.select((q) => q.sort));
 
     return Padding(
@@ -108,7 +115,8 @@ class _ResultsInfoRow extends ConsumerWidget {
             child: Text(
               count == null
                   ? ''
-                  : '$count ${pluralRu(count, 'тайтл', 'тайтла', 'тайтлов')}',
+                  : '$count${hasMore ? '+' : ''} '
+                  '${pluralRu(count, 'тайтл', 'тайтла', 'тайтлов')}',
               style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
             ),
           ),

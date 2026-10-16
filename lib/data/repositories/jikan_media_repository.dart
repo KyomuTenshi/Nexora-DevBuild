@@ -2,6 +2,7 @@ import 'package:nexora/core/constants/api_constants.dart';
 import 'package:nexora/data/api/jikan_client.dart';
 import 'package:nexora/data/dto/jikan_dto.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
+import 'package:nexora/domain/entities/catalog_result_page.dart';
 import 'package:nexora/domain/entities/home_feed.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/domain/errors/app_exception.dart';
@@ -85,6 +86,17 @@ class JikanMediaRepository implements MediaRepository {
         items.sort((a, b) => a.title.compareTo(b.title));
     }
     return items;
+  }
+
+  /// Jikan у нас запасной источник: постраничной подгрузки здесь нет,
+  /// всё приходит одной страницей.
+  @override
+  Future<CatalogResultPage> searchCatalogPage(
+      CatalogQuery query, {
+        int page = 0,
+      }) async {
+    if (page > 0) return const CatalogResultPage(items: [], hasMore: false);
+    return CatalogResultPage(items: await searchCatalog(query), hasMore: false);
   }
 
   @override

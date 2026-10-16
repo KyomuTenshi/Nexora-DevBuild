@@ -2,6 +2,7 @@ import 'package:nexora/core/constants/api_constants.dart';
 import 'package:nexora/data/api/api_client.dart';
 import 'package:nexora/data/dto/kitsu_dto.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
+import 'package:nexora/domain/entities/catalog_result_page.dart';
 import 'package:nexora/domain/entities/home_feed.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/domain/errors/app_exception.dart';
@@ -16,7 +17,8 @@ class KitsuMediaRepository implements MediaRepository {
   final Map<int, Future<String?>> _covers = {};
 
   /// Kitsu отдаёт не больше 20 записей за запрос.
-  static const _pageSize = '20';
+  static const _pageLimit = 20;
+  static const _pageSize = '$_pageLimit';
 
   @override
   Future<HomeFeed> getHomeFeed() async {
@@ -59,18 +61,25 @@ class KitsuMediaRepository implements MediaRepository {
   }
 
   @override
-  Future<List<MediaItem>> searchCatalog(CatalogQuery query) async {
+  Future<List<MediaItem>> searchCatalog(CatalogQuery query) async =>
+      (await searchCatalogPage(query)).items;
+
+  @override
+  Future<CatalogResultPage> searchCatalogPage(
+      CatalogQuery query, {
+        int page = 0,
+      }) async {
     // Студии в основном ответе Kitsu нет, поэтому фильтр студии не применяется.
-    final anime = _list(query, MediaType.anime);
+    final anime = _list(query, MediaType.anime, page);
     // Если с мангой что-то не так (сервер ответил ошибкой), показываем аниме.
     // Сбой сети по-прежнему считается ошибкой всего экрана.
-    final manga = _list(query, MediaType.manga).catchError(
-          (Object _) => <MediaItem>[],
+    final manga = _list(query, MediaType.manga, page).catchError(
+          (Object _) => const _Chunk([], false),
       test: (error) => error is ServerException,
     );
 
     final results = await Future.wait([anime, manga]);
-    final items = [...results[0], ...results[1]];
+    final items = [...results[0].items, ...results[1].items];
 
     switch (query.sort) {
       case CatalogSort.popularity:
@@ -80,15 +89,20 @@ class KitsuMediaRepository implements MediaRepository {
       case CatalogSort.title:
         items.sort((a, b) => a.title.compareTo(b.title));
     }
-    return items;
+
+    // Дальше есть смысл идти, пока хотя бы один источник отдаёт полную страницу
+    return CatalogResultPage(
+      items: items,
+      hasMore: results[0].full || results[1].full,
+    );
   }
 
   /// Один запрос к /anime или /manga плюс фильтры, которые удобнее применить
   /// у себя (год, сезон, статус). Они же служат страховкой, если сервер не
   /// принял какой-то из «необязательных» параметров.
-  Future<List<MediaItem>> _list(CatalogQuery q, MediaType type) async {
+  Future<_Chunk> _list(CatalogQuery q, MediaType type, int page) async {
     final path = type == MediaType.anime ? '/anime' : '/manga';
-    final params = _params(q, type);
+    final params = _params(q, type, page);
 
     Map<String, dynamic> json;
     try {
@@ -104,7 +118,7 @@ class KitsuMediaRepository implements MediaRepository {
     }
 
     final now = DateTime.now().year;
-    return _toItems(json, type).where((item) {
+    final items = _toItems(json, type).where((item) {
       if (q.year != null && item.year != q.year) return false;
       if (q.season != null && item.season != q.season) return false;
       switch (q.category) {
@@ -118,6 +132,11 @@ class KitsuMediaRepository implements MediaRepository {
           return item.status == AiringStatus.finished;
       }
     }).toList();
+
+    // «Полная» считаем по сырому ответу, а не по отфильтрованному списку:
+    // фильтры у нас могут убрать почти всё, но на сервере записи ещё есть
+    final raw = json['data'];
+    return _Chunk(items, raw is List && raw.length >= _pageLimit);
   }
 
   @override
@@ -148,7 +167,7 @@ class KitsuMediaRepository implements MediaRepository {
   void clearCache() => _client.clearCache();
 
   /// Параметры запроса Kitsu из наших параметров каталога.
-  Map<String, String> _params(CatalogQuery q, MediaType type) {
+  Map<String, String> _params(CatalogQuery q, MediaType type, int page) {
     final text = q.text.trim();
     final now = DateTime.now().year;
     final isAnime = type == MediaType.anime;
@@ -156,6 +175,10 @@ class KitsuMediaRepository implements MediaRepository {
       'page[limit]': _pageSize,
       'include': 'categories',
     };
+
+    // Первая страница уходит без offset: адрес запроса не меняется,
+    // и сохранённые на диске ответы по-прежнему подходят
+    if (page > 0) params['page[offset]'] = '${page * _pageLimit}';
 
     if (text.isNotEmpty) params['filter[text]'] = text;
 
@@ -193,4 +216,12 @@ class KitsuMediaRepository implements MediaRepository {
   List<MediaItem> _toItems(Map<String, dynamic> json, MediaType type) {
     return [for (final dto in parseKitsuList(json)) dto.toDomain(type)];
   }
+}
+
+/// Результат одного запроса: записи после фильтров и «страница была полной».
+class _Chunk {
+  const _Chunk(this.items, this.full);
+
+  final List<MediaItem> items;
+  final bool full;
 }

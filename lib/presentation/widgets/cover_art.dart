@@ -36,10 +36,14 @@ class CoverArt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = CoverPalette.forSeed(seed);
+    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final w = constraints.maxWidth.isFinite ? constraints.maxWidth : 120.0;
+        // Ширина обложки в физических пикселях: больше декодировать незачем
+        final cacheWidth = (w * pixelRatio).round();
+
         return DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -71,6 +75,9 @@ class CoverArt extends StatelessWidget {
                     imageUrl: imageUrl!,
                     fit: BoxFit.cover,
                     alignment: Alignment.topCenter,
+                    // Без этого в памяти лежит постер в полном размере файла,
+                    // хотя на экране он шириной в одну колонку сетки
+                    memCacheWidth: cacheWidth > 0 ? cacheWidth : null,
                     fadeInDuration: const Duration(milliseconds: 200),
                     placeholder: (_, _) => const SizedBox.shrink(),
                     errorWidget: (_, _, _) => const SizedBox.shrink(),

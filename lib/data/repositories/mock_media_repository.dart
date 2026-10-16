@@ -1,5 +1,6 @@
 import 'package:nexora/data/mock/mock_data.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
+import 'package:nexora/domain/entities/catalog_result_page.dart';
 import 'package:nexora/domain/entities/home_feed.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/domain/repositories/media_repository.dart';
@@ -9,10 +10,14 @@ class MockMediaRepository implements MediaRepository {
   MockMediaRepository({
     this.homeDelay = const Duration(milliseconds: 600),
     this.searchDelay = const Duration(milliseconds: 350),
+    this.pageSize = 20,
   });
 
   final Duration homeDelay;
   final Duration searchDelay;
+
+  /// Сколько записей в одной странице (в тестах ставим поменьше).
+  final int pageSize;
 
   @override
   Future<HomeFeed> getHomeFeed() async {
@@ -81,6 +86,20 @@ class MockMediaRepository implements MediaRepository {
         result.sort((a, b) => a.title.compareTo(b.title));
     }
     return result;
+  }
+
+  /// Режем готовый отсортированный список на страницы по [pageSize].
+  @override
+  Future<CatalogResultPage> searchCatalogPage(
+      CatalogQuery query, {
+        int page = 0,
+      }) async {
+    final all = await searchCatalog(query);
+    final start = page * pageSize;
+    return CatalogResultPage(
+      items: all.skip(start).take(pageSize).toList(),
+      hasMore: start + pageSize < all.length,
+    );
   }
 
   @override
