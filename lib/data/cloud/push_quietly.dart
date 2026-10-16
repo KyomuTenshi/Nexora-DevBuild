@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 void pushQuietly(Future<void> Function() action) {
   unawaited(
     action().then<void>(
-          (_) {},
+      (_) {},
       onError: (Object error) => debugPrint('Облако: не отправлено ($error)'),
     ),
   );

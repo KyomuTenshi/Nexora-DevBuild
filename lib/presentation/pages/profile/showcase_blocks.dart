@@ -112,7 +112,9 @@ class _FavoriteTitleBlock extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final id = ref.watch(profileLayoutProvider.select((l) => l.favoriteTitleId));
+    final id = ref.watch(
+      profileLayoutProvider.select((l) => l.favoriteTitleId),
+    );
     final item = ref.watch(favoritesProvider)[id];
     final myRating = item == null ? null : ref.watch(ratingsProvider)[item.id];
 
@@ -120,62 +122,66 @@ class _FavoriteTitleBlock extends ConsumerWidget {
       title: 'Любимый тайтл',
       child: item == null
           ? const _Hint(
-        'Выберите любимый тайтл в редакторе профиля. Он берётся из избранного.',
-      )
+              'Выберите любимый тайтл в редакторе профиля. Он берётся из избранного.',
+            )
           : InkWell(
-        onTap: () => openDetail(context, item),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 96,
-              child: AspectRatio(
-                aspectRatio: 0.72,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: MediaCover(item: item),
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              onTap: () => openDetail(context, item),
+              child: Row(
                 children: [
-                  Text(
-                    item.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
+                  SizedBox(
+                    width: 96,
+                    child: AspectRatio(
+                      aspectRatio: 0.72,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: MediaCover(item: item),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${item.type.label} · ${item.year ?? '—'}',
-                    style: TextStyle(color: scheme.onSurfaceVariant),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.star_rounded,
-                          size: 18, color: scheme.primary),
-                      const SizedBox(width: 4),
-                      Text(
-                        myRating == null
-                            ? 'Вы ещё не оценили'
-                            : 'Ваша оценка: $myRating из 5',
-                        style:
-                        const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${item.type.label} · ${item.year ?? '—'}',
+                          style: TextStyle(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star_rounded,
+                              size: 18,
+                              color: scheme.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              myRating == null
+                                  ? 'Вы ещё не оценили'
+                                  : 'Ваша оценка: $myRating из 5',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -188,7 +194,9 @@ class _FavoritesBlock extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
-    final chosen = ref.watch(profileLayoutProvider.select((l) => l.favoriteIds));
+    final chosen = ref.watch(
+      profileLayoutProvider.select((l) => l.favoriteIds),
+    );
 
     // Выбранные по порядку; если ничего не выбрано, первые из избранного
     var items = [
@@ -199,35 +207,34 @@ class _FavoritesBlock extends ConsumerWidget {
 
     return ProfileCard(
       title: 'Любимое аниме и манга',
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => const FavoritesPage()),
-      ),
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => const FavoritesPage())),
       trailing: _chevron,
       child: items.isEmpty
           ? const _Hint(
-        'Нажмите на сердечко на странице тайтла, и он появится здесь.',
-      )
+              'Нажмите на сердечко на странице тайтла, и он появится здесь.',
+            )
           : Row(
-        children: [
-          for (var i = 0; i < kMaxFavorites; i++) ...[
-            if (i > 0) const SizedBox(width: 10),
-            Expanded(
-              child: i < items.length
-                  ? GestureDetector(
-                onTap: () => openDetail(context, items[i]),
-                child: AspectRatio(
-                  aspectRatio: 0.72,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: MediaCover(item: items[i]),
+              children: [
+                for (var i = 0; i < kMaxFavorites; i++) ...[
+                  if (i > 0) const SizedBox(width: 10),
+                  Expanded(
+                    child: i < items.length
+                        ? GestureDetector(
+                            onTap: () => openDetail(context, items[i]),
+                            child: AspectRatio(
+                              aspectRatio: 0.72,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: MediaCover(item: items[i]),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
-                ),
-              )
-                  : const SizedBox.shrink(),
+                ],
+              ],
             ),
-          ],
-        ],
-      ),
     );
   }
 }
@@ -240,12 +247,13 @@ class _NowWatchingBlock extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final entries = ref
-        .watch(libraryProvider)
-        .values
-        .where((e) => e.status == LibraryStatus.inProgress)
-        .toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final entries =
+        ref
+            .watch(libraryProvider)
+            .values
+            .where((e) => e.status == LibraryStatus.inProgress)
+            .toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final shown = entries.take(3).toList();
 
     return ProfileCard(
@@ -253,61 +261,61 @@ class _NowWatchingBlock extends ConsumerWidget {
       child: shown.isEmpty
           ? const _Hint('Начните смотреть или читать, и тайтл появится здесь.')
           : Column(
-        children: [
-          for (final e in shown)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: InkWell(
-                onTap: () => openDetail(context, e.item),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 48,
-                      height: 68,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: MediaCover(item: e.item),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final e in shown)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: InkWell(
+                      onTap: () => openDetail(context, e.item),
+                      child: Row(
                         children: [
-                          Text(
-                            e.item.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
+                          SizedBox(
+                            width: 48,
+                            height: 68,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: MediaCover(item: e.item),
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${e.item.type.label} · ${e.progress} / '
-                                '${e.item.totalUnits == 0 ? '?' : e.item.totalUnits} '
-                                '${e.item.type.unitShort}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: scheme.onSurfaceVariant,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  e.item.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${e.item.type.label} · ${e.progress} / '
+                                  '${e.item.totalUnits == 0 ? '?' : e.item.totalUnits} '
+                                  '${e.item.type.unitShort}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                ThinProgressBar(
+                                  value: e.fraction,
+                                  color: scheme.primary,
+                                  trackColor: scheme.surfaceContainerHighest,
+                                  height: 5,
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          ThinProgressBar(
-                            value: e.fraction,
-                            color: scheme.primary,
-                            trackColor: scheme.surfaceContainerHighest,
-                            height: 5,
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }
@@ -320,25 +328,26 @@ class _StatsBlock extends ConsumerWidget {
   const _StatsBlock();
 
   String _value(
-      StatKey key,
-      List<LibraryEntry> entries,
-      int favorites,
-      Map<int, int> ratings,
-      ) {
+    StatKey key,
+    List<LibraryEntry> entries,
+    int favorites,
+    Map<int, int> ratings,
+  ) {
     return switch (key) {
       StatKey.inLists => '${entries.length}',
       StatKey.completed =>
-      '${entries.where((e) => e.status == LibraryStatus.completed).length}',
+        '${entries.where((e) => e.status == LibraryStatus.completed).length}',
       StatKey.favorites => '$favorites',
       StatKey.rated => '${ratings.length}',
       StatKey.anime =>
-      '${entries.where((e) => e.item.type == MediaType.anime).length}',
+        '${entries.where((e) => e.item.type == MediaType.anime).length}',
       StatKey.manga =>
-      '${entries.where((e) => e.item.type == MediaType.manga).length}',
-      StatKey.average => ratings.isEmpty
-          ? '—'
-          : (ratings.values.fold<int>(0, (a, b) => a + b) / ratings.length)
-          .toStringAsFixed(1),
+        '${entries.where((e) => e.item.type == MediaType.manga).length}',
+      StatKey.average =>
+        ratings.isEmpty
+            ? '—'
+            : (ratings.values.fold<int>(0, (a, b) => a + b) / ratings.length)
+                  .toStringAsFixed(1),
     };
   }
 
@@ -365,47 +374,43 @@ class _StatsBlock extends ConsumerWidget {
       child: keys.isEmpty
           ? const _Hint('Выберите показатели в редакторе витрин.')
           : Column(
-        children: [
-          for (var i = 0; i < keys.length; i++) ...[
-            if (i > 0)
-              Divider(
-                height: 1,
-                color: scheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    _icon(keys[i]),
-                    size: 20,
-                    color: scheme.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      keys[i].label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
+              children: [
+                for (var i = 0; i < keys.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      color: scheme.outlineVariant.withValues(alpha: 0.5),
                     ),
-                  ),
-                  Text(
-                    _value(keys[i], entries, favorites, ratings),
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(_icon(keys[i]), size: 20, color: scheme.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            keys[i].label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _value(keys[i], entries, favorites, ratings),
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ],
-      ),
     );
   }
 }
@@ -435,43 +440,43 @@ class _RatingsBlock extends ConsumerWidget {
       child: ratings.isEmpty
           ? const _Hint('Оцените тайтлы звёздами, и здесь появится график.')
           : Column(
-        children: [
-          for (var s = 5; s >= 1; s--)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 30,
-                    child: Text(
-                      '$s ★',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
-                      ),
+              children: [
+                for (var s = 5; s >= 1; s--)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 30,
+                          child: Text(
+                            '$s ★',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ThinProgressBar(
+                            value: maxCount == 0 ? 0 : counts[s]! / maxCount,
+                            color: scheme.primary,
+                            trackColor: scheme.surfaceContainerHighest,
+                            height: 8,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 32,
+                          child: Text(
+                            '${counts[s]}',
+                            textAlign: TextAlign.end,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Expanded(
-                    child: ThinProgressBar(
-                      value: maxCount == 0 ? 0 : counts[s]! / maxCount,
-                      color: scheme.primary,
-                      trackColor: scheme.surfaceContainerHighest,
-                      height: 8,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 32,
-                    child: Text(
-                      '${counts[s]}',
-                      textAlign: TextAlign.end,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }
@@ -490,10 +495,10 @@ class _GenresBlock extends ConsumerWidget {
       child: genres.isEmpty
           ? const _Hint('Выберите жанры в разделе «Основное» редактора.')
           : Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [for (final g in genres) Chip(label: Text(g))],
-      ),
+              spacing: 8,
+              runSpacing: 8,
+              children: [for (final g in genres) Chip(label: Text(g))],
+            ),
     );
   }
 }

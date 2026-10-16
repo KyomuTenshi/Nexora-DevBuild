@@ -8,6 +8,7 @@ import 'package:nexora/presentation/widgets/cached_data_banner.dart';
 import 'package:nexora/presentation/widgets/empty_view.dart';
 import 'package:nexora/presentation/widgets/error_view.dart';
 import 'package:nexora/presentation/widgets/skeleton.dart';
+
 import 'catalog_grid.dart';
 import 'catalog_labels.dart';
 import 'catalog_search_bar.dart';
@@ -116,7 +117,7 @@ class _ResultsInfoRow extends ConsumerWidget {
               count == null
                   ? ''
                   : '$count${hasMore ? '+' : ''} '
-                  '${pluralRu(count, 'тайтл', 'тайтла', 'тайтлов')}',
+                        '${pluralRu(count, 'тайтл', 'тайтла', 'тайтлов')}',
               style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
             ),
           ),

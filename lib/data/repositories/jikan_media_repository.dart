@@ -39,12 +39,16 @@ class JikanMediaRepository implements MediaRepository {
     final popular = _toItems(responses[1], MediaType.anime);
 
     // Если «сейчас в эфире» пусто, карусель строим из популярного
-    final featuredSource = airing.isNotEmpty ? airing : popular.take(3).toList();
+    final featuredSource = airing.isNotEmpty
+        ? airing
+        : popular.take(3).toList();
     final featured = [
       for (final item in featuredSource)
         FeaturedBanner(
           item: item,
-          badge: item.status == AiringStatus.airing ? 'Сейчас в эфире' : 'Популярное',
+          badge: item.status == AiringStatus.airing
+              ? 'Сейчас в эфире'
+              : 'Популярное',
           caption: [
             if (item.year != null) '${item.year}',
             ...item.genres.take(2),
@@ -68,14 +72,15 @@ class JikanMediaRepository implements MediaRepository {
         _client.getJson('/manga', _params(query, MediaType.manga, limit)),
     ]);
 
-    final items = <MediaItem>[
-      ..._toItems(responses[0], MediaType.anime),
-      if (withManga) ..._toItems(responses[1], MediaType.manga),
-    ].where((item) {
-      if (query.season != null && item.season != query.season) return false;
-      if (query.studio != null && item.studio != query.studio) return false;
-      return true;
-    }).toList();
+    final items =
+        <MediaItem>[
+          ..._toItems(responses[0], MediaType.anime),
+          if (withManga) ..._toItems(responses[1], MediaType.manga),
+        ].where((item) {
+          if (query.season != null && item.season != query.season) return false;
+          if (query.studio != null && item.studio != query.studio) return false;
+          return true;
+        }).toList();
 
     switch (query.sort) {
       case CatalogSort.popularity:
@@ -92,9 +97,9 @@ class JikanMediaRepository implements MediaRepository {
   /// всё приходит одной страницей.
   @override
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      }) async {
+    CatalogQuery query, {
+    int page = 0,
+  }) async {
     if (page > 0) return const CatalogResultPage(items: [], hasMore: false);
     return CatalogResultPage(items: await searchCatalog(query), hasMore: false);
   }

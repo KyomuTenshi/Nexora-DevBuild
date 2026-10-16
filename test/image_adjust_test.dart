@@ -15,7 +15,13 @@ void main() {
     });
 
     test('сохраняется в JSON и читается обратно', () {
-      const adjust = ImageAdjust(scale: 2.5, tx: -0.4, ty: -0.2, dim: 0.3, blur: 5);
+      const adjust = ImageAdjust(
+        scale: 2.5,
+        tx: -0.4,
+        ty: -0.2,
+        dim: 0.3,
+        blur: 5,
+      );
       final restored = ImageAdjust.fromJson(
         jsonDecode(jsonEncode(adjust.toJson())) as Map<String, dynamic>,
       );

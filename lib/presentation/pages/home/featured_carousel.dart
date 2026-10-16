@@ -6,22 +6,23 @@ import 'package:nexora/domain/entities/home_feed.dart';
 import 'package:nexora/presentation/pages/detail/detail_page.dart';
 import 'package:nexora/presentation/pages/detail/detail_sheets.dart';
 import 'package:nexora/presentation/pages/player/watch_page.dart';
+import 'package:nexora/presentation/providers/device_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/widgets/hero_size.dart';
 import 'package:nexora/presentation/widgets/media_cover.dart';
 
 /// Большая карточка сверху (как на Кинопоиске): листается раз в 5 секунд,
-/// точки под ней кликабельны.
-class FeaturedCarousel extends StatefulWidget {
+/// точки под ней кликабельны. При экономии энергии сама не листается.
+class FeaturedCarousel extends ConsumerStatefulWidget {
   const FeaturedCarousel({super.key, required this.banners});
 
   final List<FeaturedBanner> banners;
 
   @override
-  State<FeaturedCarousel> createState() => _FeaturedCarouselState();
+  ConsumerState<FeaturedCarousel> createState() => _FeaturedCarouselState();
 }
 
-class _FeaturedCarouselState extends State<FeaturedCarousel> {
+class _FeaturedCarouselState extends ConsumerState<FeaturedCarousel> {
   final _controller = PageController();
   int _page = 0;
   Timer? _timer;
@@ -34,6 +35,10 @@ class _FeaturedCarouselState extends State<FeaturedCarousel> {
 
   void _startTimer() {
     _timer?.cancel();
+    _timer = null;
+    // Экономия энергии (узнали через Platform Channel): автолистание выключено
+    if (ref.read(deviceStatusProvider).shouldSaveEnergy) return;
+
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted || widget.banners.isEmpty || !_controller.hasClients) return;
       _controller.animateToPage(
@@ -53,6 +58,12 @@ class _FeaturedCarouselState extends State<FeaturedCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    // Режим энергосбережения включили или выключили: пересчитываем таймер
+    ref.listen(
+      deviceStatusProvider.select((s) => s.shouldSaveEnergy),
+      (_, _) => _startTimer(),
+    );
+
     if (widget.banners.isEmpty) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
 
@@ -88,9 +99,12 @@ class _FeaturedCarouselState extends State<FeaturedCarousel> {
                     curve: Curves.easeInOutCubic,
                   ),
                   child: Padding(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 3,
+                      vertical: 6,
+                    ),
                     child: AnimatedContainer(
+                      key: ValueKey('dot_$i'),
                       duration: const Duration(milliseconds: 250),
                       width: i == _page ? 20 : 7,
                       height: 7,
@@ -186,11 +200,8 @@ class _Slide extends ConsumerWidget {
                     Expanded(
                       flex: 5,
                       child: FilledButton.icon(
-                        onPressed: () => openWatch(
-                          context,
-                          item,
-                          episode: entry?.next ?? 1,
-                        ),
+                        onPressed: () =>
+                            openWatch(context, item, episode: entry?.next ?? 1),
                         style: FilledButton.styleFrom(
                           backgroundColor: scheme.primary,
                           foregroundColor: Colors.white,

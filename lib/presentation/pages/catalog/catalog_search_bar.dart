@@ -18,8 +18,9 @@ class CatalogSearchBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final hasFilters =
-    ref.watch(catalogQueryProvider.select((q) => q.hasFilters));
+    final hasFilters = ref.watch(
+      catalogQueryProvider.select((q) => q.hasFilters),
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),

@@ -33,28 +33,40 @@ void main() {
     final c = await makeContainer();
     final before = c.read(profileProvider).points;
 
-    expect(c.read(profileLayoutProvider.notifier).buy(ShowcaseType.nowWatching),
-        isTrue);
-    expect(c.read(profileProvider).points,
-        before - ShowcaseType.nowWatching.price);
-    expect(c.read(profileLayoutProvider).owned,
-        contains(ShowcaseType.nowWatching));
+    expect(
+      c.read(profileLayoutProvider.notifier).buy(ShowcaseType.nowWatching),
+      isTrue,
+    );
+    expect(
+      c.read(profileProvider).points,
+      before - ShowcaseType.nowWatching.price,
+    );
+    expect(
+      c.read(profileLayoutProvider).owned,
+      contains(ShowcaseType.nowWatching),
+    );
 
     // Повторно ничего не списывается
     c.read(profileLayoutProvider.notifier).buy(ShowcaseType.nowWatching);
-    expect(c.read(profileProvider).points,
-        before - ShowcaseType.nowWatching.price);
+    expect(
+      c.read(profileProvider).points,
+      before - ShowcaseType.nowWatching.price,
+    );
   });
 
   test('без очков витрину не купить', () async {
     final c = await makeContainer();
     c.read(profileProvider.notifier).edit((p) => p.copyWith(points: 10));
 
-    expect(c.read(profileLayoutProvider.notifier).buy(ShowcaseType.ratings),
-        isFalse);
+    expect(
+      c.read(profileLayoutProvider.notifier).buy(ShowcaseType.ratings),
+      isFalse,
+    );
     expect(c.read(profileProvider).points, 10);
-    expect(c.read(profileLayoutProvider).owned,
-        isNot(contains(ShowcaseType.ratings)));
+    expect(
+      c.read(profileLayoutProvider).owned,
+      isNot(contains(ShowcaseType.ratings)),
+    );
   });
 
   test('перестановка меняет порядок только открытых витрин', () async {
@@ -63,15 +75,21 @@ void main() {
     // Открытые: favorites, stats. Тянем первую в конец (индекс ReorderableListView = 2)
     c.read(profileLayoutProvider.notifier).reorderOwned(0, 2);
 
-    expect(c.read(profileLayoutProvider).shown,
-        [ShowcaseType.stats, ShowcaseType.favorites]);
-    expect(c.read(profileLayoutProvider).order.length,
-        ShowcaseType.values.length);
+    expect(c.read(profileLayoutProvider).shown, [
+      ShowcaseType.stats,
+      ShowcaseType.favorites,
+    ]);
+    expect(
+      c.read(profileLayoutProvider).order.length,
+      ShowcaseType.values.length,
+    );
   });
 
   test('скрытая витрина не показывается', () async {
     final c = await makeContainer();
-    c.read(profileLayoutProvider.notifier).setVisible(ShowcaseType.stats, false);
+    c
+        .read(profileLayoutProvider.notifier)
+        .setVisible(ShowcaseType.stats, false);
 
     expect(c.read(profileLayoutProvider).shown, [ShowcaseType.favorites]);
   });

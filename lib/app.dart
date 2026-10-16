@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/providers/cloud_sync_provider.dart';
 import 'presentation/providers/language_provider.dart';
 import 'presentation/providers/profile_provider.dart';
 import 'presentation/providers/push_provider.dart';
+import 'presentation/providers/shake_discover_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/widgets/achievement_toast.dart';
 import 'presentation/widgets/root_messenger.dart';
@@ -20,9 +22,11 @@ class NexoraApp extends ConsumerWidget {
     final language = ref.watch(languageProvider);
     final accent = ref.watch(profileProvider.select((p) => p.accent));
 
-    // Держим включёнными синхронизацию с облаком и push, пока работает приложение
+    // Держим включёнными синхронизацию с облаком, push и «встряхни»,
+    // пока работает приложение
     ref.watch(cloudSyncProvider);
     ref.watch(pushProvider);
+    ref.watch(shakeDiscoverProvider);
 
     return MaterialApp.router(
       title: 'Nexora',

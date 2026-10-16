@@ -33,13 +33,15 @@ class _ProfileInfoPageState extends ConsumerState<ProfileInfoPage> {
   }
 
   void _save() {
-    ref.read(profileLayoutProvider.notifier).edit(
+    ref
+        .read(profileLayoutProvider.notifier)
+        .edit(
           (l) => l.copyWith(
-        realName: _realName.text.trim(),
-        location: _location.text.trim(),
-        status: _status.text.trim(),
-      ),
-    );
+            realName: _realName.text.trim(),
+            location: _location.text.trim(),
+            status: _status.text.trim(),
+          ),
+        );
     Navigator.of(context).pop();
   }
 
@@ -48,9 +50,7 @@ class _ProfileInfoPageState extends ConsumerState<ProfileInfoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Информация'),
-        actions: [
-          TextButton(onPressed: _save, child: const Text('Сохранить')),
-        ],
+        actions: [TextButton(onPressed: _save, child: const Text('Сохранить'))],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

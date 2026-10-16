@@ -21,12 +21,14 @@ class LibraryNotifier extends Notifier<Map<int, LibraryEntry>> {
     if (status == LibraryStatus.completed && item.totalUnits > 0) {
       progress = item.totalUnits;
     }
-    _save(LibraryEntry(
-      item: item,
-      status: status,
-      progress: progress,
-      updatedAt: DateTime.now(),
-    ));
+    _save(
+      LibraryEntry(
+        item: item,
+        status: status,
+        progress: progress,
+        updatedAt: DateTime.now(),
+      ),
+    );
   }
 
   /// Отметить, сколько серий (глав) пройдено. За новые серии даём очки.
@@ -40,16 +42,19 @@ class LibraryNotifier extends Notifier<Map<int, LibraryEntry>> {
     if (item.totalUnits > 0 && progress >= item.totalUnits) {
       status = LibraryStatus.completed;
     } else if (progress > 0 &&
-        (status == LibraryStatus.completed || status == LibraryStatus.planned)) {
+        (status == LibraryStatus.completed ||
+            status == LibraryStatus.planned)) {
       status = LibraryStatus.inProgress;
     }
 
-    _save(LibraryEntry(
-      item: item,
-      status: status,
-      progress: progress,
-      updatedAt: DateTime.now(),
-    ));
+    _save(
+      LibraryEntry(
+        item: item,
+        status: status,
+        progress: progress,
+        updatedAt: DateTime.now(),
+      ),
+    );
 
     final delta = progress - oldProgress;
     if (delta > 0) {
@@ -78,5 +83,5 @@ class LibraryNotifier extends Notifier<Map<int, LibraryEntry>> {
 
 final libraryProvider =
     NotifierProvider<LibraryNotifier, Map<int, LibraryEntry>>(
-  LibraryNotifier.new,
-);
+      LibraryNotifier.new,
+    );

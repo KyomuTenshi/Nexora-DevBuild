@@ -14,11 +14,11 @@ class ProfilePrivacyPage extends ConsumerWidget {
     final notifier = ref.read(profileLayoutProvider.notifier);
 
     Widget tile(
-        String title,
-        String subtitle,
-        bool value,
-        ProfileLayout Function(ProfileLayout l, bool v) change,
-        ) {
+      String title,
+      String subtitle,
+      bool value,
+      ProfileLayout Function(ProfileLayout l, bool v) change,
+    ) {
       return SwitchListTile(
         title: Text(title),
         subtitle: Text(subtitle),
@@ -42,37 +42,37 @@ class ProfilePrivacyPage extends ConsumerWidget {
                   'Настоящее имя',
                   'Под вашим ником',
                   layout.showRealName,
-                      (l, v) => l.copyWith(showRealName: v),
+                  (l, v) => l.copyWith(showRealName: v),
                 ),
                 tile(
                   'Город или страна',
                   'Рядом с настоящим именем',
                   layout.showLocation,
-                      (l, v) => l.copyWith(showLocation: v),
+                  (l, v) => l.copyWith(showLocation: v),
                 ),
                 tile(
                   'Статус',
                   'Короткая фраза о себе',
                   layout.showStatus,
-                      (l, v) => l.copyWith(showStatus: v),
+                  (l, v) => l.copyWith(showStatus: v),
                 ),
                 tile(
                   'Уровень и опыт',
                   'Полоса опыта на странице',
                   layout.showLevel,
-                      (l, v) => l.copyWith(showLevel: v),
+                  (l, v) => l.copyWith(showLevel: v),
                 ),
                 tile(
                   'Что я смотрю сейчас',
                   'Строка «В сети · смотрит…»',
                   layout.showPresence,
-                      (l, v) => l.copyWith(showPresence: v),
+                  (l, v) => l.copyWith(showPresence: v),
                 ),
                 tile(
                   'Разделы',
                   'Аниме, Манга, Избранное, Списки, Отзывы',
                   layout.showSections,
-                      (l, v) => l.copyWith(showSections: v),
+                  (l, v) => l.copyWith(showSections: v),
                 ),
               ],
             ),
@@ -80,7 +80,7 @@ class ProfilePrivacyPage extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(
             'Витрины (${ShowcaseType.values.length} шт.) скрываются и показываются '
-                'в разделе «Витрины».',
+            'в разделе «Витрины».',
             style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
           ),
         ],

@@ -36,7 +36,9 @@ class HiveLibraryRepository implements LibraryRepository {
       final raw = _box.get(key);
       if (raw == null) continue;
       try {
-        result.add(libraryEntryFromJson(jsonDecode(raw) as Map<String, dynamic>));
+        result.add(
+          libraryEntryFromJson(jsonDecode(raw) as Map<String, dynamic>),
+        );
       } catch (_) {
         // Повреждённую запись пропускаем, остальные остаются
       }

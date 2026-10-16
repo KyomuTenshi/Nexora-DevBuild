@@ -74,11 +74,11 @@ class ImageAdjust {
   @override
   bool operator ==(Object other) =>
       other is ImageAdjust &&
-          other.scale == scale &&
-          other.tx == tx &&
-          other.ty == ty &&
-          other.dim == dim &&
-          other.blur == blur;
+      other.scale == scale &&
+      other.tx == tx &&
+      other.ty == ty &&
+      other.dim == dim &&
+      other.blur == blur;
 
   @override
   int get hashCode => Object.hash(scale, tx, ty, dim, blur);

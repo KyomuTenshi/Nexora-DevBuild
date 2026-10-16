@@ -68,9 +68,7 @@ class FirestoreCloudSyncRepository implements CloudSyncRepository {
 
   @override
   Future<void> saveLibraryEntry(String uid, LibraryEntry entry) {
-    return _library(uid)
-        .doc('${entry.item.id}')
-        .set(libraryEntryToJson(entry));
+    return _library(uid).doc('${entry.item.id}').set(libraryEntryToJson(entry));
   }
 
   @override
@@ -78,8 +76,8 @@ class FirestoreCloudSyncRepository implements CloudSyncRepository {
       _library(uid).doc('$itemId').delete();
 
   Future<QuerySnapshot<Map<String, dynamic>>> _read(
-      CollectionReference<Map<String, dynamic>> collection,
-      ) async {
+    CollectionReference<Map<String, dynamic>> collection,
+  ) async {
     try {
       return await collection.get().timeout(_readTimeout);
     } on TimeoutException {

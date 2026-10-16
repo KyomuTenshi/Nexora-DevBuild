@@ -46,8 +46,7 @@ class _WatchPageState extends ConsumerState<WatchPage> {
 
   bool get _finished => _position >= _duration;
 
-  int? get _total =>
-      widget.item.totalUnits > 0 ? widget.item.totalUnits : null;
+  int? get _total => widget.item.totalUnits > 0 ? widget.item.totalUnits : null;
 
   bool get _hasNext => _total == null || _episode < _total!;
 
@@ -71,10 +70,9 @@ class _WatchPageState extends ConsumerState<WatchPage> {
     // При первом запуске кладём тайтл в список «Смотрю»
     final entry = ref.read(libraryProvider)[widget.item.id];
     if (entry == null) {
-      ref.read(libraryProvider.notifier).setStatus(
-        widget.item,
-        LibraryStatus.inProgress,
-      );
+      ref
+          .read(libraryProvider.notifier)
+          .setStatus(widget.item, LibraryStatus.inProgress);
     }
     if (_finished) {
       _playing = false;
@@ -215,7 +213,9 @@ class _WatchPageState extends ConsumerState<WatchPage> {
                                       _counted = false;
                                     });
                                   }
-                                  setState(() => _playing = !_playing || _finished);
+                                  setState(
+                                    () => _playing = !_playing || _finished,
+                                  );
                                 },
                                 child: SizedBox(
                                   width: 72,
@@ -234,8 +234,9 @@ class _WatchPageState extends ConsumerState<WatchPage> {
                             IconButton(
                               iconSize: 40,
                               color: Colors.white,
-                              onPressed:
-                              _hasNext ? () => _goTo(_episode + 1) : null,
+                              onPressed: _hasNext
+                                  ? () => _goTo(_episode + 1)
+                                  : null,
                               icon: const Icon(Icons.skip_next_rounded),
                             ),
                           ],
@@ -253,7 +254,10 @@ class _WatchPageState extends ConsumerState<WatchPage> {
                                   thumbColor: Colors.white,
                                 ),
                                 child: Slider(
-                                  value: math.min(math.max(_position, 0.0), _duration),
+                                  value: math.min(
+                                    math.max(_position, 0.0),
+                                    _duration,
+                                  ),
                                   max: _duration,
                                   onChanged: (v) =>
                                       setState(() => _position = v),
@@ -263,12 +267,16 @@ class _WatchPageState extends ConsumerState<WatchPage> {
                                 children: [
                                   Text(
                                     _time(_position),
-                                    style: const TextStyle(color: Colors.white70),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
                                   ),
                                   const Spacer(),
                                   Text(
                                     _time(_duration),
-                                    style: const TextStyle(color: Colors.white70),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
                                   ),
                                 ],
                               ),

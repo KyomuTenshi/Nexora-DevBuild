@@ -21,17 +21,17 @@ class ShowcasesEditorPage extends ConsumerWidget {
   const ShowcasesEditorPage({super.key});
 
   Future<void> _buy(
-      BuildContext context,
-      WidgetRef ref,
-      ShowcaseType type,
-      ) async {
+    BuildContext context,
+    WidgetRef ref,
+    ShowcaseType type,
+  ) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Открыть «${type.title}»?'),
         content: Text(
           'Спишется ${formatNumber(type.price)} очков. '
-              'Витрина останется у вас навсегда.',
+          'Витрина останется у вас навсегда.',
         ),
         actions: [
           TextButton(
@@ -271,7 +271,10 @@ class _SheetFrame extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
               child: Text(
                 title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             Padding(
@@ -295,8 +298,9 @@ class _FavoriteTitlePicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(favoritesProvider).values.toList();
-    final current =
-    ref.watch(profileLayoutProvider.select((l) => l.favoriteTitleId));
+    final current = ref.watch(
+      profileLayoutProvider.select((l) => l.favoriteTitleId),
+    );
 
     return _SheetFrame(
       title: 'Любимый тайтл',
@@ -308,19 +312,25 @@ class _FavoriteTitlePicker extends ConsumerWidget {
         children: [
           for (final item in items)
             ListTile(
-              title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               subtitle: Text(item.type.label),
               trailing: item.id == current
                   ? Icon(
-                Icons.check_circle_rounded,
-                color: Theme.of(context).colorScheme.primary,
-              )
+                      Icons.check_circle_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
                   : null,
-              onTap: () => ref.read(profileLayoutProvider.notifier).edit(
+              onTap: () => ref
+                  .read(profileLayoutProvider.notifier)
+                  .edit(
                     (l) => l.copyWith(
-                  favoriteTitleId: item.id == current ? 0 : item.id,
-                ),
-              ),
+                      favoriteTitleId: item.id == current ? 0 : item.id,
+                    ),
+                  ),
             ),
         ],
       ),
@@ -334,8 +344,9 @@ class _FavoritesPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(favoritesProvider).values.toList();
-    final chosen =
-    ref.watch(profileLayoutProvider.select((l) => l.favoriteIds));
+    final chosen = ref.watch(
+      profileLayoutProvider.select((l) => l.favoriteIds),
+    );
 
     return _SheetFrame(
       title: 'Любимое аниме и манга',
@@ -347,7 +358,11 @@ class _FavoritesPicker extends ConsumerWidget {
         children: [
           for (final item in items)
             CheckboxListTile(
-              title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               subtitle: Text(item.type.label),
               value: chosen.contains(item.id),
               onChanged: (v) {

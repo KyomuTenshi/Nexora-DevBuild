@@ -62,9 +62,9 @@ class ApiClient {
 
   /// GET-запрос, который возвращает уже разобранный JSON-объект.
   Future<Map<String, dynamic>> getJson(
-      String path, [
-        Map<String, String>? query,
-      ]) {
+    String path, [
+    Map<String, String>? query,
+  ]) {
     final uri = Uri.parse('$baseUrl$path').replace(queryParameters: query);
     final key = uri.toString();
 
@@ -76,9 +76,12 @@ class ApiClient {
     final future = _fetch(uri);
     _memory[key] = _CacheEntry(DateTime.now(), future);
     // Неудачный ответ в кэше не храним, иначе «Повторить» вернёт ту же ошибку
-    future.then<void>((_) {}, onError: (Object _) {
-      if (_memory[key]?.future == future) _memory.remove(key);
-    });
+    future.then<void>(
+      (_) {},
+      onError: (Object _) {
+        if (_memory[key]?.future == future) _memory.remove(key);
+      },
+    );
     return future;
   }
 
@@ -126,7 +129,7 @@ class ApiClient {
   bool _canUseSaved(AppException error) => switch (error) {
     NetworkException() || RateLimitException() => true,
     ServerException(:final statusCode) => statusCode >= 500,
-  // Ошибки формата и авторизации кэшем не лечатся
+    // Ошибки формата и авторизации кэшем не лечатся
     ParseException() || AuthException() => false,
   };
 
@@ -139,7 +142,7 @@ class ApiClient {
   }
 
   Future<String> _fetchLive(Uri uri) async {
-    for (var attempt = 0;; attempt++) {
+    for (var attempt = 0; ; attempt++) {
       await _waitForSlot();
 
       final http.Response response;

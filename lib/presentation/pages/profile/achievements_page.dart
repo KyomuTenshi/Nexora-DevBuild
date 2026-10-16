@@ -105,7 +105,9 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                     for (final rarity in AchievementRarity.values)
                       _RarityStat(
                         rarity: rarity,
-                        got: unlocked.where((p) => p.def.rarity == rarity).length,
+                        got: unlocked
+                            .where((p) => p.def.rarity == rarity)
+                            .length,
                         total: all.where((p) => p.def.rarity == rarity).length,
                       ),
                   ],
@@ -141,8 +143,9 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
               unlockedAt: dates[p.def.id],
               pinned: pinned.contains(p.def.id),
               onPin: () {
-                final ok =
-                ref.read(profileProvider.notifier).togglePin(p.def.id);
+                final ok = ref
+                    .read(profileProvider.notifier)
+                    .togglePin(p.def.id);
                 if (!ok) {
                   showInfo(
                     context,

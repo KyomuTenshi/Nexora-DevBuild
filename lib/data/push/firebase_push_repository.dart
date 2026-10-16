@@ -62,10 +62,10 @@ class FirebasePushRepository implements PushRepository {
         .collection('devices')
         .doc(token)
         .set({
-      'token': token,
-      'platform': defaultTargetPlatform.name,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-    });
+          'token': token,
+          'platform': defaultTargetPlatform.name,
+          'updatedAt': DateTime.now().millisecondsSinceEpoch,
+        });
   }
 
   PushMessage _convert(RemoteMessage message) {

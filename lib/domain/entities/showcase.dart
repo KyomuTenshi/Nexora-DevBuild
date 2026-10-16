@@ -40,8 +40,8 @@ extension ShowcaseInfo on ShowcaseType {
   /// Есть ли у витрины настройка (выбор тайтлов или чисел).
   bool get configurable =>
       this == ShowcaseType.favoriteTitle ||
-          this == ShowcaseType.favorites ||
-          this == ShowcaseType.stats;
+      this == ShowcaseType.favorites ||
+      this == ShowcaseType.stats;
 }
 
 /// Числа, которые можно вывести в витрине «Статистика».

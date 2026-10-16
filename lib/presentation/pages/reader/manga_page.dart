@@ -13,10 +13,7 @@ class MangaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size.infinite,
-      painter: _MangaPainter(seed, dark),
-    );
+    return CustomPaint(size: Size.infinite, painter: _MangaPainter(seed, dark));
   }
 }
 
@@ -64,7 +61,13 @@ class _MangaPainter extends CustomPainter {
     }
   }
 
-  void _panel(Canvas canvas, Rect rect, math.Random rnd, Color ink, Color paper) {
+  void _panel(
+    Canvas canvas,
+    Rect rect,
+    math.Random rnd,
+    Color ink,
+    Color paper,
+  ) {
     final tone = const [0.0, 0.08, 0.16][rnd.nextInt(3)];
     canvas.drawRect(rect, Paint()..color = Color.lerp(paper, ink, tone)!);
 
@@ -86,7 +89,10 @@ class _MangaPainter extends CustomPainter {
         }
       case 1: // тёмный треугольник
         final path = Path()
-          ..moveTo(rect.left + rect.width * 0.1, rect.bottom - rect.height * 0.1)
+          ..moveTo(
+            rect.left + rect.width * 0.1,
+            rect.bottom - rect.height * 0.1,
+          )
           ..lineTo(rect.right, rect.top + rect.height * 0.15)
           ..lineTo(rect.right, rect.top + rect.height * 0.55)
           ..close();

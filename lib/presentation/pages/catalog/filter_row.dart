@@ -29,7 +29,8 @@ class FilterRow extends ConsumerWidget {
             label: 'Год',
             value: query.year?.toString(),
             options: kYears,
-            onSelected: (v) => notifier.setYear(v == null ? null : int.tryParse(v)),
+            onSelected: (v) =>
+                notifier.setYear(v == null ? null : int.tryParse(v)),
           ),
           const SizedBox(width: 8),
           _FilterPill(

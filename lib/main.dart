@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'app.dart';
 import 'core/constants/api_constants.dart';
 import 'core/di/auth_providers.dart';
@@ -32,6 +33,9 @@ import 'data/repositories/in_memory_library_repository.dart';
 import 'data/repositories/in_memory_ratings_repository.dart';
 import 'data/repositories/overpass_places_repository.dart';
 import 'firebase_options.dart';
+import 'core/di/device_providers.dart';
+import 'data/platform/platform_device_status_repository.dart';
+import 'data/sensors/sensors_shake_repository.dart';
 
 Future<void> main() async {
   // Нужно, чтобы вызывать платформенный код до runApp
@@ -113,6 +117,11 @@ Future<void> main() async {
         placesRepositoryProvider.overrideWithValue(
           OverpassPlacesRepository(overpass),
         ),
+        // Нативный Kotlin-канал (батарея) и акселерометр (встряска)
+        deviceStatusRepositoryProvider.overrideWithValue(
+          PlatformDeviceStatusRepository(),
+        ),
+        shakeRepositoryProvider.overrideWithValue(SensorsShakeRepository()),
       ],
       child: const NexoraApp(),
     ),

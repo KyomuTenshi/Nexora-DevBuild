@@ -60,5 +60,5 @@ class ReviewsNotifier extends Notifier<Map<int, List<Review>>> {
 
 final reviewsProvider =
     NotifierProvider<ReviewsNotifier, Map<int, List<Review>>>(
-  ReviewsNotifier.new,
-);
+      ReviewsNotifier.new,
+    );

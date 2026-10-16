@@ -23,9 +23,8 @@ Future<void> showOptionSheet(
         Navigator.of(sheetContext).pop();
       }
 
-      Widget? check(bool isSelected) => isSelected
-          ? Icon(Icons.check_rounded, color: scheme.primary)
-          : null;
+      Widget? check(bool isSelected) =>
+          isSelected ? Icon(Icons.check_rounded, color: scheme.primary) : null;
 
       final totalItems = options.length + 1;
 
@@ -39,7 +38,9 @@ Future<void> showOptionSheet(
               child: Text(
                 title,
                 style: const TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.w800),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             Flexible(

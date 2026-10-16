@@ -48,8 +48,9 @@ class AchievementIcon extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final color = rarityColor(def.rarity);
     final locked = !unlocked;
-    final mainColor =
-    locked ? scheme.onSurfaceVariant.withValues(alpha: 0.45) : color;
+    final mainColor = locked
+        ? scheme.onSurfaceVariant.withValues(alpha: 0.45)
+        : color;
 
     return Container(
       width: size,
@@ -60,13 +61,13 @@ class AchievementIcon extends StatelessWidget {
         gradient: locked
             ? null
             : LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.38),
-            color.withValues(alpha: 0.10),
-          ],
-        ),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withValues(alpha: 0.38),
+                  color.withValues(alpha: 0.10),
+                ],
+              ),
         border: Border.all(color: mainColor, width: 2),
       ),
       child: Icon(

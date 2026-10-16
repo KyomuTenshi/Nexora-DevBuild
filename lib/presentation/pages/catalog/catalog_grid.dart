@@ -71,7 +71,7 @@ class PagedCatalogGrid extends ConsumerWidget {
             sliver: SliverGrid(
               gridDelegate: _kCardGrid,
               delegate: SliverChildBuilderDelegate(
-                    (context, index) => CatalogCard(
+                (context, index) => CatalogCard(
                   // Ключ по id: при смене списка Flutter переиспользует
                   // уже построенные карточки тех же тайтлов
                   key: ValueKey(items[index].id),
@@ -128,10 +128,7 @@ class _LoadMoreFooter extends ConsumerWidget {
         child: const Text('Показать ещё'),
       );
     } else {
-      child = Text(
-        'Это всё',
-        style: TextStyle(color: scheme.onSurfaceVariant),
-      );
+      child = Text('Это всё', style: TextStyle(color: scheme.onSurfaceVariant));
     }
 
     return Padding(

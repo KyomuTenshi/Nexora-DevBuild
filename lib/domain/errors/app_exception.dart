@@ -23,7 +23,7 @@ class RateLimitException extends AppException {
 /// Сервер ответил ошибкой (HTTP 4xx или 5xx).
 class ServerException extends AppException {
   const ServerException(this.statusCode)
-      : super('Сервер ответил кодом $statusCode');
+    : super('Сервер ответил кодом $statusCode');
 
   final int statusCode;
 }
@@ -48,7 +48,7 @@ enum AuthFailure {
 /// реализация переводит свои коды в [AuthFailure].
 class AuthException extends AppException {
   const AuthException(this.failure, [String details = ''])
-      : super('Ошибка авторизации: $details');
+    : super('Ошибка авторизации: $details');
 
   final AuthFailure failure;
 }

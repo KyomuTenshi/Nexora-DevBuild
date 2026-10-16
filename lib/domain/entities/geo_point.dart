@@ -14,7 +14,8 @@ class GeoPoint {
 
     final dLat = rad(other.latitude - latitude);
     final dLon = rad(other.longitude - longitude);
-    final a = math.pow(math.sin(dLat / 2), 2) +
+    final a =
+        math.pow(math.sin(dLat / 2), 2) +
         math.cos(rad(latitude)) *
             math.cos(rad(other.latitude)) *
             math.pow(math.sin(dLon / 2), 2);
@@ -24,8 +25,8 @@ class GeoPoint {
   @override
   bool operator ==(Object other) =>
       other is GeoPoint &&
-          other.latitude == latitude &&
-          other.longitude == longitude;
+      other.latitude == latitude &&
+      other.longitude == longitude;
 
   @override
   int get hashCode => Object.hash(latitude, longitude);

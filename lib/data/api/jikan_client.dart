@@ -47,9 +47,9 @@ class JikanClient {
 
   /// GET-запрос, который возвращает уже разобранный JSON-объект.
   Future<Map<String, dynamic>> getJson(
-      String path, [
-        Map<String, String>? query,
-      ]) {
+    String path, [
+    Map<String, String>? query,
+  ]) {
     final uri = Uri.parse('$baseUrl$path').replace(queryParameters: query);
     final key = uri.toString();
 
@@ -61,9 +61,12 @@ class JikanClient {
     final future = _fetch(uri);
     _cache[key] = _CacheEntry(DateTime.now(), future);
     // Неудачный ответ в кэше не храним, иначе «Повторить» вернёт ту же ошибку
-    future.then<void>((_) {}, onError: (Object _) {
-      if (_cache[key]?.future == future) _cache.remove(key);
-    });
+    future.then<void>(
+      (_) {},
+      onError: (Object _) {
+        if (_cache[key]?.future == future) _cache.remove(key);
+      },
+    );
     return future;
   }
 
@@ -82,7 +85,7 @@ class JikanClient {
   }
 
   Future<Map<String, dynamic>> _fetch(Uri uri) async {
-    for (var attempt = 0;; attempt++) {
+    for (var attempt = 0; ; attempt++) {
       await _waitForSlot();
 
       final http.Response response;

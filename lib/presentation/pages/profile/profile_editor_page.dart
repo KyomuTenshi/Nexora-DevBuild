@@ -20,8 +20,9 @@ class ProfileEditorPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final ownedCount =
-    ref.watch(profileLayoutProvider.select((l) => l.owned.length));
+    final ownedCount = ref.watch(
+      profileLayoutProvider.select((l) => l.owned.length),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Редактирование профиля')),
@@ -59,7 +60,7 @@ class ProfileEditorPage extends ConsumerWidget {
                   icon: Icons.dashboard_customize_outlined,
                   title: 'Витрины',
                   subtitle:
-                  'Открыто $ownedCount из ${ShowcaseType.values.length}',
+                      'Открыто $ownedCount из ${ShowcaseType.values.length}',
                   onTap: () => _push(context, const ShowcasesEditorPage()),
                 ),
                 const Divider(height: 1, indent: 56),

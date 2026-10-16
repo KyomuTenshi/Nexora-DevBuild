@@ -44,8 +44,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   final _pager = PageController();
   double _pageExtent = 600; // высота одной страницы в режиме ленты
 
-  int? get _total =>
-      widget.item.totalUnits > 0 ? widget.item.totalUnits : null;
+  int? get _total => widget.item.totalUnits > 0 ? widget.item.totalUnits : null;
 
   @override
   void initState() {
@@ -117,7 +116,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     final isLast = _total != null && _chapter >= _total!;
 
     return Scaffold(
-      backgroundColor: _dark ? const Color(0xFF16161C) : const Color(0xFFE9E5D8),
+      backgroundColor: _dark
+          ? const Color(0xFF16161C)
+          : const Color(0xFFE9E5D8),
       body: Stack(
         children: [
           // Сами страницы: тап по ним прячет и показывает панели
@@ -195,7 +196,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
                   children: [
                     Expanded(
                       child: Text(
-                        isLast ? 'Это последняя глава' : 'Глава $_chapter прочитана',
+                        isLast
+                            ? 'Это последняя глава'
+                            : 'Глава $_chapter прочитана',
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -310,8 +313,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
                   children: [
                     const Text(
                       'Настройки чтения',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text('Режим'),

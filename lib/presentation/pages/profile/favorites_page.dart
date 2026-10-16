@@ -16,10 +16,10 @@ class FavoritesPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Избранное')),
       body: favorites.isEmpty
           ? const EmptyView(
-        icon: Icons.favorite_border_rounded,
-        title: 'Пока ничего нет',
-        message: 'Нажмите на сердечко на странице тайтла.',
-      )
+              icon: Icons.favorite_border_rounded,
+              title: 'Пока ничего нет',
+              message: 'Нажмите на сердечко на странице тайтла.',
+            )
           : CatalogGrid(items: favorites),
     );
   }

@@ -48,10 +48,12 @@ class ProfileLayoutNotifier extends Notifier<ProfileLayout> {
     ref
         .read(profileProvider.notifier)
         .edit((p) => p.copyWith(points: p.points - type.price));
-    _commit(state.copyWith(
-      owned: {...state.owned, type},
-      hidden: {...state.hidden}..remove(type),
-    ));
+    _commit(
+      state.copyWith(
+        owned: {...state.owned, type},
+        hidden: {...state.hidden}..remove(type),
+      ),
+    );
     return true;
   }
 
@@ -86,6 +88,6 @@ class ProfileLayoutNotifier extends Notifier<ProfileLayout> {
 }
 
 final profileLayoutProvider =
-NotifierProvider<ProfileLayoutNotifier, ProfileLayout>(
-  ProfileLayoutNotifier.new,
-);
+    NotifierProvider<ProfileLayoutNotifier, ProfileLayout>(
+      ProfileLayoutNotifier.new,
+    );

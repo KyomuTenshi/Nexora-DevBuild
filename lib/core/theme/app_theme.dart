@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'app_colors.dart';
 
 /// Тема собирается под выбранный пользователем акцентный цвет.
@@ -13,25 +14,29 @@ class AppTheme {
     final isDark = brightness == Brightness.dark;
 
     // fromSeed даёт основу палитры, а copyWith принудительно задаёт цвета макета.
-    final scheme = ColorScheme.fromSeed(
-      seedColor: accent,
-      brightness: brightness,
-    ).copyWith(
-      primary: accent,
-      onPrimary: Colors.white,
-      surface: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      surfaceContainerHighest:
-          isDark ? AppColors.darkSurfaceHigh : AppColors.lightSurfaceHigh,
-      onSurface: isDark ? AppColors.darkText : AppColors.lightText,
-      onSurfaceVariant:
-          isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: accent,
+          brightness: brightness,
+        ).copyWith(
+          primary: accent,
+          onPrimary: Colors.white,
+          surface: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          surfaceContainerHighest: isDark
+              ? AppColors.darkSurfaceHigh
+              : AppColors.lightSurfaceHigh,
+          onSurface: isDark ? AppColors.darkText : AppColors.lightText,
+          onSurfaceVariant: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
+        );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor:
-          isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      scaffoldBackgroundColor: isDark
+          ? AppColors.darkBackground
+          : AppColors.lightBackground,
       // Переходы между экранами как в iOS: свайп от края возвращает назад.
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
@@ -91,12 +96,16 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
       dividerTheme: DividerThemeData(

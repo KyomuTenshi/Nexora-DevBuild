@@ -36,8 +36,8 @@ class HiveFavoritesRepository implements FavoritesRepository {
       try {
         final json = jsonDecode(raw) as Map<String, dynamic>;
         found.add((
-        addedAt: json['addedAt'] as int,
-        item: mediaItemFromJson(json['item'] as Map<String, dynamic>),
+          addedAt: json['addedAt'] as int,
+          item: mediaItemFromJson(json['item'] as Map<String, dynamic>),
         ));
       } catch (_) {
         // Повреждённую запись пропускаем

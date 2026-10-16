@@ -114,13 +114,11 @@ class _SetStateDemoState extends State<_SetStateDemo> {
   Widget build(BuildContext context) {
     return _DemoCard(
       title: '1. setState',
-      description: 'Счётчик хранится здесь и спускается вниз через '
+      description:
+          'Счётчик хранится здесь и спускается вниз через '
           'параметры каждого виджета по пути. Удобно для одного экрана, '
           'неудобно, когда виджетов между ними много.',
-      child: _Middle(
-        count: _count,
-        onAdd: () => setState(() => _count++),
-      ),
+      child: _Middle(count: _count, onAdd: () => setState(() => _count++)),
     );
   }
 }
@@ -183,7 +181,8 @@ class _InheritedDemoState extends State<_InheritedDemo> {
       onAdd: () => setState(() => _count++),
       child: const _DemoCard(
         title: '2. InheritedWidget',
-        description: 'Данные лежат над деревом, нужный виджет сам берёт их '
+        description:
+            'Данные лежат над деревом, нужный виджет сам берёт их '
             'через context. Промежуточные виджеты ничего не знают. '
             'Но код приходится писать вручную, поэтому появился provider.',
         child: _ScopeCounter(),
@@ -231,7 +230,8 @@ class _ProviderDemo extends StatelessWidget {
       create: (_) => _CounterModel(),
       child: const _DemoCard(
         title: '3. provider',
-        description: 'ChangeNotifierProvider создаёт модель, watch() '
+        description:
+            'ChangeNotifierProvider создаёт модель, watch() '
             'подписывает виджет на изменения, read() только вызывает метод. '
             'Минимум кода и нет ручного InheritedWidget.',
         child: _ProviderCounter(),

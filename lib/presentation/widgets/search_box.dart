@@ -117,14 +117,17 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
   Widget _buildOverlay(BuildContext context) {
     final box = _fieldKey.currentContext?.findRenderObject() as RenderBox?;
     final size = box?.size ?? Size.zero;
-    final fieldBottom =
-    box == null ? 0.0 : box.localToGlobal(Offset(0, box.size.height)).dy;
+    final fieldBottom = box == null
+        ? 0.0
+        : box.localToGlobal(Offset(0, box.size.height)).dy;
     final media = MediaQuery.of(context);
 
     // Панель не должна уходить под клавиатуру
     final maxHeight =
-    (media.size.height - media.viewInsets.bottom - fieldBottom - 16)
-        .clamp(160.0, 520.0);
+        (media.size.height - media.viewInsets.bottom - fieldBottom - 16).clamp(
+          160.0,
+          520.0,
+        );
 
     return Stack(
       children: [
@@ -161,13 +164,15 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
     final scheme = Theme.of(context).colorScheme;
 
     // Текст изменили снаружи (например, «Сбросить»): обновляем поле
-    ref.listen<String>(catalogQueryProvider.select((q) => q.text),
-            (previous, next) {
-          if (_controller.text != next) {
-            _controller.text = next;
-            _controller.selection = TextSelection.collapsed(offset: next.length);
-          }
-        });
+    ref.listen<String>(catalogQueryProvider.select((q) => q.text), (
+      previous,
+      next,
+    ) {
+      if (_controller.text != next) {
+        _controller.text = next;
+        _controller.selection = TextSelection.collapsed(offset: next.length);
+      }
+    });
 
     return OverlayPortal(
       controller: _portal,
@@ -311,9 +316,9 @@ class _Suggestions extends ConsumerWidget {
     final pool = feed == null
         ? <MediaItem>[]
         : <MediaItem>{
-      for (final b in feed.featured) b.item,
-      ...feed.popular,
-    }.toList();
+            for (final b in feed.featured) b.item,
+            ...feed.popular,
+          }.toList();
     pool.shuffle(Random(seed + 1));
     final picks = pool.take(4).toList();
 

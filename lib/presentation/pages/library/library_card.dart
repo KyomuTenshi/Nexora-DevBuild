@@ -23,9 +23,11 @@ class LibraryCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final item = entry.item;
-    final isFavorite =
-    ref.watch(favoritesProvider.select((s) => s.containsKey(item.id)));
-    final hasNew = item.type == MediaType.anime &&
+    final isFavorite = ref.watch(
+      favoritesProvider.select((s) => s.containsKey(item.id)),
+    );
+    final hasNew =
+        item.type == MediaType.anime &&
         item.status == AiringStatus.airing &&
         entry.status == LibraryStatus.inProgress;
     final completed = entry.status == LibraryStatus.completed;
@@ -180,7 +182,10 @@ Future<void> showEntryActions(BuildContext context, LibraryEntry entry) {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.delete_outline_rounded, color: scheme.error),
+                leading: Icon(
+                  Icons.delete_outline_rounded,
+                  color: scheme.error,
+                ),
                 title: Text(
                   'Убрать из библиотеки',
                   style: TextStyle(color: scheme.error),

@@ -41,8 +41,9 @@ class KitsuMediaRepository implements MediaRepository {
     final popular = _toItems(responses[1], MediaType.anime);
 
     // Если «сейчас в эфире» пусто, карусель строим из популярного
-    final featuredSource =
-    airing.isNotEmpty ? airing : popular.take(3).toList();
+    final featuredSource = airing.isNotEmpty
+        ? airing
+        : popular.take(3).toList();
     final featured = [
       for (final item in featuredSource)
         FeaturedBanner(
@@ -66,15 +67,15 @@ class KitsuMediaRepository implements MediaRepository {
 
   @override
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      }) async {
+    CatalogQuery query, {
+    int page = 0,
+  }) async {
     // Студии в основном ответе Kitsu нет, поэтому фильтр студии не применяется.
     final anime = _list(query, MediaType.anime, page);
     // Если с мангой что-то не так (сервер ответил ошибкой), показываем аниме.
     // Сбой сети по-прежнему считается ошибкой всего экрана.
     final manga = _list(query, MediaType.manga, page).catchError(
-          (Object _) => const _Chunk([], false),
+      (Object _) => const _Chunk([], false),
       test: (error) => error is ServerException,
     );
 

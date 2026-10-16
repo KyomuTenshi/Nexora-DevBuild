@@ -21,12 +21,15 @@ Future<ProviderContainer> _makeContainer({required bool seeded}) async {
   final container = ProviderContainer(
     overrides: [
       prefsProvider.overrideWithValue(prefs),
-      libraryRepositoryProvider
-          .overrideWithValue(InMemoryLibraryRepository(seeded: seeded)),
-      favoritesRepositoryProvider
-          .overrideWithValue(InMemoryFavoritesRepository(seeded: seeded)),
-      ratingsRepositoryProvider
-          .overrideWithValue(InMemoryRatingsRepository(seeded: seeded)),
+      libraryRepositoryProvider.overrideWithValue(
+        InMemoryLibraryRepository(seeded: seeded),
+      ),
+      favoritesRepositoryProvider.overrideWithValue(
+        InMemoryFavoritesRepository(seeded: seeded),
+      ),
+      ratingsRepositoryProvider.overrideWithValue(
+        InMemoryRatingsRepository(seeded: seeded),
+      ),
     ],
   );
   addTearDown(container.dispose);
@@ -54,7 +57,9 @@ void main() {
     });
 
     test('скрытое достижение открывается по двум условиям', () {
-      final half = evaluateAchievements(const AchievementStats(animeCompleted: 1));
+      final half = evaluateAchievements(
+        const AchievementStats(animeCompleted: 1),
+      );
       expect(_find(half, 'double_life').unlocked, isFalse);
 
       final both = evaluateAchievements(
@@ -66,17 +71,19 @@ void main() {
   });
 
   group('Выдача достижений', () {
-    test('при запуске выполненное записывается тихо: без очков и плашки',
-            () async {
-          final container = await _makeContainer(seeded: true);
-          final pointsBefore = container.read(profileProvider).points;
+    test(
+      'при запуске выполненное записывается тихо: без очков и плашки',
+      () async {
+        final container = await _makeContainer(seeded: true);
+        final pointsBefore = container.read(profileProvider).points;
 
-          final dates = container.read(achievementsProvider);
+        final dates = container.read(achievementsProvider);
 
-          expect(dates.containsKey('first_step'), isTrue);
-          expect(container.read(profileProvider).points, pointsBefore);
-          expect(container.read(achievementToastProvider), isEmpty);
-        });
+        expect(dates.containsKey('first_step'), isTrue);
+        expect(container.read(profileProvider).points, pointsBefore);
+        expect(container.read(achievementToastProvider), isEmpty);
+      },
+    );
 
     test('новое достижение даёт очки и плашку', () async {
       final container = await _makeContainer(seeded: false);
@@ -88,8 +95,10 @@ void main() {
           .setStatus(MockData.onePiece, LibraryStatus.planned);
       await Future<void>.delayed(Duration.zero);
 
-      expect(container.read(achievementsProvider).containsKey('first_step'),
-          isTrue);
+      expect(
+        container.read(achievementsProvider).containsKey('first_step'),
+        isTrue,
+      );
       expect(
         container.read(profileProvider).points,
         greaterThanOrEqualTo(pointsBefore + 50),

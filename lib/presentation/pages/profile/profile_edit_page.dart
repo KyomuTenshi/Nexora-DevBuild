@@ -7,6 +7,7 @@ import 'package:nexora/presentation/pages/profile/image_adjust_page.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/profile_widgets.dart';
+import 'package:nexora/presentation/widgets/image_source_sheet.dart';
 
 /// Настройки профиля: фото, имя, инициалы, о себе, цвет интерфейса, жанры.
 /// Витрины настраиваются отдельно: Редактировать профиль → Витрины.
@@ -61,12 +62,15 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     );
   }
 
-  /// Открывает галерею, применяет фото и сразу открывает его настройку.
+  /// Спрашивает источник (галерея или камера), применяет фото
+  /// и сразу открывает его настройку.
   Future<void> _pick(ProfileImageKind kind) async {
     if (_busy) return;
+    final source = await showImageSourceSheet(context);
+    if (source == null || !mounted) return;
     setState(() => _busy = true);
     try {
-      final path = await ProfileImages.pick(kind);
+      final path = await ProfileImages.pick(kind, source: source);
       if (path == null || !mounted) return;
 
       final notifier = ref.read(profileProvider.notifier);
@@ -115,15 +119,17 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
         ? initialsOf(name)
         : _avatar.text.trim().toUpperCase();
 
-    ref.read(profileProvider.notifier).edit(
+    ref
+        .read(profileProvider.notifier)
+        .edit(
           (p) => p.copyWith(
-        name: name,
-        avatarText: avatar,
-        bio: _bio.text.trim(),
-        accentIndex: _accent,
-        genres: _genres.toList(),
-      ),
-    );
+            name: name,
+            avatarText: avatar,
+            bio: _bio.text.trim(),
+            accentIndex: _accent,
+            genres: _genres.toList(),
+          ),
+        );
     Navigator.of(context).pop();
     showInfo(context, 'Профиль сохранён');
   }

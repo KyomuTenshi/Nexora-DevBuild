@@ -24,6 +24,9 @@ class FakePlacesRepository implements PlacesRepository {
     lastCategory = category;
     final error = this.error;
     if (error != null) throw error;
-    return [for (final p in places) if (p.category == category) p];
+    return [
+      for (final p in places)
+        if (p.category == category) p,
+    ];
   }
 }

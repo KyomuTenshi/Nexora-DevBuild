@@ -45,9 +45,9 @@ class KitsuMediaDto {
 
   /// [categories] — словарь id категории -> название, собранный из `included`.
   factory KitsuMediaDto.fromResource(
-      Map<String, dynamic> json,
-      Map<String, String> categories,
-      ) {
+    Map<String, dynamic> json,
+    Map<String, String> categories,
+  ) {
     final id = int.tryParse('${json['id']}');
     final attributes = json['attributes'];
     if (id == null || attributes is! Map) {
@@ -55,7 +55,8 @@ class KitsuMediaDto {
     }
 
     final titles = attributes['titles'];
-    final title = _text(titles is Map ? titles['en'] : null) ??
+    final title =
+        _text(titles is Map ? titles['en'] : null) ??
         _text(attributes['canonicalTitle']) ??
         _text(titles is Map ? titles['en_jp'] : null);
     if (title == null) {
@@ -65,10 +66,12 @@ class KitsuMediaDto {
     return KitsuMediaDto(
       id: id,
       title: title,
-      imageUrl: _text(_dig(attributes, ['posterImage', 'large'])) ??
+      imageUrl:
+          _text(_dig(attributes, ['posterImage', 'large'])) ??
           _text(_dig(attributes, ['posterImage', 'original'])) ??
           _text(_dig(attributes, ['posterImage', 'medium'])),
-      posterHdUrl: _text(_dig(attributes, ['posterImage', 'original'])) ??
+      posterHdUrl:
+          _text(_dig(attributes, ['posterImage', 'original'])) ??
           _text(_dig(attributes, ['posterImage', 'large'])),
       averageRating: double.tryParse('${attributes['averageRating']}'),
       userCount: _int(attributes['userCount']),
@@ -130,9 +133,9 @@ class KitsuMediaDto {
   /// Жанры тайтла. Известные нам (из kGenreSlugs) идут первыми, остальные
   /// после них. Всего берём не больше шести, чтобы не заполнять экран тегами.
   static List<String> _genres(
-      Map<String, dynamic> json,
-      Map<String, String> categories,
-      ) {
+    Map<String, dynamic> json,
+    Map<String, String> categories,
+  ) {
     final data = _dig(json, ['relationships', 'categories', 'data']);
     if (data is! List) return const [];
 
@@ -155,9 +158,9 @@ class KitsuMediaDto {
     if (text == null) return '';
     return text
         .replaceAll(
-      RegExp(r'\s*[\(\[](Source|Written by)[^\)\]]*[\)\]]\s*$'),
-      '',
-    )
+          RegExp(r'\s*[\(\[](Source|Written by)[^\)\]]*[\)\]]\s*$'),
+          '',
+        )
         .replaceAll('\r\n', '\n')
         .trim();
   }

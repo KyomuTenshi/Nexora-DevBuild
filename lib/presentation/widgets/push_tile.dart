@@ -16,9 +16,10 @@ class PushTile extends ConsumerWidget {
     final status = switch (push.permission) {
       null => 'Проверяем разрешение…',
       false => 'Выключены. Разрешите их в настройках телефона',
-      true => push.token == null
-          ? 'Токен недоступен (нужны сервисы Google Play)'
-          : 'Включены',
+      true =>
+        push.token == null
+            ? 'Токен недоступен (нужны сервисы Google Play)'
+            : 'Включены',
     };
 
     return ListTile(
@@ -28,13 +29,13 @@ class PushTile extends ConsumerWidget {
       trailing: push.token == null
           ? null
           : IconButton(
-        tooltip: 'Скопировать токен',
-        icon: const Icon(Icons.copy_rounded),
-        onPressed: () async {
-          await Clipboard.setData(ClipboardData(text: push.token!));
-          if (context.mounted) showInfo(context, 'Токен скопирован');
-        },
-      ),
+              tooltip: 'Скопировать токен',
+              icon: const Icon(Icons.copy_rounded),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: push.token!));
+                if (context.mounted) showInfo(context, 'Токен скопирован');
+              },
+            ),
     );
   }
 }

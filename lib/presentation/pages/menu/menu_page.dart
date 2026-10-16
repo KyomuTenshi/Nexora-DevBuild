@@ -64,8 +64,9 @@ class _MenuPageState extends ConsumerState<MenuPage> {
     final unread = ref.watch(unreadCountProvider);
     final libraryCount = ref.watch(libraryProvider.select((m) => m.length));
     final favoritesCount = ref.watch(favoritesProvider.select((m) => m.length));
-    final unlockedCount =
-    ref.watch(achievementsProvider.select((m) => m.length));
+    final unlockedCount = ref.watch(
+      achievementsProvider.select((m) => m.length),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -370,7 +371,10 @@ class _MenuTile extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             if (badge > 0)
@@ -395,7 +399,10 @@ class _MenuTile extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: Text(
                   value!,
-                  style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             trailing ??

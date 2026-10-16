@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexora/domain/entities/catalog_query.dart';
 import 'package:nexora/presentation/providers/catalog_provider.dart';
+
 import 'catalog_labels.dart';
 
 class CategoryChips extends ConsumerWidget {
@@ -10,8 +11,7 @@ class CategoryChips extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final selected =
-    ref.watch(catalogQueryProvider.select((q) => q.category));
+    final selected = ref.watch(catalogQueryProvider.select((q) => q.category));
 
     return SizedBox(
       height: 40,

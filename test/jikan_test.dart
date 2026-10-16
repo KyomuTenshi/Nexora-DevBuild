@@ -64,10 +64,7 @@ const _mangaJson = {
   ],
 };
 
-JikanMediaRepository _repo(
-    MockClientHandler handler, {
-      int maxRetries = 1,
-    }) {
+JikanMediaRepository _repo(MockClientHandler handler, {int maxRetries = 1}) {
   final client = JikanClient(
     client: MockClient(handler),
     minGap: Duration.zero,
@@ -111,28 +108,30 @@ void main() {
   });
 
   group('JikanMediaRepository', () {
-    test('каталог склеивает аниме и мангу, передаёт фильтры и сортирует',
-            () async {
-          final requests = <Uri>[];
-          final repo = _repo((request) async {
-            requests.add(request.url);
-            return _json(request.url.path.endsWith('/manga')
-                ? _mangaJson
-                : _animeJson);
-          });
-
-          final items = await repo.searchCatalog(
-            const CatalogQuery(genre: 'Action', sort: CatalogSort.popularity),
+    test(
+      'каталог склеивает аниме и мангу, передаёт фильтры и сортирует',
+      () async {
+        final requests = <Uri>[];
+        final repo = _repo((request) async {
+          requests.add(request.url);
+          return _json(
+            request.url.path.endsWith('/manga') ? _mangaJson : _animeJson,
           );
-
-          expect(requests, hasLength(2));
-          final anime = requests.firstWhere((u) => u.path.endsWith('/anime'));
-          expect(anime.queryParameters['genres'], '1');
-          expect(anime.queryParameters['sfw'], 'true');
-          expect(anime.queryParameters['order_by'], 'popularity');
-          // Берсерк (popularity 3) идёт раньше One Piece (popularity 15)
-          expect(items.map((i) => i.title), ['Berserk', 'One Piece']);
         });
+
+        final items = await repo.searchCatalog(
+          const CatalogQuery(genre: 'Action', sort: CatalogSort.popularity),
+        );
+
+        expect(requests, hasLength(2));
+        final anime = requests.firstWhere((u) => u.path.endsWith('/anime'));
+        expect(anime.queryParameters['genres'], '1');
+        expect(anime.queryParameters['sfw'], 'true');
+        expect(anime.queryParameters['order_by'], 'popularity');
+        // Берсерк (popularity 3) идёт раньше One Piece (popularity 15)
+        expect(items.map((i) => i.title), ['Berserk', 'One Piece']);
+      },
+    );
 
     test('одинаковые запросы берутся из кэша', () async {
       var calls = 0;
@@ -176,7 +175,9 @@ void main() {
 
       expect(
         repo.searchCatalog(const CatalogQuery(studio: 'Toei Animation')),
-        throwsA(isA<ServerException>().having((e) => e.statusCode, 'code', 500)),
+        throwsA(
+          isA<ServerException>().having((e) => e.statusCode, 'code', 500),
+        ),
       );
     });
 
@@ -200,22 +201,24 @@ void main() {
       );
     });
 
-    test('ошибка не попадает в кэш: повтор запроса снова идёт в сеть',
-            () async {
-          var calls = 0;
-          final repo = _repo((request) async {
-            calls++;
-            return calls == 1 ? _json({}, 500) : _json(_animeJson);
-          });
-          const query = CatalogQuery(studio: 'Toei Animation');
-
-          await expectLater(
-            repo.searchCatalog(query),
-            throwsA(isA<ServerException>()),
-          );
-          final items = await repo.searchCatalog(query);
-
-          expect(items, isNotEmpty);
+    test(
+      'ошибка не попадает в кэш: повтор запроса снова идёт в сеть',
+      () async {
+        var calls = 0;
+        final repo = _repo((request) async {
+          calls++;
+          return calls == 1 ? _json({}, 500) : _json(_animeJson);
         });
+        const query = CatalogQuery(studio: 'Toei Animation');
+
+        await expectLater(
+          repo.searchCatalog(query),
+          throwsA(isA<ServerException>()),
+        );
+        final items = await repo.searchCatalog(query);
+
+        expect(items, isNotEmpty);
+      },
+    );
   });
 }

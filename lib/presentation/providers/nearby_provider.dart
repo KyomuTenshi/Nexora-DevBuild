@@ -28,24 +28,27 @@ class PlaceCategoryNotifier extends Notifier<PlaceCategory> {
 }
 
 final placeCategoryProvider =
-NotifierProvider<PlaceCategoryNotifier, PlaceCategory>(
-  PlaceCategoryNotifier.new,
-);
+    NotifierProvider<PlaceCategoryNotifier, PlaceCategory>(
+      PlaceCategoryNotifier.new,
+    );
 
 /// Места вокруг центра в выбранной категории, ближайшие первыми.
-final nearbyPlacesProvider = FutureProvider.autoDispose<List<Place>>((ref) async {
+final nearbyPlacesProvider = FutureProvider.autoDispose<List<Place>>((
+  ref,
+) async {
   final center = await ref.watch(nearbyCenterProvider.future);
   final category = ref.watch(placeCategoryProvider);
 
-  final places = await ref.watch(placesRepositoryProvider).nearby(
-    center: center,
-    category: category,
-    radiusMeters: kNearbyRadiusMeters,
-  );
+  final places = await ref
+      .watch(placesRepositoryProvider)
+      .nearby(
+        center: center,
+        category: category,
+        radiusMeters: kNearbyRadiusMeters,
+      );
 
   return [...places]..sort(
-        (a, b) => center
-        .distanceTo(a.position)
-        .compareTo(center.distanceTo(b.position)),
+    (a, b) =>
+        center.distanceTo(a.position).compareTo(center.distanceTo(b.position)),
   );
 });

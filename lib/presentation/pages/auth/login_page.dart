@@ -85,8 +85,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.account_circle_outlined,
-                        size: 72, color: scheme.primary),
+                    Icon(
+                      Icons.account_circle_outlined,
+                      size: 72,
+                      color: scheme.primary,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Аккаунт Nexora',
@@ -134,16 +137,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           tooltip: _hidePassword ? 'Показать' : 'Скрыть',
-                          icon: Icon(_hidePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined),
+                          icon: Icon(
+                            _hidePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
                           onPressed: () =>
                               setState(() => _hidePassword = !_hidePassword),
                         ),
                       ),
-                      validator: (v) => (v ?? '').length < 6
-                          ? 'Минимум 6 символов'
-                          : null,
+                      validator: (v) =>
+                          (v ?? '').length < 6 ? 'Минимум 6 символов' : null,
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 16),
@@ -155,13 +159,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline_rounded,
-                                color: scheme.onErrorContainer),
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: scheme.onErrorContainer,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 _error!,
-                                style: TextStyle(color: scheme.onErrorContainer),
+                                style: TextStyle(
+                                  color: scheme.onErrorContainer,
+                                ),
                               ),
                             ),
                           ],
@@ -173,10 +181,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       onPressed: _loading ? null : _submit,
                       child: _loading
                           ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : Text(_register ? 'Создать аккаунт' : 'Войти'),
                     ),
                     const SizedBox(height: 8),
@@ -184,9 +192,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       onPressed: _loading
                           ? null
                           : () => setState(() {
-                        _register = !_register;
-                        _error = null;
-                      }),
+                              _register = !_register;
+                              _error = null;
+                            }),
                       child: Text(
                         _register
                             ? 'Уже есть аккаунт? Войти'

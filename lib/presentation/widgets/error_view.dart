@@ -46,29 +46,29 @@ class ErrorView extends StatelessWidget {
   static ({IconData icon, String title, String hint}) _describe(Object? e) {
     return switch (e) {
       NetworkException() => (
-      icon: Icons.wifi_off_rounded,
-      title: 'Нет соединения',
-      hint: 'Проверьте интернет и нажмите «Повторить».',
+        icon: Icons.wifi_off_rounded,
+        title: 'Нет соединения',
+        hint: 'Проверьте интернет и нажмите «Повторить».',
       ),
       RateLimitException() => (
-      icon: Icons.hourglass_top_rounded,
-      title: 'Слишком много запросов',
-      hint: 'Сервис просит подождать. Повторите через несколько секунд.',
+        icon: Icons.hourglass_top_rounded,
+        title: 'Слишком много запросов',
+        hint: 'Сервис просит подождать. Повторите через несколько секунд.',
       ),
       ServerException(:final statusCode) => (
-      icon: Icons.cloud_off_rounded,
-      title: 'Сервер временно недоступен',
-      hint: 'Это не ваша вина (код $statusCode). Попробуйте чуть позже.',
+        icon: Icons.cloud_off_rounded,
+        title: 'Сервер временно недоступен',
+        hint: 'Это не ваша вина (код $statusCode). Попробуйте чуть позже.',
       ),
       ParseException() => (
-      icon: Icons.report_problem_outlined,
-      title: 'Неожиданный ответ сервера',
-      hint: 'Данные пришли в неизвестном формате. Попробуйте позже.',
+        icon: Icons.report_problem_outlined,
+        title: 'Неожиданный ответ сервера',
+        hint: 'Данные пришли в неизвестном формате. Попробуйте позже.',
       ),
       _ => (
-      icon: Icons.error_outline_rounded,
-      title: 'Не удалось загрузить данные',
-      hint: 'Проверьте подключение к интернету.',
+        icon: Icons.error_outline_rounded,
+        title: 'Не удалось загрузить данные',
+        hint: 'Проверьте подключение к интернету.',
       ),
     };
   }

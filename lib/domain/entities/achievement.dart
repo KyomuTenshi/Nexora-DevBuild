@@ -71,7 +71,7 @@ class AchievementDef {
 /// Прогресс по одному достижению.
 class AchievementProgress {
   AchievementProgress(this.def, int value)
-      : current = value < 0 ? 0 : (value > def.target ? def.target : value);
+    : current = value < 0 ? 0 : (value > def.target ? def.target : value);
 
   final AchievementDef def;
 
@@ -211,7 +211,7 @@ final List<AchievementDef> kAchievements = [
     target: 2,
     hidden: true,
     value: (s) =>
-    (s.animeCompleted > 0 ? 1 : 0) + (s.mangaCompleted > 0 ? 1 : 0),
+        (s.animeCompleted > 0 ? 1 : 0) + (s.mangaCompleted > 0 ? 1 : 0),
   ),
   AchievementDef(
     id: 'perfectionist',
@@ -226,6 +226,5 @@ final List<AchievementDef> kAchievements = [
 
 /// Считает прогресс по всем достижениям. Чистая функция: её легко тестировать.
 List<AchievementProgress> evaluateAchievements(AchievementStats stats) => [
-  for (final def in kAchievements)
-    AchievementProgress(def, def.value(stats)),
+  for (final def in kAchievements) AchievementProgress(def, def.value(stats)),
 ];

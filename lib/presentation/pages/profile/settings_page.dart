@@ -12,6 +12,7 @@ import 'package:nexora/presentation/providers/theme_provider.dart';
 import 'package:nexora/presentation/widgets/account_tile.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/push_tile.dart';
+import 'package:nexora/presentation/widgets/device_tiles.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -121,8 +122,11 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                               ),
                               child: i == accent
-                                  ? const Icon(Icons.check_rounded,
-                                  color: Colors.white, size: 20)
+                                  ? const Icon(
+                                      Icons.check_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    )
                                   : null,
                             ),
                           ),
@@ -165,6 +169,10 @@ class SettingsPage extends ConsumerWidget {
             child: Column(
               children: [
                 const PushTile(),
+                const Divider(indent: 56),
+                const DeviceStatusTile(),
+                const Divider(indent: 56),
+                const ShakeTile(),
                 const Divider(indent: 56),
                 ListTile(
                   leading: const Icon(Icons.science_outlined),

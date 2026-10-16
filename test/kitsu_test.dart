@@ -91,8 +91,7 @@ http.Response _json(Object body, [int status = 200]) => http.Response(
 void main() {
   group('KitsuMediaDto', () {
     test('переводит JSON:API в MediaItem', () {
-      final item =
-      parseKitsuList(_animeJson).single.toDomain(MediaType.anime);
+      final item = parseKitsuList(_animeJson).single.toDomain(MediaType.anime);
 
       expect(item.id, kKitsuAnimeIdOffset + 12);
       expect(item.title, 'One Piece');
@@ -117,27 +116,30 @@ void main() {
   });
 
   group('KitsuMediaRepository', () {
-    test('каталог склеивает аниме и мангу, передаёт фильтры и сортирует',
-            () async {
-          final requests = <Uri>[];
-          final repo = _repo((request) async {
-            requests.add(request.url);
-            return _json(
-                request.url.path.endsWith('/manga') ? _mangaJson : _animeJson);
-          });
-
-          final items = await repo.searchCatalog(
-            const CatalogQuery(genre: 'Action', sort: CatalogSort.popularity),
+    test(
+      'каталог склеивает аниме и мангу, передаёт фильтры и сортирует',
+      () async {
+        final requests = <Uri>[];
+        final repo = _repo((request) async {
+          requests.add(request.url);
+          return _json(
+            request.url.path.endsWith('/manga') ? _mangaJson : _animeJson,
           );
-
-          expect(requests, hasLength(2));
-          final anime = requests.firstWhere((u) => u.path.endsWith('/anime'));
-          expect(anime.queryParameters['filter[categories]'], 'action');
-          expect(anime.queryParameters['sort'], 'popularityRank');
-          expect(anime.queryParameters['include'], 'categories');
-          // Берсерк (popularity 1) идёт раньше One Piece (popularity 3)
-          expect(items.map((i) => i.title), ['Berserk', 'One Piece']);
         });
+
+        final items = await repo.searchCatalog(
+          const CatalogQuery(genre: 'Action', sort: CatalogSort.popularity),
+        );
+
+        expect(requests, hasLength(2));
+        final anime = requests.firstWhere((u) => u.path.endsWith('/anime'));
+        expect(anime.queryParameters['filter[categories]'], 'action');
+        expect(anime.queryParameters['sort'], 'popularityRank');
+        expect(anime.queryParameters['include'], 'categories');
+        // Берсерк (popularity 1) идёт раньше One Piece (popularity 3)
+        expect(items.map((i) => i.title), ['Berserk', 'One Piece']);
+      },
+    );
 
     test('если манга отвечает ошибкой сервера, остаётся аниме', () async {
       final repo = _repo((request) async {
@@ -151,23 +153,22 @@ void main() {
       expect(items.map((i) => i.title), ['One Piece']);
     });
 
-    test('сервер не принял фильтр года: запрос повторяется без него',
-            () async {
-          final animeRequests = <Uri>[];
-          final repo = _repo((request) async {
-            if (request.url.path.endsWith('/manga')) return _json(_mangaJson);
-            animeRequests.add(request.url);
-            return request.url.queryParameters.containsKey('filter[year]')
-                ? _json({}, 400)
-                : _json(_animeJson);
-          });
+    test('сервер не принял фильтр года: запрос повторяется без него', () async {
+      final animeRequests = <Uri>[];
+      final repo = _repo((request) async {
+        if (request.url.path.endsWith('/manga')) return _json(_mangaJson);
+        animeRequests.add(request.url);
+        return request.url.queryParameters.containsKey('filter[year]')
+            ? _json({}, 400)
+            : _json(_animeJson);
+      });
 
-          final items = await repo.searchCatalog(const CatalogQuery(year: 1999));
+      final items = await repo.searchCatalog(const CatalogQuery(year: 1999));
 
-          expect(animeRequests, hasLength(2));
-          // Год всё равно проверяется у нас: One Piece 1999 проходит
-          expect(items.map((i) => i.title), contains('One Piece'));
-        });
+      expect(animeRequests, hasLength(2));
+      // Год всё равно проверяется у нас: One Piece 1999 проходит
+      expect(items.map((i) => i.title), contains('One Piece'));
+    });
 
     test('одинаковые запросы берутся из кэша', () async {
       var calls = 0;
@@ -188,7 +189,9 @@ void main() {
 
       expect(
         repo.getHomeFeed(),
-        throwsA(isA<ServerException>().having((e) => e.statusCode, 'code', 500)),
+        throwsA(
+          isA<ServerException>().having((e) => e.statusCode, 'code', 500),
+        ),
       );
     });
 

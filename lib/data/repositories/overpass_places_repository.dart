@@ -65,8 +65,10 @@ class OverpassPlacesRepository implements PlacesRepository {
 
     // У точки координаты лежат в самой записи, у здания — в center
     final center = element['center'];
-    final lat = (element['lat'] ?? (center is Map ? center['lat'] : null)) as num?;
-    final lon = (element['lon'] ?? (center is Map ? center['lon'] : null)) as num?;
+    final lat =
+        (element['lat'] ?? (center is Map ? center['lat'] : null)) as num?;
+    final lon =
+        (element['lon'] ?? (center is Map ? center['lon'] : null)) as num?;
     if (lat == null || lon == null) return null;
 
     final street = tags['addr:street'] as String?;

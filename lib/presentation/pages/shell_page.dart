@@ -29,29 +29,29 @@ class ShellPage extends ConsumerWidget {
 
     final items = <({IconData icon, IconData selected, String label})>[
       (
-      icon: Icons.home_outlined,
-      selected: Icons.home_rounded,
-      label: s.navHome,
+        icon: Icons.home_outlined,
+        selected: Icons.home_rounded,
+        label: s.navHome,
       ),
       (
-      icon: Icons.desktop_windows_outlined,
-      selected: Icons.desktop_windows_rounded,
-      label: s.navCatalog,
+        icon: Icons.desktop_windows_outlined,
+        selected: Icons.desktop_windows_rounded,
+        label: s.navCatalog,
       ),
       (
-      icon: Icons.menu_book_outlined,
-      selected: Icons.menu_book_rounded,
-      label: s.navLibrary,
+        icon: Icons.menu_book_outlined,
+        selected: Icons.menu_book_rounded,
+        label: s.navLibrary,
       ),
       (
-      icon: Icons.notifications_none_rounded,
-      selected: Icons.notifications_rounded,
-      label: s.navNotifications,
+        icon: Icons.notifications_none_rounded,
+        selected: Icons.notifications_rounded,
+        label: s.navNotifications,
       ),
       (
-      icon: Icons.menu_rounded,
-      selected: Icons.menu_rounded,
-      label: s.navMenu,
+        icon: Icons.menu_rounded,
+        selected: Icons.menu_rounded,
+        label: s.navMenu,
       ),
     ];
 
@@ -77,42 +77,42 @@ class ShellPage extends ConsumerWidget {
       child: Scaffold(
         body: useRail
             ? Row(
-          children: [
-            NavigationRail(
-              selectedIndex: index,
-              onDestinationSelected: select,
-              extended: width >= _extendedBreakpoint,
-              labelType: width >= _extendedBreakpoint
-                  ? NavigationRailLabelType.none
-                  : NavigationRailLabelType.all,
-              destinations: [
-                for (var i = 0; i < items.length; i++)
-                  NavigationRailDestination(
-                    icon: iconFor(i, items[i].icon),
-                    selectedIcon: iconFor(i, items[i].selected),
-                    label: Text(items[i].label),
+                children: [
+                  NavigationRail(
+                    selectedIndex: index,
+                    onDestinationSelected: select,
+                    extended: width >= _extendedBreakpoint,
+                    labelType: width >= _extendedBreakpoint
+                        ? NavigationRailLabelType.none
+                        : NavigationRailLabelType.all,
+                    destinations: [
+                      for (var i = 0; i < items.length; i++)
+                        NavigationRailDestination(
+                          icon: iconFor(i, items[i].icon),
+                          selectedIcon: iconFor(i, items[i].selected),
+                          label: Text(items[i].label),
+                        ),
+                    ],
                   ),
-              ],
-            ),
-            const VerticalDivider(width: 1),
-            Expanded(child: navigationShell),
-          ],
-        )
+                  const VerticalDivider(width: 1),
+                  Expanded(child: navigationShell),
+                ],
+              )
             : navigationShell,
         bottomNavigationBar: useRail
             ? null
             : NavigationBar(
-          selectedIndex: index,
-          onDestinationSelected: select,
-          destinations: [
-            for (var i = 0; i < items.length; i++)
-              NavigationDestination(
-                icon: iconFor(i, items[i].icon),
-                selectedIcon: iconFor(i, items[i].selected),
-                label: items[i].label,
+                selectedIndex: index,
+                onDestinationSelected: select,
+                destinations: [
+                  for (var i = 0; i < items.length; i++)
+                    NavigationDestination(
+                      icon: iconFor(i, items[i].icon),
+                      selectedIcon: iconFor(i, items[i].selected),
+                      label: items[i].label,
+                    ),
+                ],
               ),
-          ],
-        ),
       ),
     );
   }

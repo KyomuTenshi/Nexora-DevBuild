@@ -40,8 +40,9 @@ class ProfilePage extends ConsumerWidget {
     final top = MediaQuery.paddingOf(context).top;
 
     final entries = library.values.toList();
-    final animeCount =
-        entries.where((e) => e.item.type == MediaType.anime).length;
+    final animeCount = entries
+        .where((e) => e.item.type == MediaType.anime)
+        .length;
     final mangaCount = entries.length - animeCount;
     final myReviews = [
       for (final list in reviews.values)
@@ -50,12 +51,15 @@ class ProfilePage extends ConsumerWidget {
     ].length;
 
     // Что смотрит прямо сейчас: самая свежая запись аниме со статусом «Смотрю»
-    final watching = entries
-        .where((e) =>
-    e.status == LibraryStatus.inProgress &&
-        e.item.type == MediaType.anime)
-        .toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final watching =
+        entries
+            .where(
+              (e) =>
+                  e.status == LibraryStatus.inProgress &&
+                  e.item.type == MediaType.anime,
+            )
+            .toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final presence = watching.isEmpty
         ? 'В сети'
         : 'В сети · смотрит ${watching.first.item.title}';
@@ -236,10 +240,12 @@ class ProfilePage extends ConsumerWidget {
                 _SquareButton(
                   icon: Icons.ios_share_rounded,
                   onTap: () async {
-                    await Clipboard.setData(ClipboardData(
-                      text:
-                      '${profile.name} в Nexora · уровень ${profile.level}',
-                    ));
+                    await Clipboard.setData(
+                      ClipboardData(
+                        text:
+                            '${profile.name} в Nexora · уровень ${profile.level}',
+                      ),
+                    );
                     if (context.mounted) {
                       showInfo(context, 'Ссылка на профиль скопирована');
                     }
@@ -381,13 +387,13 @@ class _SectionRow extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            Text(
-              '$count',
-              style: TextStyle(color: scheme.onSurfaceVariant),
-            ),
+            Text('$count', style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(width: 4),
             Icon(
               Icons.chevron_right_rounded,

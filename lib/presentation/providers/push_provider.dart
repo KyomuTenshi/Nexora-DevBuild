@@ -76,10 +76,9 @@ class PushNotifier extends Notifier<PushState> {
 
   /// Приложение открыто: кладём сообщение в «Уведомления» и показываем плашку.
   void _onForeground(PushMessage message) {
-    ref.read(notificationsProvider.notifier).addIncoming(
-      title: message.title,
-      message: message.body,
-    );
+    ref
+        .read(notificationsProvider.notifier)
+        .addIncoming(title: message.title, message: message.body);
     rootMessengerKey.currentState
       ?..hideCurrentSnackBar()
       ..showSnackBar(
@@ -96,10 +95,9 @@ class PushNotifier extends Notifier<PushState> {
   /// Нажали на уведомление: открываем экран из данных сообщения.
   /// Принимаем только известные адреса, чужие значения игнорируем.
   void _open(PushMessage message) {
-    ref.read(notificationsProvider.notifier).addIncoming(
-      title: message.title,
-      message: message.body,
-    );
+    ref
+        .read(notificationsProvider.notifier)
+        .addIncoming(title: message.title, message: message.body);
     final route = message.data['route'];
     if (route != null && kTabPaths.contains(route)) {
       ref.read(routerProvider).go(route);

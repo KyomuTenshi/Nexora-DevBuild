@@ -181,17 +181,17 @@ class _LocationBanner extends StatelessWidget {
 
     final (message, action) = switch (problem) {
       LocationProblem.servicesOff => (
-      'Геолокация выключена на телефоне',
-      'Включить',
+        'Геолокация выключена на телефоне',
+        'Включить',
       ),
       LocationProblem.denied => ('Нет доступа к местоположению', 'Разрешить'),
       LocationProblem.deniedForever => (
-      'Доступ к местоположению запрещён',
-      'Настройки',
+        'Доступ к местоположению запрещён',
+        'Настройки',
       ),
       LocationProblem.unavailable => (
-      'Не удалось определить местоположение',
-      'Повторить',
+        'Не удалось определить местоположение',
+        'Повторить',
       ),
     };
 
@@ -256,7 +256,8 @@ class _Results extends StatelessWidget {
           return const EmptyView(
             icon: Icons.location_searching_rounded,
             title: 'Ничего не найдено',
-            message: 'В радиусе 5 км нет таких мест. Попробуйте другую категорию.',
+            message:
+                'В радиусе 5 км нет таких мест. Попробуйте другую категорию.',
           );
         }
         return ListView.separated(
@@ -268,7 +269,11 @@ class _Results extends StatelessWidget {
             return ListTile(
               selected: place.id == selectedId,
               leading: CircleAvatar(child: Icon(place.category.icon)),
-              title: Text(place.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(
+                place.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               subtitle: Text(place.address ?? place.category.label),
               trailing: Text(
                 formatDistance(center.distanceTo(place.position)),

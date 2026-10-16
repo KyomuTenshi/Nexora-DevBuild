@@ -13,9 +13,9 @@ abstract class MediaRepository {
 
   /// Одна страница каталога (нумерация с 0) и признак, что за ней есть ещё.
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      });
+    CatalogQuery query, {
+    int page = 0,
+  });
 
   /// Находит ссылку на обложку для тайтла, у которого её ещё нет
   /// (например, для демо-записей библиотеки). При сбое возвращает null.

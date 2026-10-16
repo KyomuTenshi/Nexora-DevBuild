@@ -42,7 +42,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   void _finish({required bool saveAnswers}) {
     if (saveAnswers) {
       final name = _name.text.trim();
-      ref.read(profileProvider.notifier).edit(
+      ref
+          .read(profileProvider.notifier)
+          .edit(
             (p) => p.copyWith(
               name: name.isEmpty ? null : name,
               avatarText: name.isEmpty ? null : initialsOf(name),
@@ -141,43 +143,43 @@ class _WelcomeStep extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     Widget feature(IconData icon, String title, String text) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: accent),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      text,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: accent),
           ),
-        );
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -213,12 +215,21 @@ class _WelcomeStep extends StatelessWidget {
             style: TextStyle(fontSize: 16, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
-          feature(Icons.play_circle_outline_rounded, 'Смотрите',
-              'Продолжайте с того места, где остановились'),
-          feature(Icons.menu_book_outlined, 'Читайте',
-              'Манга с удобной читалкой и закладками'),
-          feature(Icons.emoji_events_outlined, 'Получайте награды',
-              'Очки, уровни и оформление профиля'),
+          feature(
+            Icons.play_circle_outline_rounded,
+            'Смотрите',
+            'Продолжайте с того места, где остановились',
+          ),
+          feature(
+            Icons.menu_book_outlined,
+            'Читайте',
+            'Манга с удобной читалкой и закладками',
+          ),
+          feature(
+            Icons.emoji_events_outlined,
+            'Получайте награды',
+            'Очки, уровни и оформление профиля',
+          ),
         ],
       ),
     );

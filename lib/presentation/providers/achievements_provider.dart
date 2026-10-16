@@ -120,9 +120,9 @@ class AchievementsNotifier extends Notifier<Map<String, int>> {
 }
 
 final achievementsProvider =
-NotifierProvider<AchievementsNotifier, Map<String, int>>(
-  AchievementsNotifier.new,
-);
+    NotifierProvider<AchievementsNotifier, Map<String, int>>(
+      AchievementsNotifier.new,
+    );
 
 /// Очередь плашек «Достижение получено». Показывается по одной.
 class AchievementToastNotifier extends Notifier<List<AchievementDef>> {
@@ -137,6 +137,6 @@ class AchievementToastNotifier extends Notifier<List<AchievementDef>> {
 }
 
 final achievementToastProvider =
-NotifierProvider<AchievementToastNotifier, List<AchievementDef>>(
-  AchievementToastNotifier.new,
-);
+    NotifierProvider<AchievementToastNotifier, List<AchievementDef>>(
+      AchievementToastNotifier.new,
+    );

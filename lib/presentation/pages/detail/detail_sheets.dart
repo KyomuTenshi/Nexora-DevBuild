@@ -16,16 +16,14 @@ Future<void> showStatusSheet(BuildContext context, MediaItem item) {
       return Consumer(
         builder: (_, ref, _) {
           final scheme = Theme.of(context).colorScheme;
-          final current =
-              ref.watch(libraryProvider.select((m) => m[item.id]?.status));
+          final current = ref.watch(
+            libraryProvider.select((m) => m[item.id]?.status),
+          );
 
           void choose(LibraryStatus status) {
             ref.read(libraryProvider.notifier).setStatus(item, status);
             Navigator.of(sheetContext).pop();
-            showInfo(
-              context,
-              '«${item.title}»: ${status.labelFor(item.type)}',
-            );
+            showInfo(context, '«${item.title}»: ${status.labelFor(item.type)}');
           }
 
           return SafeArea(
@@ -47,8 +45,9 @@ Future<void> showStatusSheet(BuildContext context, MediaItem item) {
                   ListTile(
                     leading: Icon(
                       status.icon,
-                      color:
-                          status == current ? scheme.primary : scheme.onSurface,
+                      color: status == current
+                          ? scheme.primary
+                          : scheme.onSurface,
                     ),
                     title: Text(status.labelFor(item.type)),
                     trailing: status == current
@@ -58,8 +57,10 @@ Future<void> showStatusSheet(BuildContext context, MediaItem item) {
                   ),
                 if (current != null)
                   ListTile(
-                    leading: Icon(Icons.delete_outline_rounded,
-                        color: scheme.error),
+                    leading: Icon(
+                      Icons.delete_outline_rounded,
+                      color: scheme.error,
+                    ),
                     title: Text(
                       'Убрать из списков',
                       style: TextStyle(color: scheme.error),

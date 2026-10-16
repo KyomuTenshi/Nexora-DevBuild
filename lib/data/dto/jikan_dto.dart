@@ -49,7 +49,8 @@ class JikanMediaDto {
     return JikanMediaDto(
       malId: malId,
       title: title,
-      imageUrl: _text(_dig(json, ['images', 'jpg', 'large_image_url'])) ??
+      imageUrl:
+          _text(_dig(json, ['images', 'jpg', 'large_image_url'])) ??
           _text(_dig(json, ['images', 'jpg', 'image_url'])),
       score: _double(json['score']),
       scoredBy: _int(json['scored_by']),
@@ -57,7 +58,8 @@ class JikanMediaDto {
       episodes: _int(json['episodes']),
       chapters: _int(json['chapters']),
       status: _text(json['status']),
-      year: _int(json['year']) ??
+      year:
+          _int(json['year']) ??
           _int(_dig(json, ['aired', 'prop', 'from', 'year'])) ??
           _int(_dig(json, ['published', 'prop', 'from', 'year'])),
       season: _text(json['season']),

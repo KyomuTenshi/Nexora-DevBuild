@@ -32,8 +32,9 @@ class ProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final frame = storeItemById(frameId);
-    final ringColor =
-    frame.colors.isEmpty ? Colors.transparent : frame.colors.first;
+    final ringColor = frame.colors.isEmpty
+        ? Colors.transparent
+        : frame.colors.first;
     final hasRing = ringColor != Colors.transparent;
     final inner = hasRing ? size - 16 : size - 4;
 
@@ -88,16 +89,16 @@ class ProfileAvatar extends StatelessWidget {
             child: imagePath.isEmpty
                 ? initials
                 : SizedBox(
-              width: inner,
-              height: inner,
-              child: AdjustedImage(
-                path: imagePath,
-                adjust: adjust,
-                cacheWidth: (inner * 3).round(),
-                // Файл пропал или повреждён: возвращаемся к инициалам
-                fallback: Center(child: initials),
-              ),
-            ),
+                    width: inner,
+                    height: inner,
+                    child: AdjustedImage(
+                      path: imagePath,
+                      adjust: adjust,
+                      cacheWidth: (inner * 3).round(),
+                      // Файл пропал или повреждён: возвращаемся к инициалам
+                      fallback: Center(child: initials),
+                    ),
+                  ),
           ),
           if (level != null)
             Positioned(
@@ -160,8 +161,9 @@ class BannerArt extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors:
-              colors.length >= 2 ? colors : [colors.first, colors.first],
+              colors: colors.length >= 2
+                  ? colors
+                  : [colors.first, colors.first],
             ),
           ),
           child: Stack(

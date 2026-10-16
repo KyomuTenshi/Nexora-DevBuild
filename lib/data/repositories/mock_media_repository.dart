@@ -91,9 +91,9 @@ class MockMediaRepository implements MediaRepository {
   /// Режем готовый отсортированный список на страницы по [pageSize].
   @override
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      }) async {
+    CatalogQuery query, {
+    int page = 0,
+  }) async {
     final all = await searchCatalog(query);
     final start = page * pageSize;
     return CatalogResultPage(

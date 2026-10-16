@@ -14,6 +14,7 @@ import 'package:nexora/presentation/widgets/media_cover.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/star_rating.dart';
 import 'package:nexora/presentation/widgets/thin_progress_bar.dart';
+
 import 'detail_sheets.dart';
 
 /// «Поделиться»: пока копируем текст со ссылкой в буфер обмена.
@@ -33,8 +34,9 @@ class DetailHero extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final background = Theme.of(context).scaffoldBackgroundColor;
-    final isFavorite =
-    ref.watch(favoritesProvider.select((s) => s.containsKey(item.id)));
+    final isFavorite = ref.watch(
+      favoritesProvider.select((s) => s.containsKey(item.id)),
+    );
 
     final subtitle = [
       if (item.year != null) '${item.year}',
@@ -173,7 +175,8 @@ class DetailInfo extends ConsumerWidget {
     final myRating = ref.watch(ratingsProvider.select((m) => m[item.id] ?? 0));
     final isAnime = item.type == MediaType.anime;
 
-    final done = entry != null &&
+    final done =
+        entry != null &&
         item.totalUnits > 0 &&
         entry!.progress >= item.totalUnits;
     final unit = done ? 1 : (entry?.next ?? 1);
@@ -263,8 +266,10 @@ class DetailInfo extends ConsumerWidget {
             children: [
               for (final tag in tags)
                 Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(20),
@@ -292,7 +297,10 @@ class DetailInfo extends ConsumerWidget {
               ),
               label: Text(
                 mainLabel,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -370,7 +378,7 @@ class _ProgressStrip extends StatelessWidget {
             Expanded(
               child: Text(
                 '$verb ${entry.progress} из ${item.totalUnits} '
-                    '${unitWord(item.type, item.totalUnits)}',
+                '${unitWord(item.type, item.totalUnits)}',
                 style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
               ),
             ),

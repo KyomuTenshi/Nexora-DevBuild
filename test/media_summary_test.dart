@@ -52,6 +52,9 @@ void main() {
   });
 
   test('без tagline берётся выжимка из описания', () {
-    expect(shortSummary(_item(synopsis: 'Hello there. Bye.')), 'Hello there. Bye.');
+    expect(
+      shortSummary(_item(synopsis: 'Hello there. Bye.')),
+      'Hello there. Bye.',
+    );
   });
 }

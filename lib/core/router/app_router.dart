@@ -91,7 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     errorBuilder: (context, state) =>
-    const _NotFoundPage(message: 'Такой страницы нет'),
+        const _NotFoundPage(message: 'Такой страницы нет'),
     routes: [
       GoRoute(
         path: '/onboarding',
@@ -109,41 +109,51 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) =>
             ShellPage(navigationShell: navigationShell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/home',
-              name: AppRoute.home,
-              builder: (context, state) => const HomePage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/catalog',
-              name: AppRoute.catalog,
-              builder: (context, state) => const CatalogPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/library',
-              name: AppRoute.library,
-              builder: (context, state) => const LibraryPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/notifications',
-              name: AppRoute.notifications,
-              builder: (context, state) => const NotificationsPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/menu',
-              name: AppRoute.menu,
-              builder: (context, state) => const MenuPage(),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                name: AppRoute.home,
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/catalog',
+                name: AppRoute.catalog,
+                builder: (context, state) => const CatalogPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/library',
+                name: AppRoute.library,
+                builder: (context, state) => const LibraryPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/notifications',
+                name: AppRoute.notifications,
+                builder: (context, state) => const NotificationsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/menu',
+                name: AppRoute.menu,
+                builder: (context, state) => const MenuPage(),
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -165,8 +175,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: AppRoute.watch,
             pageBuilder: (context, state) {
               final item = state.extra;
-              final episode =
-              int.tryParse(state.pathParameters['episode'] ?? '');
+              final episode = int.tryParse(
+                state.pathParameters['episode'] ?? '',
+              );
               return MaterialPage<void>(
                 key: state.pageKey,
                 // Плеер открывается снизу, как отдельный экран
@@ -182,8 +193,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: AppRoute.read,
             pageBuilder: (context, state) {
               final item = state.extra;
-              final chapter =
-              int.tryParse(state.pathParameters['chapter'] ?? '');
+              final chapter = int.tryParse(
+                state.pathParameters['chapter'] ?? '',
+              );
               return MaterialPage<void>(
                 key: state.pageKey,
                 child: item is MediaItem && chapter != null

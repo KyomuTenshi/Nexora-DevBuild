@@ -17,14 +17,17 @@ class ContinueReadingSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final entries = ref
-        .watch(libraryProvider)
-        .values
-        .where((e) =>
-    e.status == LibraryStatus.inProgress &&
-        e.item.type == MediaType.manga)
-        .toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final entries =
+        ref
+            .watch(libraryProvider)
+            .values
+            .where(
+              (e) =>
+                  e.status == LibraryStatus.inProgress &&
+                  e.item.type == MediaType.manga,
+            )
+            .toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     if (entries.isEmpty) return const SizedBox.shrink();
     final entry = entries.first;

@@ -180,7 +180,8 @@ class ProfileState {
       genres: (json['genres'] as List<dynamic>?)?.cast<String>() ?? d.genres,
       points: json['points'] as int? ?? d.points,
       xp: json['xp'] as int? ?? d.xp,
-      unlocked: (json['unlocked'] as List<dynamic>?)?.cast<String>().toSet() ??
+      unlocked:
+          (json['unlocked'] as List<dynamic>?)?.cast<String>().toSet() ??
           d.unlocked,
       showFavorites: json['showFavorites'] as bool? ?? d.showFavorites,
       showAchievements: json['showAchievements'] as bool? ?? d.showAchievements,
@@ -254,17 +255,21 @@ class ProfileNotifier extends Notifier<ProfileState> {
   /// Начислить очки и опыт (за серии, главы и т. д.).
   void earn(int amount) {
     if (amount <= 0) return;
-    _commit(state.copyWith(points: state.points + amount, xp: state.xp + amount));
+    _commit(
+      state.copyWith(points: state.points + amount, xp: state.xp + amount),
+    );
   }
 
   /// Купить предмет. Возвращает false, если очков не хватает.
   bool unlock(StoreItem item) {
     if (state.unlocked.contains(item.id)) return true;
     if (state.points < item.price) return false;
-    _commit(state.copyWith(
-      points: state.points - item.price,
-      unlocked: {...state.unlocked, item.id},
-    ));
+    _commit(
+      state.copyWith(
+        points: state.points - item.price,
+        unlocked: {...state.unlocked, item.id},
+      ),
+    );
     return true;
   }
 }

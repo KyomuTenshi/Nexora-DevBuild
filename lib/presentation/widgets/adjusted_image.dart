@@ -37,8 +37,9 @@ class AdjustedImage extends StatelessWidget {
           height: h,
           fit: BoxFit.cover,
           // При приближении нужна более чёткая картинка
-          cacheWidth:
-          cacheWidth == null ? null : (cacheWidth! * adjust.scale).round(),
+          cacheWidth: cacheWidth == null
+              ? null
+              : (cacheWidth! * adjust.scale).round(),
           gaplessPlayback: true,
           errorBuilder: (context, error, stack) => fallback,
         );
@@ -47,11 +48,8 @@ class AdjustedImage extends StatelessWidget {
           // Та же матрица, что у InteractiveViewer на экране настройки
           image = Transform(
             alignment: Alignment.topLeft,
-            transform: Matrix4.translationValues(
-              adjust.tx * w,
-              adjust.ty * h,
-              0,
-            ) *
+            transform:
+                Matrix4.translationValues(adjust.tx * w, adjust.ty * h, 0) *
                 Matrix4.diagonal3Values(adjust.scale, adjust.scale, 1),
             child: image,
           );
@@ -64,12 +62,15 @@ class AdjustedImage extends StatelessWidget {
           ).toWidget(image);
         }
 
-        return ClipRect(child: SizedBox(width: w, height: h, child: image));
+        return ClipRect(
+          child: SizedBox(width: w, height: h, child: image),
+        );
       },
     );
   }
 }
 
 extension on ui.ImageFilter {
-  Widget toWidget(Widget child) => ImageFiltered(imageFilter: this, child: child);
+  Widget toWidget(Widget child) =>
+      ImageFiltered(imageFilter: this, child: child);
 }

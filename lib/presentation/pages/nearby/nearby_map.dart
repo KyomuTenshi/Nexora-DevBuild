@@ -24,9 +24,9 @@ class NearbyMapArgs {
 }
 
 typedef NearbyMapBuilder = Widget Function(
-    BuildContext context,
-    NearbyMapArgs args,
-    );
+  BuildContext context,
+  NearbyMapArgs args,
+);
 
 /// Карта Google с маркерами мест.
 class NearbyMap extends StatefulWidget {
@@ -63,7 +63,9 @@ class _NearbyMapState extends State<NearbyMap> {
   }
 
   void _move(GeoPoint point, double zoom) {
-    _controller?.animateCamera(CameraUpdate.newLatLngZoom(_latLng(point), zoom));
+    _controller?.animateCamera(
+      CameraUpdate.newLatLngZoom(_latLng(point), zoom),
+    );
   }
 
   @override

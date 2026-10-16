@@ -82,38 +82,42 @@ void main() {
     }
   });
 
-  testWidgets('раздел «Каталог» раскрывается и открывает нужную категорию',
-          (tester) async {
-        await pumpMenu(tester);
+  testWidgets('раздел «Каталог» раскрывается и открывает нужную категорию', (
+    tester,
+  ) async {
+    await pumpMenu(tester);
 
-        expect(find.text('Сейчас выходит'), findsNothing);
-        await tester.tap(find.text('Каталог'));
-        await tester.pumpAndSettle();
-        expect(find.text('Сейчас выходит'), findsOneWidget);
+    expect(find.text('Сейчас выходит'), findsNothing);
+    await tester.tap(find.text('Каталог'));
+    await tester.pumpAndSettle();
+    expect(find.text('Сейчас выходит'), findsOneWidget);
 
-        await tester.tap(find.text('Сейчас выходит'));
-        await tester.pump();
+    await tester.tap(find.text('Сейчас выходит'));
+    await tester.pump();
 
-        final container = ProviderScope.containerOf(
-          tester.element(find.byType(MaterialApp)),
-        );
-        expect(container.read(catalogQueryProvider).category,
-            CatalogCategory.airing);
-        expect(container.read(shellTabProvider), 1); // открылся каталог
-      });
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MaterialApp)),
+    );
+    expect(
+      container.read(catalogQueryProvider).category,
+      CatalogCategory.airing,
+    );
+    expect(container.read(shellTabProvider), 1); // открылся каталог
+  });
 
-  testWidgets('карточка пользователя открывает профиль отдельной страницей',
-          (tester) async {
-        await pumpMenu(tester);
+  testWidgets('карточка пользователя открывает профиль отдельной страницей', (
+    tester,
+  ) async {
+    await pumpMenu(tester);
 
-        await tester.tap(find.text('Иван'));
-        await tester.pumpAndSettle();
+    await tester.tap(find.text('Иван'));
+    await tester.pumpAndSettle();
 
-        expect(find.text('Редактировать профиль'), findsOneWidget);
-        expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+    expect(find.text('Редактировать профиль'), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
 
-        await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
-        await tester.pumpAndSettle();
-        expect(find.text('Редактировать профиль'), findsNothing);
-      });
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Редактировать профиль'), findsNothing);
+  });
 }

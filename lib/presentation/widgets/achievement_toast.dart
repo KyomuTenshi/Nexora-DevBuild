@@ -21,7 +21,7 @@ class AchievementToastHost extends ConsumerWidget {
       children: [
         Positioned.fill(child: child),
         if (queue.isNotEmpty)
-        // Ключ по id: следующая плашка в очереди запускается заново
+          // Ключ по id: следующая плашка в очереди запускается заново
           _ToastCard(key: ValueKey(queue.first.id), index: 0),
       ],
     );
@@ -79,9 +79,12 @@ class _ToastCardState extends ConsumerState<_ToastCard>
         builder: (context, child) {
           // Быстро выезжает, держится, быстро уходит
           final t = _controller.value;
-          final show = Curves.easeOutCubic.transform((t / 0.08).clamp(0.0, 1.0));
-          final hide =
-          Curves.easeInCubic.transform(((t - 0.92) / 0.08).clamp(0.0, 1.0));
+          final show = Curves.easeOutCubic.transform(
+            (t / 0.08).clamp(0.0, 1.0),
+          );
+          final hide = Curves.easeInCubic.transform(
+            ((t - 0.92) / 0.08).clamp(0.0, 1.0),
+          );
           final visible = show - hide;
           return Opacity(
             opacity: visible,

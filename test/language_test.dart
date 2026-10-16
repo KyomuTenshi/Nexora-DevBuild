@@ -29,7 +29,10 @@ void main() {
     c.read(languageProvider.notifier).set(AppLanguage.en);
 
     expect(c.read(stringsProvider).navHome, 'Home');
-    expect(c.read(stringsProvider).level(3, '10', '100'), 'Level 3 · 10 / 100 XP');
+    expect(
+      c.read(stringsProvider).level(3, '10', '100'),
+      'Level 3 · 10 / 100 XP',
+    );
 
     // «Перезапуск»: новый контейнер читает тот же SharedPreferences
     final prefs = c.read(prefsProvider);

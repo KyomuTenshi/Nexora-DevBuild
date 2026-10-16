@@ -72,9 +72,9 @@ class _StorePageState extends ConsumerState<StorePage> {
         content: Text(
           canBuy
               ? 'Стоимость: ${formatNumber(item.price)} очков. '
-              'У вас ${formatNumber(profile.points)}.'
+                    'У вас ${formatNumber(profile.points)}.'
               : 'Не хватает ${formatNumber(item.price - profile.points)} очков. '
-              'Смотрите серии, читайте главы и пишите отзывы.',
+                    'Смотрите серии, читайте главы и пишите отзывы.',
         ),
         actions: [
           TextButton(
@@ -99,13 +99,12 @@ class _StorePageState extends ConsumerState<StorePage> {
   }
 
   void _save() {
-    ref.read(profileProvider.notifier).edit(
-          (p) => p.copyWith(
-        bannerId: _banner,
-        frameId: _frame,
-        badgeId: _badge,
-      ),
-    );
+    ref
+        .read(profileProvider.notifier)
+        .edit(
+          (p) =>
+              p.copyWith(bannerId: _banner, frameId: _frame, badgeId: _badge),
+        );
     Navigator.of(context).pop();
     showInfo(context, 'Оформление сохранено');
   }
@@ -115,8 +114,9 @@ class _StorePageState extends ConsumerState<StorePage> {
     final scheme = Theme.of(context).colorScheme;
     final profile = ref.watch(profileProvider);
     final library = ref.watch(libraryProvider).values;
-    final animeCount =
-        library.where((e) => e.item.type == MediaType.anime).length;
+    final animeCount = library
+        .where((e) => e.item.type == MediaType.anime)
+        .length;
     final mangaCount = library.length - animeCount;
 
     final sectionTitle = switch (_category) {
@@ -126,7 +126,9 @@ class _StorePageState extends ConsumerState<StorePage> {
     };
 
     final items = storeItemsOf(_category);
-    final openCount = items.where((i) => profile.unlocked.contains(i.id)).length;
+    final openCount = items
+        .where((i) => profile.unlocked.contains(i.id))
+        .length;
 
     return Scaffold(
       appBar: AppBar(
@@ -142,8 +144,11 @@ class _StorePageState extends ConsumerState<StorePage> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.monetization_on_rounded,
-                    size: 18, color: AppColors.star),
+                const Icon(
+                  Icons.monetization_on_rounded,
+                  size: 18,
+                  color: AppColors.star,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   '${formatNumber(profile.points)} очков',
@@ -214,8 +219,11 @@ class _StorePageState extends ConsumerState<StorePage> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.visibility_outlined,
-                                size: 14, color: Colors.white),
+                            Icon(
+                              Icons.visibility_outlined,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'Предпросмотр',
@@ -319,10 +327,7 @@ class _StorePageState extends ConsumerState<StorePage> {
               ),
               Text(
                 '$openCount из ${items.length} открыто',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -462,11 +467,7 @@ class _StoreTile extends StatelessWidget {
       StoreCategory.frame => ColoredBox(
         color: scheme.surfaceContainerHighest,
         child: Center(
-          child: ProfileAvatar(
-            text: avatarText,
-            frameId: item.id,
-            size: 84,
-          ),
+          child: ProfileAvatar(text: avatarText, frameId: item.id, size: 84),
         ),
       ),
       StoreCategory.badge => ColoredBox(
@@ -481,8 +482,11 @@ class _StoreTile extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.workspace_premium_rounded,
-                    size: 16, color: scheme.primary),
+                Icon(
+                  Icons.workspace_premium_rounded,
+                  size: 16,
+                  color: scheme.primary,
+                ),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -539,8 +543,11 @@ class _StoreTile extends StatelessWidget {
                       Container(
                         color: Colors.black.withValues(alpha: 0.35),
                         child: const Center(
-                          child: Icon(Icons.lock_outline_rounded,
-                              color: Colors.white, size: 28),
+                          child: Icon(
+                            Icons.lock_outline_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
                       ),
                     if (selected)
@@ -554,8 +561,11 @@ class _StoreTile extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: scheme.primary,
                           ),
-                          child: const Icon(Icons.check_rounded,
-                              size: 18, color: Colors.white),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                   ],
@@ -570,10 +580,7 @@ class _StoreTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
           ),
-          Text(
-            caption,
-            style: TextStyle(fontSize: 12.5, color: captionColor),
-          ),
+          Text(caption, style: TextStyle(fontSize: 12.5, color: captionColor)),
         ],
       ),
     );

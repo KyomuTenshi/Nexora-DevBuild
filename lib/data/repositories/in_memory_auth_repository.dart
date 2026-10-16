@@ -9,7 +9,7 @@ import 'package:nexora/domain/repositories/auth_repository.dart';
 class InMemoryAuthRepository implements AuthRepository {
   final Map<String, ({String password, String? name})> _accounts = {};
   final StreamController<AppUser?> _controller =
-  StreamController<AppUser?>.broadcast();
+      StreamController<AppUser?>.broadcast();
   AppUser? _current;
 
   @override

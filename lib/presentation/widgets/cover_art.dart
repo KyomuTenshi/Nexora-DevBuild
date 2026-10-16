@@ -20,12 +20,7 @@ class CoverPalette {
 }
 
 class CoverArt extends StatelessWidget {
-  const CoverArt({
-    super.key,
-    required this.seed,
-    this.imageUrl,
-    this.child,
-  });
+  const CoverArt({super.key, required this.seed, this.imageUrl, this.child});
 
   final int seed;
 

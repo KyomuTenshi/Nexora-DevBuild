@@ -17,6 +17,7 @@ import 'package:nexora/presentation/widgets/empty_view.dart';
 import 'package:nexora/presentation/widgets/error_view.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/skeleton.dart';
+
 import 'detail_header.dart';
 
 import 'package:go_router/go_router.dart';
@@ -75,7 +76,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   String _tabLabel(_DetailTab tab) => switch (tab) {
     _DetailTab.description => 'Описание',
     _DetailTab.episodes =>
-    widget.item.type == MediaType.anime ? 'Серии' : 'Главы',
+      widget.item.type == MediaType.anime ? 'Серии' : 'Главы',
     _DetailTab.reviews => 'Отзывы',
     _DetailTab.similar => 'Похожее',
   };
@@ -94,7 +95,9 @@ class _DetailPageState extends ConsumerState<DetailPage> {
           CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: DetailHero(item: item)),
-              SliverToBoxAdapter(child: DetailInfo(item: item, entry: entry)),
+              SliverToBoxAdapter(
+                child: DetailInfo(item: item, entry: entry),
+              ),
               // Вкладки лежат в обычном потоке. SliverLayoutBuilder сообщает,
               // где они сейчас, чтобы вовремя показать прилипшую копию.
               SliverLayoutBuilder(
@@ -206,10 +209,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   }
 
   List<Widget> _buildTabContent(
-      BuildContext context,
-      MediaItem item,
-      LibraryEntry? entry,
-      ) {
+    BuildContext context,
+    MediaItem item,
+    LibraryEntry? entry,
+  ) {
     final scheme = Theme.of(context).colorScheme;
 
     switch (_tab) {
@@ -249,8 +252,9 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         final progress = entry?.progress ?? 0;
         final isAnime = item.type == MediaType.anime;
         final word = isAnime ? 'Серия' : 'Глава';
-        final nextNumber =
-        (entry != null && progress < total) ? entry.next : null;
+        final nextNumber = (entry != null && progress < total)
+            ? entry.next
+            : null;
 
         return [
           // Число серий (глав) и порядок
@@ -292,8 +296,9 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               return ListTile(
                 contentPadding: const EdgeInsets.only(left: 16, right: 4),
                 // Следующая серия (глава) подсвечена: «продолжить отсюда»
-                tileColor:
-                isNext ? scheme.primary.withValues(alpha: 0.10) : null,
+                tileColor: isNext
+                    ? scheme.primary.withValues(alpha: 0.10)
+                    : null,
                 leading: Icon(
                   isAnime
                       ? Icons.play_circle_outline_rounded
@@ -324,7 +329,9 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   ),
                   onPressed: () {
                     final target = done ? number - 1 : number;
-                    ref.read(libraryProvider.notifier).setProgress(item, target);
+                    ref
+                        .read(libraryProvider.notifier)
+                        .setProgress(item, target);
                     showInfo(
                       context,
                       done ? 'Отметка снята' : 'Отмечена: $word $number',
@@ -337,9 +344,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         ];
 
       case _DetailTab.reviews:
-        final reviews = ref.watch(
-          reviewsProvider.select((m) => m[item.id]),
-        );
+        final reviews = ref.watch(reviewsProvider.select((m) => m[item.id]));
         final list = reviews ?? ref.read(reviewsProvider.notifier).of(item.id);
         return [
           SliverToBoxAdapter(
@@ -450,16 +455,18 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         if (text.isEmpty) return;
                         final profile = ref.read(profileProvider);
                         final rating = ref.read(ratingsProvider)[item.id] ?? 0;
-                        ref.read(reviewsProvider.notifier).add(
-                          item.id,
-                          Review(
-                            author: profile.name,
-                            rating: rating,
-                            text: text,
-                            ago: 'только что',
-                            mine: true,
-                          ),
-                        );
+                        ref
+                            .read(reviewsProvider.notifier)
+                            .add(
+                              item.id,
+                              Review(
+                                author: profile.name,
+                                rating: rating,
+                                text: text,
+                                ago: 'только что',
+                                mine: true,
+                              ),
+                            );
                         Navigator.of(sheetContext).pop();
                         showInfo(context, 'Отзыв опубликован · +50 очков');
                       },
@@ -603,9 +610,7 @@ class _ReviewTile extends StatelessWidget {
                 radius: 16,
                 backgroundColor: scheme.primary.withValues(alpha: 0.2),
                 child: Text(
-                  review.author.isEmpty
-                      ? '?'
-                      : review.author[0].toUpperCase(),
+                  review.author.isEmpty ? '?' : review.author[0].toUpperCase(),
                   style: TextStyle(
                     color: scheme.primary,
                     fontWeight: FontWeight.w800,
@@ -622,7 +627,11 @@ class _ReviewTile extends StatelessWidget {
                 ),
               ),
               if (review.rating > 0) ...[
-                const Icon(Icons.star_rounded, size: 16, color: Color(0xFFFFC53D)),
+                const Icon(
+                  Icons.star_rounded,
+                  size: 16,
+                  color: Color(0xFFFFC53D),
+                ),
                 const SizedBox(width: 2),
                 Text(
                   '${review.rating}',

@@ -16,10 +16,10 @@ extension LibraryStatusLabel on LibraryStatus {
   }
 
   IconData get icon => switch (this) {
-        LibraryStatus.inProgress => Icons.play_circle_outline_rounded,
-        LibraryStatus.paused => Icons.pause_circle_outline_rounded,
-        LibraryStatus.completed => Icons.check_circle_outline_rounded,
-        LibraryStatus.planned => Icons.schedule_rounded,
-        LibraryStatus.dropped => Icons.cancel_outlined,
-      };
+    LibraryStatus.inProgress => Icons.play_circle_outline_rounded,
+    LibraryStatus.paused => Icons.pause_circle_outline_rounded,
+    LibraryStatus.completed => Icons.check_circle_outline_rounded,
+    LibraryStatus.planned => Icons.schedule_rounded,
+    LibraryStatus.dropped => Icons.cancel_outlined,
+  };
 }

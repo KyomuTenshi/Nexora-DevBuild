@@ -86,9 +86,7 @@ class NotificationsNotifier extends Notifier<List<NotificationItem>> {
   }
 
   void markRead(String id) {
-    state = [
-      for (final n in state) n.id == id ? n.copyWith(isRead: true) : n,
-    ];
+    state = [for (final n in state) n.id == id ? n.copyWith(isRead: true) : n];
   }
 
   void markAllRead() {
@@ -103,9 +101,9 @@ class NotificationsNotifier extends Notifier<List<NotificationItem>> {
 }
 
 final notificationsProvider =
-NotifierProvider<NotificationsNotifier, List<NotificationItem>>(
-  NotificationsNotifier.new,
-);
+    NotifierProvider<NotificationsNotifier, List<NotificationItem>>(
+      NotificationsNotifier.new,
+    );
 
 /// Число непрочитанных для значка на иконке колокольчика.
 final unreadCountProvider = Provider<int>((ref) {

@@ -57,7 +57,7 @@ class _ImageAdjustPageState extends ConsumerState<ImageAdjustPage> {
 
   Matrix4 _matrixOf(ImageAdjust a) =>
       Matrix4.translationValues(a.tx * _frame.width, a.ty * _frame.height, 0) *
-          Matrix4.diagonal3Values(a.scale, a.scale, 1);
+      Matrix4.diagonal3Values(a.scale, a.scale, 1);
 
   /// Запоминаем текущее положение фото из жестов.
   void _capture() {
@@ -65,7 +65,10 @@ class _ImageAdjustPageState extends ConsumerState<ImageAdjustPage> {
     final t = m.getTranslation();
     setState(() {
       _adjust = _adjust.copyWith(
-        scale: m.getMaxScaleOnAxis().clamp(1.0, ImageAdjust.maxScale).toDouble(),
+        scale: m
+            .getMaxScaleOnAxis()
+            .clamp(1.0, ImageAdjust.maxScale)
+            .toDouble(),
         tx: t.x / _frame.width,
         ty: t.y / _frame.height,
       );
@@ -88,7 +91,8 @@ class _ImageAdjustPageState extends ConsumerState<ImageAdjustPage> {
     ty = ty.clamp(_frame.height * (1 - s1), 0.0).toDouble();
 
     _controller.value =
-        Matrix4.translationValues(tx, ty, 0) * Matrix4.diagonal3Values(s1, s1, 1);
+        Matrix4.translationValues(tx, ty, 0) *
+        Matrix4.diagonal3Values(s1, s1, 1);
     _capture();
   }
 
@@ -172,9 +176,7 @@ class _ImageAdjustPageState extends ConsumerState<ImageAdjustPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isAvatar ? 'Фото профиля' : 'Фон профиля'),
-        actions: [
-          TextButton(onPressed: _reset, child: const Text('Сбросить')),
-        ],
+        actions: [TextButton(onPressed: _reset, child: const Text('Сбросить'))],
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -208,24 +210,24 @@ class _ImageAdjustPageState extends ConsumerState<ImageAdjustPage> {
         children: [
           Text(
             'Двигайте фото пальцем, приближайте щипком или ползунком. '
-                'Так оно будет выглядеть в профиле.',
+            'Так оно будет выглядеть в профиле.',
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
           ),
           const SizedBox(height: 20),
           Center(
             child: _isAvatar
                 ? Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: scheme.primary, width: 3),
-              ),
-              child: ClipOval(child: frame),
-            )
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: scheme.primary, width: 3),
+                    ),
+                    child: ClipOval(child: frame),
+                  )
                 : ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: frame,
-            ),
+                    borderRadius: BorderRadius.circular(20),
+                    child: frame,
+                  ),
           ),
           const SizedBox(height: 24),
           _SliderRow(
@@ -245,7 +247,8 @@ class _ImageAdjustPageState extends ConsumerState<ImageAdjustPage> {
               value: _adjust.dim,
               min: 0,
               max: ImageAdjust.maxDim,
-              onChanged: (v) => setState(() => _adjust = _adjust.copyWith(dim: v)),
+              onChanged: (v) =>
+                  setState(() => _adjust = _adjust.copyWith(dim: v)),
             ),
             _SliderRow(
               icon: Icons.blur_on_rounded,
@@ -292,7 +295,10 @@ class _SliderRow extends StatelessWidget {
         const SizedBox(width: 10),
         SizedBox(
           width: 84,
-          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
         Expanded(
           child: Slider(

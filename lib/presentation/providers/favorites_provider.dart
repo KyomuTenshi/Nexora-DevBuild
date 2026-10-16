@@ -30,6 +30,6 @@ class FavoritesNotifier extends Notifier<Map<int, MediaItem>> {
 }
 
 final favoritesProvider =
-NotifierProvider<FavoritesNotifier, Map<int, MediaItem>>(
-  FavoritesNotifier.new,
-);
+    NotifierProvider<FavoritesNotifier, Map<int, MediaItem>>(
+      FavoritesNotifier.new,
+    );

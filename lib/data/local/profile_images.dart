@@ -5,17 +5,25 @@ import 'package:path_provider/path_provider.dart';
 
 enum ProfileImageKind { avatar, banner }
 
-/// Выбор фото из галереи и хранение его копии в папке приложения.
+/// Откуда берём фото: из галереи или прямо с камеры.
+enum ProfileImageSource { gallery, camera }
+
+/// Выбор фото из галереи (или с камеры) и хранение его копии в папке приложения.
 /// Копия нужна, потому что исходный файл из галереи может исчезнуть.
 class ProfileImages {
   ProfileImages._();
 
-  /// Открывает галерею и возвращает путь к сохранённой копии
+  /// Открывает галерею или камеру и возвращает путь к сохранённой копии
   /// (или null, если пользователь ничего не выбрал).
-  static Future<String?> pick(ProfileImageKind kind) async {
+  static Future<String?> pick(
+    ProfileImageKind kind, {
+    ProfileImageSource source = ProfileImageSource.gallery,
+  }) async {
     final isAvatar = kind == ProfileImageKind.avatar;
     final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
+      source: source == ProfileImageSource.camera
+          ? ImageSource.camera
+          : ImageSource.gallery,
       // Уменьшаем фото при выборе: аватару хватает 800 px, фону 1600 px
       maxWidth: isAvatar ? 800 : 1600,
       maxHeight: isAvatar ? 800 : 1600,

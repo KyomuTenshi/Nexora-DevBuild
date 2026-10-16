@@ -68,20 +68,16 @@ MockMediaRepository _mock({int pageSize = 4}) => MockMediaRepository(
 /// Вторая и следующие страницы падают, пока не сказать [failPages] = false.
 class _FlakyRepo extends MockMediaRepository {
   _FlakyRepo()
-      : super(
-    homeDelay: Duration.zero,
-    searchDelay: Duration.zero,
-    pageSize: 4,
-  );
+    : super(homeDelay: Duration.zero, searchDelay: Duration.zero, pageSize: 4);
 
   bool failPages = true;
   int pageCalls = 0;
 
   @override
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      }) async {
+    CatalogQuery query, {
+    int page = 0,
+  }) async {
     pageCalls++;
     if (page > 0 && failPages) {
       throw const NetworkException('нет сети');
@@ -93,19 +89,15 @@ class _FlakyRepo extends MockMediaRepository {
 /// Вторая страница «зависает», пока не сработает [gate].
 class _SlowRepo extends MockMediaRepository {
   _SlowRepo()
-      : super(
-    homeDelay: Duration.zero,
-    searchDelay: Duration.zero,
-    pageSize: 4,
-  );
+    : super(homeDelay: Duration.zero, searchDelay: Duration.zero, pageSize: 4);
 
   final gate = Completer<void>();
 
   @override
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      }) async {
+    CatalogQuery query, {
+    int page = 0,
+  }) async {
     if (page > 0) await gate.future;
     return super.searchCatalogPage(query, page: page);
   }
@@ -178,26 +170,25 @@ void main() {
   });
 
   group('CatalogFeedNotifier', () {
-    test('подгружает страницы до конца списка и там останавливается',
-            () async {
-          final container = _container(_mock());
-          final notifier = container.read(catalogFeedProvider.notifier);
+    test('подгружает страницы до конца списка и там останавливается', () async {
+      final container = _container(_mock());
+      final notifier = container.read(catalogFeedProvider.notifier);
 
-          await container.read(catalogFeedProvider.future);
-          expect(_feed(container).items, hasLength(4));
-          expect(_feed(container).hasMore, isTrue);
+      await container.read(catalogFeedProvider.future);
+      expect(_feed(container).items, hasLength(4));
+      expect(_feed(container).hasMore, isTrue);
 
-          await notifier.loadMore();
-          expect(_feed(container).items, hasLength(8));
-          await notifier.loadMore();
-          expect(_feed(container).items, hasLength(12));
-          await notifier.loadMore();
-          expect(_feed(container).items, hasLength(15)); // всего 15 тайтлов
-          expect(_feed(container).hasMore, isFalse);
+      await notifier.loadMore();
+      expect(_feed(container).items, hasLength(8));
+      await notifier.loadMore();
+      expect(_feed(container).items, hasLength(12));
+      await notifier.loadMore();
+      expect(_feed(container).items, hasLength(15)); // всего 15 тайтлов
+      expect(_feed(container).hasMore, isFalse);
 
-          await notifier.loadMore(); // дальше ничего нет: без изменений
-          expect(_feed(container).items, hasLength(15));
-        });
+      await notifier.loadMore(); // дальше ничего нет: без изменений
+      expect(_feed(container).items, hasLength(15));
+    });
 
     test('в списке нет повторов по id', () async {
       final container = _container(_mock());
@@ -212,30 +203,32 @@ void main() {
       expect(ids.toSet(), hasLength(ids.length));
     });
 
-    test('ошибка подгрузки не стирает список; автоповтора нет, кнопка работает',
-            () async {
-          final repo = _FlakyRepo();
-          final container = _container(repo);
-          final notifier = container.read(catalogFeedProvider.notifier);
-          await container.read(catalogFeedProvider.future);
+    test(
+      'ошибка подгрузки не стирает список; автоповтора нет, кнопка работает',
+      () async {
+        final repo = _FlakyRepo();
+        final container = _container(repo);
+        final notifier = container.read(catalogFeedProvider.notifier);
+        await container.read(catalogFeedProvider.future);
 
-          await notifier.loadMore();
+        await notifier.loadMore();
 
-          expect(_feed(container).items, hasLength(4)); // список на месте
-          expect(_feed(container).moreError, isA<NetworkException>());
-          expect(_feed(container).loadingMore, isFalse);
+        expect(_feed(container).items, hasLength(4)); // список на месте
+        expect(_feed(container).moreError, isA<NetworkException>());
+        expect(_feed(container).loadingMore, isFalse);
 
-          // Прокрутка не должна бесконечно дёргать упавший сервер
-          final callsAfterError = repo.pageCalls;
-          await notifier.loadMore();
-          expect(repo.pageCalls, callsAfterError);
+        // Прокрутка не должна бесконечно дёргать упавший сервер
+        final callsAfterError = repo.pageCalls;
+        await notifier.loadMore();
+        expect(repo.pageCalls, callsAfterError);
 
-          // «Повторить» после того, как сеть вернулась
-          repo.failPages = false;
-          await notifier.retryLoadMore();
-          expect(_feed(container).items, hasLength(8));
-          expect(_feed(container).moreError, isNull);
-        });
+        // «Повторить» после того, как сеть вернулась
+        repo.failPages = false;
+        await notifier.retryLoadMore();
+        expect(_feed(container).items, hasLength(8));
+        expect(_feed(container).moreError, isNull);
+      },
+    );
 
     test('ответ на старый запрос после смены фильтра выбрасывается', () async {
       final repo = _SlowRepo();
@@ -273,7 +266,10 @@ void main() {
       await container.read(catalogFeedProvider.notifier).loadMore();
       await container.read(catalogFeedProvider.future);
 
-      expect(repo.pageCalls, callsBefore + 1); // только первая страница нового запроса
+      expect(
+        repo.pageCalls,
+        callsBefore + 1,
+      ); // только первая страница нового запроса
       expect(_feed(container).items, hasLength(4));
     });
   });
@@ -327,15 +323,16 @@ void main() {
       expect(_feed(container).items, hasLength(8));
     });
 
-    testWidgets('в конце списка вместо кнопки надпись «Это всё»',
-            (tester) async {
-          // Все 15 тайтлов в одной странице: подгружать больше нечего
-          await pumpGrid(tester, _mock(pageSize: 50));
+    testWidgets('в конце списка вместо кнопки надпись «Это всё»', (
+      tester,
+    ) async {
+      // Все 15 тайтлов в одной странице: подгружать больше нечего
+      await pumpGrid(tester, _mock(pageSize: 50));
 
-          await tester.scrollUntilVisible(find.text('Это всё'), 500);
+      await tester.scrollUntilVisible(find.text('Это всё'), 500);
 
-          expect(find.text('Это всё'), findsOneWidget);
-          expect(find.text('Показать ещё'), findsNothing);
-        });
+      expect(find.text('Это всё'), findsOneWidget);
+      expect(find.text('Показать ещё'), findsNothing);
+    });
   });
 }

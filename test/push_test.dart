@@ -22,29 +22,31 @@ void main() {
   // Плашка внизу использует GlobalKey, ему нужно окружение Flutter
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('push в открытом приложении попадает в уведомления как непрочитанный',
-          () async {
-        final push = FakePushRepository();
-        addTearDown(push.dispose);
-        final container = ProviderContainer(
-          overrides: [pushRepositoryProvider.overrideWithValue(push)],
-        );
-        addTearDown(container.dispose);
+  test(
+    'push в открытом приложении попадает в уведомления как непрочитанный',
+    () async {
+      final push = FakePushRepository();
+      addTearDown(push.dispose);
+      final container = ProviderContainer(
+        overrides: [pushRepositoryProvider.overrideWithValue(push)],
+      );
+      addTearDown(container.dispose);
 
-        _watchPush(container);
-        await _pumpEvents();
-        final before = container.read(unreadCountProvider);
+      _watchPush(container);
+      await _pumpEvents();
+      final before = container.read(unreadCountProvider);
 
-        push.emitForeground(
-          const PushMessage(title: 'Новая серия', body: 'Вышла серия 5'),
-        );
-        await _pumpEvents();
+      push.emitForeground(
+        const PushMessage(title: 'Новая серия', body: 'Вышла серия 5'),
+      );
+      await _pumpEvents();
 
-        expect(container.read(unreadCountProvider), before + 1);
-        final first = container.read(notificationsProvider).first;
-        expect(first.title, 'Новая серия');
-        expect(first.message, 'Вышла серия 5');
-      });
+      expect(container.read(unreadCountProvider), before + 1);
+      final first = container.read(notificationsProvider).first;
+      expect(first.title, 'Новая серия');
+      expect(first.message, 'Вышла серия 5');
+    },
+  );
 
   test('после входа токен устройства запоминается за аккаунтом', () async {
     final push = FakePushRepository(token: 'device-token-1');

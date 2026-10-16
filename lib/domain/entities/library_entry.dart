@@ -25,9 +25,8 @@ class LibraryEntry {
   }
 
   /// Доля пройденного от 0.0 до 1.0
-  double get fraction => item.totalUnits == 0
-      ? 0.0
-      : (progress / item.totalUnits).clamp(0.0, 1.0);
+  double get fraction =>
+      item.totalUnits == 0 ? 0.0 : (progress / item.totalUnits).clamp(0.0, 1.0);
 
   LibraryEntry copyWith({
     LibraryStatus? status,

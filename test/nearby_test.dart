@@ -82,34 +82,36 @@ void main() {
   });
 
   group('OverpassPlacesRepository', () {
-    test('разбирает точки и здания, пропускает записи без названия и координат',
-            () async {
-          late Uri requested;
-          final client = MockClient((request) async {
-            requested = request.url;
-            return _json(_overpassJson);
-          });
-          final api = ApiClient(
-            baseUrl: kOverpassBaseUrl,
-            client: client,
-            minGap: Duration.zero,
-          );
-          addTearDown(api.close);
-
-          final places = await OverpassPlacesRepository(api).nearby(
-            center: const GeoPoint(43.2389, 76.8897),
-            category: PlaceCategory.cinema,
-          );
-
-          expect(places.map((p) => p.name), ['Кинотеатр А', 'Кинотеатр Б']);
-          expect(places[0].address, 'Абая, 10');
-          expect(places[1].address, isNull);
-          expect(places[1].position.latitude, 43.25); // координаты из center
-
-          final query = requested.queryParameters['data']!;
-          expect(query, contains('"amenity"="cinema"'));
-          expect(query, contains('around:5000,43.239,76.890'));
+    test(
+      'разбирает точки и здания, пропускает записи без названия и координат',
+      () async {
+        late Uri requested;
+        final client = MockClient((request) async {
+          requested = request.url;
+          return _json(_overpassJson);
         });
+        final api = ApiClient(
+          baseUrl: kOverpassBaseUrl,
+          client: client,
+          minGap: Duration.zero,
+        );
+        addTearDown(api.close);
+
+        final places = await OverpassPlacesRepository(api).nearby(
+          center: const GeoPoint(43.2389, 76.8897),
+          category: PlaceCategory.cinema,
+        );
+
+        expect(places.map((p) => p.name), ['Кинотеатр А', 'Кинотеатр Б']);
+        expect(places[0].address, 'Абая, 10');
+        expect(places[1].address, isNull);
+        expect(places[1].position.latitude, 43.25); // координаты из center
+
+        final query = requested.queryParameters['data']!;
+        expect(query, contains('"amenity"="cinema"'));
+        expect(query, contains('around:5000,43.239,76.890'));
+      },
+    );
 
     test('ответ без списка elements даёт ParseException', () async {
       final client = MockClient((_) async => _json({'remark': 'oops'}));
@@ -121,51 +123,50 @@ void main() {
       addTearDown(api.close);
 
       expect(
-            () => OverpassPlacesRepository(api).nearby(
-          center: kDefaultCenter,
-          category: PlaceCategory.books,
-        ),
+        () =>
+            OverpassPlacesRepository(api)
+                .nearby(center: kDefaultCenter, category: PlaceCategory.books),
         throwsA(isA<ParseException>()),
       );
     });
   });
 
   group('провайдеры', () {
-    test('при запрете геолокации ищем вокруг центра по умолчанию, ближайшие первыми',
-            () async {
-          final places = FakePlacesRepository(places: [
-            _place('far', 'Далёкий', 43.30, 76.95),
-            _place('near', 'Ближний', 43.24, 76.89),
-          ]);
-          final container = ProviderContainer(
-            retry: noAutoRetry,
-            overrides: [
-              locationRepositoryProvider.overrideWithValue(
-                FakeLocationRepository(problem: LocationProblem.denied),
-              ),
-              placesRepositoryProvider.overrideWithValue(places),
-            ],
-          );
-          addTearDown(container.dispose);
+    test('при запрете геолокации ищем вокруг центра по умолчанию, ближайшие первыми', () async {
+      final places = FakePlacesRepository(
+        places: [
+          _place('far', 'Далёкий', 43.30, 76.95),
+          _place('near', 'Ближний', 43.24, 76.89),
+        ],
+      );
+      final container = ProviderContainer(
+        retry: noAutoRetry,
+        overrides: [
+          locationRepositoryProvider.overrideWithValue(
+            FakeLocationRepository(problem: LocationProblem.denied),
+          ),
+          placesRepositoryProvider.overrideWithValue(places),
+        ],
+      );
+      addTearDown(container.dispose);
 
-          // Держим провайдер «под наблюдением», как это делает экран
-          final subscription =
-          container.listen(nearbyPlacesProvider, (_, _) {});
-          addTearDown(subscription.close);
+      // Держим провайдер «под наблюдением», как это делает экран
+      final subscription = container.listen(nearbyPlacesProvider, (_, _) {});
+      addTearDown(subscription.close);
 
-          final result = await container.read(nearbyPlacesProvider.future);
+      final result = await container.read(nearbyPlacesProvider.future);
 
-          expect(result.map((p) => p.name), ['Ближний', 'Далёкий']);
-          expect(places.lastCenter, kDefaultCenter);
-        });
+      expect(result.map((p) => p.name), ['Ближний', 'Далёкий']);
+      expect(places.lastCenter, kDefaultCenter);
+    });
   });
 
   group('NearbyPage', () {
     Future<void> pumpPage(
-        WidgetTester tester, {
-          required FakeLocationRepository location,
-          required FakePlacesRepository places,
-        }) async {
+      WidgetTester tester, {
+      required FakeLocationRepository location,
+      required FakePlacesRepository places,
+    }) async {
       tester.view.physicalSize = const Size(1080, 2340);
       tester.view.devicePixelRatio = 2.625;
       addTearDown(tester.view.resetPhysicalSize);
@@ -190,13 +191,17 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('показывает места со своей позиции и расстоянием', (tester) async {
+    testWidgets('показывает места со своей позиции и расстоянием', (
+      tester,
+    ) async {
       await pumpPage(
         tester,
-        location: FakeLocationRepository(position: const GeoPoint(43.24, 76.89)),
-        places: FakePlacesRepository(places: [
-          _place('a', 'Кинотеатр Ближний', 43.241, 76.89),
-        ]),
+        location: FakeLocationRepository(
+          position: const GeoPoint(43.24, 76.89),
+        ),
+        places: FakePlacesRepository(
+          places: [_place('a', 'Кинотеатр Ближний', 43.241, 76.89)],
+        ),
       );
 
       expect(find.text('Кинотеатр Ближний'), findsOneWidget);
@@ -205,36 +210,39 @@ void main() {
       expect(find.text('Нет доступа к местоположению'), findsNothing);
     });
 
-    testWidgets('без разрешения показывает причину и всё равно ищет места',
-            (tester) async {
-          await pumpPage(
-            tester,
-            location: FakeLocationRepository(problem: LocationProblem.denied),
-            places: FakePlacesRepository(places: [
-              _place('a', 'Кинотеатр у центра', 43.24, 76.89),
-            ]),
-          );
+    testWidgets('без разрешения показывает причину и всё равно ищет места', (
+      tester,
+    ) async {
+      await pumpPage(
+        tester,
+        location: FakeLocationRepository(problem: LocationProblem.denied),
+        places: FakePlacesRepository(
+          places: [_place('a', 'Кинотеатр у центра', 43.24, 76.89)],
+        ),
+      );
 
-          expect(find.text('Нет доступа к местоположению'), findsOneWidget);
-          expect(find.text('Разрешить'), findsOneWidget);
-          expect(find.text('Кинотеатр у центра'), findsOneWidget);
-        });
+      expect(find.text('Нет доступа к местоположению'), findsOneWidget);
+      expect(find.text('Разрешить'), findsOneWidget);
+      expect(find.text('Кинотеатр у центра'), findsOneWidget);
+    });
 
-    testWidgets('если выключена геолокация, кнопка открывает настройки',
-            (tester) async {
-          final location =
-          FakeLocationRepository(problem: LocationProblem.servicesOff);
-          await pumpPage(
-            tester,
-            location: location,
-            places: FakePlacesRepository(),
-          );
+    testWidgets('если выключена геолокация, кнопка открывает настройки', (
+      tester,
+    ) async {
+      final location = FakeLocationRepository(
+        problem: LocationProblem.servicesOff,
+      );
+      await pumpPage(
+        tester,
+        location: location,
+        places: FakePlacesRepository(),
+      );
 
-          await tester.tap(find.text('Включить'));
-          await tester.pump();
+      await tester.tap(find.text('Включить'));
+      await tester.pump();
 
-          expect(location.locationSettingsOpened, 1);
-        });
+      expect(location.locationSettingsOpened, 1);
+    });
 
     testWidgets('пустой результат показывает подсказку', (tester) async {
       await pumpPage(

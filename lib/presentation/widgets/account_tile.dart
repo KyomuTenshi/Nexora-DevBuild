@@ -11,7 +11,8 @@ class AccountTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Пока поток не выдал первое значение, берём пользователя напрямую
-    final user = ref.watch(authStateProvider).value ??
+    final user =
+        ref.watch(authStateProvider).value ??
         ref.read(authRepositoryProvider).currentUser;
     final sync = ref.watch(cloudSyncProvider);
 

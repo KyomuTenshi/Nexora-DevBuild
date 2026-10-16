@@ -21,9 +21,9 @@ class CatalogQueryNotifier extends Notifier<CatalogQuery> {
 }
 
 final catalogQueryProvider =
-NotifierProvider<CatalogQueryNotifier, CatalogQuery>(
-  CatalogQueryNotifier.new,
-);
+    NotifierProvider<CatalogQueryNotifier, CatalogQuery>(
+      CatalogQueryNotifier.new,
+    );
 
 /// Только ПЕРВАЯ страница результатов обычным списком. Её читают подсказки
 /// в строке поиска: им хватает пяти верхних строк, подгрузка не нужна.
@@ -122,8 +122,10 @@ class CatalogFeedNotifier extends AsyncNotifier<CatalogFeed> {
     state = AsyncData(feed.copyWith(loadingMore: true, moreError: () => null));
 
     try {
-      final page =
-      await repository.searchCatalogPage(query, page: feed.nextPage);
+      final page = await repository.searchCatalogPage(
+        query,
+        page: feed.nextPage,
+      );
       if (generation != _generation) return; // фильтры уже другие
 
       final current = state.requireValue;
@@ -146,10 +148,7 @@ class CatalogFeedNotifier extends AsyncNotifier<CatalogFeed> {
     } catch (error) {
       if (generation != _generation) return;
       state = AsyncData(
-        state.requireValue.copyWith(
-          loadingMore: false,
-          moreError: () => error,
-        ),
+        state.requireValue.copyWith(loadingMore: false, moreError: () => error),
       );
     }
   }
@@ -164,6 +163,6 @@ class CatalogFeedNotifier extends AsyncNotifier<CatalogFeed> {
 }
 
 final catalogFeedProvider =
-AsyncNotifierProvider<CatalogFeedNotifier, CatalogFeed>(
-  CatalogFeedNotifier.new,
-);
+    AsyncNotifierProvider<CatalogFeedNotifier, CatalogFeed>(
+      CatalogFeedNotifier.new,
+    );

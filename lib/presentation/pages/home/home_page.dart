@@ -10,6 +10,7 @@ import 'package:nexora/presentation/widgets/cached_data_banner.dart';
 import 'package:nexora/presentation/widgets/error_view.dart';
 import 'package:nexora/presentation/widgets/section_header.dart';
 import 'package:nexora/presentation/widgets/skeleton.dart';
+
 import 'continue_reading_section.dart';
 import 'continue_watching_section.dart';
 import 'featured_carousel.dart';
@@ -22,9 +23,11 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final feed = ref.watch(homeFeedProvider);
-    final hasActive = ref.watch(libraryProvider.select(
-          (m) => m.values.any((e) => e.status == LibraryStatus.inProgress),
-    ));
+    final hasActive = ref.watch(
+      libraryProvider.select(
+        (m) => m.values.any((e) => e.status == LibraryStatus.inProgress),
+      ),
+    );
 
     return Scaffold(
       body: SafeArea(

@@ -10,7 +10,7 @@ class LanguageNotifier extends Notifier<AppLanguage> {
   AppLanguage build() {
     final saved = ref.read(prefsProvider).getString(_key);
     return AppLanguage.values.firstWhere(
-          (l) => l.name == saved,
+      (l) => l.name == saved,
       orElse: () => AppLanguage.ru,
     );
   }

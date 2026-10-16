@@ -67,8 +67,7 @@ class FirebaseAuthRepository implements AuthRepository {
       'invalid-credential' ||
       'wrong-password' ||
       'user-not-found' ||
-      'user-disabled' =>
-      AuthFailure.invalidCredentials,
+      'user-disabled' => AuthFailure.invalidCredentials,
       'invalid-email' => AuthFailure.invalidEmail,
       'email-already-in-use' => AuthFailure.emailInUse,
       'weak-password' => AuthFailure.weakPassword,

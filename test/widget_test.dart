@@ -30,10 +30,9 @@ class FailingMediaRepository implements MediaRepository {
 
   @override
   Future<CatalogResultPage> searchCatalogPage(
-      CatalogQuery query, {
-        int page = 0,
-      }) async =>
-      throw const NetworkException('Нет подключения к интернету');
+    CatalogQuery query, {
+    int page = 0,
+  }) async => throw const NetworkException('Нет подключения к интернету');
 
   @override
   Future<String?> findCoverUrl(MediaItem item) async => null;
@@ -45,10 +44,10 @@ class FailingMediaRepository implements MediaRepository {
 /// Запускает приложение с «настоящим» SharedPreferences из памяти.
 /// В тестах вместо реального API подставляем тестовый репозиторий.
 Future<void> pumpApp(
-    WidgetTester tester, {
-      bool onboarded = true,
-      MediaRepository? repository,
-    }) async {
+  WidgetTester tester, {
+  bool onboarded = true,
+  MediaRepository? repository,
+}) async {
   SharedPreferences.setMockInitialValues({'onboarded': onboarded});
   final prefs = await SharedPreferences.getInstance();
 
@@ -57,8 +56,9 @@ Future<void> pumpApp(
       retry: noAutoRetry,
       overrides: [
         prefsProvider.overrideWithValue(prefs),
-        mediaRepositoryProvider
-            .overrideWithValue(repository ?? MockMediaRepository()),
+        mediaRepositoryProvider.overrideWithValue(
+          repository ?? MockMediaRepository(),
+        ),
       ],
       child: const NexoraApp(),
     ),
@@ -101,7 +101,8 @@ void main() {
     expect(find.text('Пропустить'), findsOneWidget);
 
     await tester.tap(find.text('Пропустить'));
-    await tester.pump(); // redirect в GoRouter переключает приветствие на Главную
+    await tester
+        .pump(); // redirect в GoRouter переключает приветствие на Главную
     await tester.pump(const Duration(seconds: 1)); // ждём тестовую задержку
     await tester.pump(const Duration(seconds: 1)); // запас на смену экрана
     await tester.pump();
@@ -121,7 +122,9 @@ void main() {
     expect(find.text('One Piece'), findsWidgets);
   });
 
-  testWidgets('библиотека показывает записи, тайтл открывается', (tester) async {
+  testWidgets('библиотека показывает записи, тайтл открывается', (
+    tester,
+  ) async {
     usePhoneScreen(tester);
     await pumpApp(tester);
     await tester.pump(const Duration(seconds: 1));
@@ -145,25 +148,26 @@ void main() {
       200,
       scrollable: find
           .descendant(
-        of: find.byType(CustomScrollView),
-        matching: find.byType(Scrollable),
-      )
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          )
           .first,
     );
     expect(find.text('Описание'), findsOneWidget);
   });
 
-  testWidgets('при сбое сети главная показывает ошибку и «Повторить»',
-          (tester) async {
-        usePhoneScreen(tester);
-        await pumpApp(tester, repository: FailingMediaRepository());
-        await tester.pump();
-        await tester.pump();
+  testWidgets('при сбое сети главная показывает ошибку и «Повторить»', (
+    tester,
+  ) async {
+    usePhoneScreen(tester);
+    await pumpApp(tester, repository: FailingMediaRepository());
+    await tester.pump();
+    await tester.pump();
 
-        expect(find.text('Нет соединения'), findsOneWidget);
-        expect(find.text('Повторить'), findsOneWidget);
-        expect(find.text('Продолжить просмотр'), findsNothing);
-      });
+    expect(find.text('Нет соединения'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
+    expect(find.text('Продолжить просмотр'), findsNothing);
+  });
 
   test('уровень и инициалы считаются правильно', () {
     final profile = ProfileState.initial();

@@ -74,7 +74,8 @@ class AppStrings {
   String get storeAndStyle =>
       _t('Оформление и магазин', 'Customization and store');
   String get dataSection => _t('Данные', 'Data');
-  String get showWelcome => _t('Показать приветствие снова', 'Show welcome again');
+  String get showWelcome =>
+      _t('Показать приветствие снова', 'Show welcome again');
   String get resetProfile =>
       _t('Сбросить профиль и очки', 'Reset profile and points');
   String get aboutSection => _t('О приложении', 'About');
