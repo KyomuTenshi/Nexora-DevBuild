@@ -16,9 +16,17 @@ class InMemoryAuthRepository implements AuthRepository {
   AppUser? get currentUser => _current;
 
   @override
-  Stream<AppUser?> authStateChanges() async* {
-    yield _current;
-    yield* _controller.stream;
+  Stream<AppUser?> authStateChanges() {
+    late final StreamController<AppUser?> controller;
+    StreamSubscription<AppUser?>? subscription;
+    controller = StreamController<AppUser?>(
+      onListen: () {
+        controller.add(_current);
+        subscription = _controller.stream.listen(controller.add);
+      },
+      onCancel: () => subscription?.cancel(),
+    );
+    return controller.stream;
   }
 
   @override

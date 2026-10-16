@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'presentation/providers/cloud_sync_provider.dart';
 import 'presentation/providers/language_provider.dart';
 import 'presentation/providers/profile_provider.dart';
 import 'presentation/providers/theme_provider.dart';
@@ -16,6 +17,9 @@ class NexoraApp extends ConsumerWidget {
     final themeMode = ref.watch(themeProvider);
     final language = ref.watch(languageProvider);
     final accent = ref.watch(profileProvider.select((p) => p.accent));
+
+    // Держим синхронизацию с облаком включённой, пока работает приложение
+    ref.watch(cloudSyncProvider);
 
     return MaterialApp.router(
       title: 'Nexora',
@@ -31,7 +35,7 @@ class NexoraApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // Всеми переходами теперь управляет GoRouter
+      // Всеми переходами управляет GoRouter
       routerConfig: ref.watch(routerProvider),
       // Плашка «Достижение получено» поверх любого экрана
       builder: (context, child) =>
