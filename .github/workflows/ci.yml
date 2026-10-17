@@ -1,0 +1,137 @@
+name: CI
+
+# Когда запускаемся: на каждый push в main, на каждый pull request и вручную
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Новый запуск отменяет старый для той же ветки: не копим очередь
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Проверка кода: форматирование, анализатор, тесты, покрытие
+  #    Секреты не нужны, поэтому работает и для pull request из форков.
+  # ---------------------------------------------------------------------------
+  test:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Скачать код
+        uses: actions/checkout@v4
+
+      - name: Установить Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Скачать зависимости
+        run: flutter pub get
+
+      - name: Проверить форматирование
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      # lib/firebase_options.dart нельзя хранить в Git, но без него код не
+      # компилируется. Для проверок хватает заглушки с «пустыми» значениями.
+      - name: Создать заглушку firebase_options.dart
+        run: |
+          cat > lib/firebase_options.dart <<'EOF'
+          import 'package:firebase_core/firebase_core.dart';
+
+          /// Заглушка для CI: настоящий файл создаёт flutterfire configure.
+          class DefaultFirebaseOptions {
+            static const FirebaseOptions currentPlatform = FirebaseOptions(
+              apiKey: 'ci',
+              appId: 'ci',
+              messagingSenderId: 'ci',
+              projectId: 'ci',
+            );
+          }
+          EOF
+
+      - name: Статический анализ
+        run: flutter analyze
+
+      - name: Тесты с покрытием
+        run: flutter test --coverage
+
+      - name: Посчитать покрытие
+        run: |
+          pct=$(awk -F: '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END{ if (lf == 0) print "0.0"; else printf "%.1f", lh * 100 / lf }' coverage/lcov.info)
+          echo "Покрытие тестами: ${pct}%"
+          echo "### Покрытие тестами: ${pct}%" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Сохранить отчёт о покрытии
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # 2. Сборка APK. Нужны секреты репозитория, поэтому только для push в main
+  #    и ручного запуска (в pull request из форков секреты недоступны).
+  # ---------------------------------------------------------------------------
+  build-apk:
+    name: Build APK
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Скачать код
+        uses: actions/checkout@v4
+
+      - name: Установить Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Установить Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Секреты хранятся в Settings -> Secrets and variables -> Actions
+      # (файлы закодированы в base64, команды есть в README).
+      - name: Восстановить файлы с секретами
+        env:
+          FIREBASE_OPTIONS_B64: ${{ secrets.FIREBASE_OPTIONS_B64 }}
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          echo "$FIREBASE_OPTIONS_B64" | base64 --decode > lib/firebase_options.dart
+          echo "$GOOGLE_SERVICES_JSON_B64" | base64 --decode > android/app/google-services.json
+          test -s lib/firebase_options.dart || { echo "::error::Не задан секрет FIREBASE_OPTIONS_B64"; exit 1; }
+          test -s android/app/google-services.json || { echo "::error::Не задан секрет GOOGLE_SERVICES_JSON_B64"; exit 1; }
+
+      - name: Скачать зависимости
+        run: flutter pub get
+
+      # pub get создаёт android/local.properties, ключ карт дописываем в него
+      - name: Добавить ключ Google Maps
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+        run: echo "MAPS_API_KEY=$MAPS_API_KEY" >> android/local.properties
+
+      - name: Собрать APK
+        run: flutter build apk --release
+
+      - name: Сохранить APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexora-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
