@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -46,8 +47,11 @@ class NexoraApp extends ConsumerWidget {
       // Всеми переходами управляет GoRouter
       routerConfig: ref.watch(routerProvider),
       // Плашка «Достижение получено» поверх любого экрана
-      builder: (context, child) =>
-          AchievementToastHost(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        // Значки статус-бара видны и в тёмной, и в светлой теме
+        value: AppTheme.overlayStyle(Theme.of(context)),
+        child: AchievementToastHost(child: child ?? const SizedBox.shrink()),
+      ),
     );
   }
 }

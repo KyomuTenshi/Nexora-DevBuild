@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexora/core/constants/catalog_filters.dart';
-import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/presentation/providers/onboarding_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
+import 'package:nexora/presentation/widgets/accent_picker.dart';
+import 'package:nexora/presentation/widgets/brand_mark.dart';
 
 /// Приветствие при первом запуске: 3 шага. После него открывается Главная.
 class OnboardingPage extends ConsumerStatefulWidget {
@@ -186,23 +187,7 @@ class _WelcomeStep extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 16),
-          Container(
-            width: 112,
-            height: 112,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [accent, AppColors.pink],
-              ),
-            ),
-            child: const Icon(
-              Icons.auto_awesome_rounded,
-              size: 54,
-              color: Colors.white,
-            ),
-          ),
+          const BrandMark(),
           const SizedBox(height: 24),
           const Text(
             'Nexora',
@@ -271,10 +256,7 @@ class _NameStep extends StatelessWidget {
             controller: controller,
             maxLength: 24,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Имя',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Имя'),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -282,33 +264,7 @@ class _NameStep extends StatelessWidget {
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 14,
-            runSpacing: 12,
-            children: [
-              for (var i = 0; i < AppColors.accents.length; i++)
-                GestureDetector(
-                  onTap: () => onAccent(i),
-                  child: Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.accents[i],
-                      border: Border.all(
-                        color: i == accentIndex
-                            ? scheme.onSurface
-                            : Colors.transparent,
-                        width: 3,
-                      ),
-                    ),
-                    child: i == accentIndex
-                        ? const Icon(Icons.check_rounded, color: Colors.white)
-                        : null,
-                  ),
-                ),
-            ],
-          ),
+          AccentPicker(selectedIndex: accentIndex, onSelected: onAccent),
         ],
       ),
     );

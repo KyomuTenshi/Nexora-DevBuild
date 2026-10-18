@@ -118,7 +118,7 @@ class ProfilePage extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        profile.name,
+                        profile.displayName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -243,7 +243,7 @@ class ProfilePage extends ConsumerWidget {
                     await Clipboard.setData(
                       ClipboardData(
                         text:
-                            '${profile.name} в Nexora · уровень ${profile.level}',
+                            '${profile.displayName} в Nexora · уровень ${profile.level}',
                       ),
                     );
                     if (context.mounted) {

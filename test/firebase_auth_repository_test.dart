@@ -56,9 +56,8 @@ void main() {
 
     test('поток состояний тоже превращается в AppUser', () {
       final firebaseUser = fakeUser();
-      when(() => auth.authStateChanges()).thenAnswer(
-        (_) => Stream<User?>.fromIterable([firebaseUser, null]),
-      );
+      when(() => auth.authStateChanges())
+          .thenAnswer((_) => Stream<User?>.fromIterable([firebaseUser, null]));
 
       expect(
         repo.authStateChanges(),

@@ -2,12 +2,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/core/utils/russian_plural.dart';
-import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/domain/entities/media_item.dart';
 import 'package:nexora/presentation/pages/catalog/catalog_grid.dart';
-import 'package:nexora/presentation/pages/player/watch_page.dart';
-import 'package:nexora/presentation/pages/reader/reader_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/providers/ratings_provider.dart';
@@ -19,6 +17,7 @@ import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/skeleton.dart';
 
 import 'detail_header.dart';
+import 'units_section.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:nexora/core/router/app_router.dart';
@@ -51,9 +50,6 @@ class DetailPage extends ConsumerStatefulWidget {
 
 class _DetailPageState extends ConsumerState<DetailPage> {
   _DetailTab _tab = _DetailTab.description;
-
-  /// Порядок серий (глав). У манги по умолчанию сначала новые, как в MangaLib.
-  late bool _newestFirst = widget.item.type == MediaType.manga;
 
   /// true, когда вкладки доехали до верха экрана и поверх показывается
   /// размытая копия полосы.
@@ -114,7 +110,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   );
                 },
               ),
-              ..._buildTabContent(context, item, entry),
+              ..._buildTabContent(context, item),
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           ),
@@ -208,11 +204,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     );
   }
 
-  List<Widget> _buildTabContent(
-    BuildContext context,
-    MediaItem item,
-    LibraryEntry? entry,
-  ) {
+  List<Widget> _buildTabContent(BuildContext context, MediaItem item) {
     final scheme = Theme.of(context).colorScheme;
 
     switch (_tab) {
@@ -237,111 +229,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         ];
 
       case _DetailTab.episodes:
-        if (item.totalUnits == 0) {
-          return const [
-            SliverToBoxAdapter(
-              child: EmptyView(
-                icon: Icons.movie_outlined,
-                title: 'Список пока пуст',
-                message: 'Информация об эпизодах появится позже.',
-              ),
-            ),
-          ];
-        }
-        final total = item.totalUnits;
-        final progress = entry?.progress ?? 0;
-        final isAnime = item.type == MediaType.anime;
-        final word = isAnime ? 'Серия' : 'Глава';
-        final nextNumber = (entry != null && progress < total)
-            ? entry.next
-            : null;
-
-        return [
-          // Число серий (глав) и порядок
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '$total ${unitWord(item.type, total)}',
-                      style: TextStyle(color: scheme.onSurfaceVariant),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () =>
-                        setState(() => _newestFirst = !_newestFirst),
-                    icon: Icon(
-                      _newestFirst
-                          ? Icons.arrow_downward_rounded
-                          : Icons.arrow_upward_rounded,
-                      size: 18,
-                    ),
-                    label: Text(
-                      _newestFirst ? 'Сначала новые' : 'Сначала старые',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverList.builder(
-            itemCount: total,
-            itemBuilder: (context, index) {
-              final number = _newestFirst ? total - index : index + 1;
-              final done = number <= progress;
-              final isNext = number == nextNumber;
-
-              return ListTile(
-                contentPadding: const EdgeInsets.only(left: 16, right: 4),
-                // Следующая серия (глава) подсвечена: «продолжить отсюда»
-                tileColor: isNext
-                    ? scheme.primary.withValues(alpha: 0.10)
-                    : null,
-                leading: Icon(
-                  isAnime
-                      ? Icons.play_circle_outline_rounded
-                      : Icons.article_outlined,
-                  color: isNext ? scheme.primary : scheme.onSurfaceVariant,
-                ),
-                title: Text(
-                  '$word $number',
-                  style: TextStyle(
-                    fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
-                    color: done ? scheme.onSurfaceVariant : null,
-                  ),
-                ),
-                subtitle: isNext
-                    ? Text(isAnime ? 'Следующая серия' : 'Следующая глава')
-                    : null,
-                // Тап по строке запускает серию (читалку), галочка отмечает вручную
-                onTap: () => isAnime
-                    ? openWatch(context, item, episode: number)
-                    : openReader(context, item, chapter: number),
-                trailing: IconButton(
-                  tooltip: done ? 'Снять отметку' : 'Отметить пройденной',
-                  icon: Icon(
-                    done
-                        ? Icons.check_circle_rounded
-                        : Icons.radio_button_unchecked,
-                    color: done ? scheme.primary : scheme.onSurfaceVariant,
-                  ),
-                  onPressed: () {
-                    final target = done ? number - 1 : number;
-                    ref
-                        .read(libraryProvider.notifier)
-                        .setProgress(item, target);
-                    showInfo(
-                      context,
-                      done ? 'Отметка снята' : 'Отмечена: $word $number',
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        ];
+        return [UnitsSection(item: item)];
 
       case _DetailTab.reviews:
         final reviews = ref.watch(reviewsProvider.select((m) => m[item.id]));
@@ -367,10 +255,19 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               ),
             ),
           ),
-          SliverList.builder(
-            itemCount: list.length,
-            itemBuilder: (context, i) => _ReviewTile(review: list[i]),
-          ),
+          if (list.isEmpty)
+            const SliverToBoxAdapter(
+              child: EmptyView(
+                icon: Icons.rate_review_outlined,
+                title: 'Отзывов пока нет',
+                message: 'Станьте первым, кто поделится впечатлением.',
+              ),
+            )
+          else
+            SliverList.builder(
+              itemCount: list.length,
+              itemBuilder: (context, i) => _ReviewTile(review: list[i]),
+            ),
         ];
 
       case _DetailTab.similar:
@@ -443,7 +340,6 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                     maxLength: 300,
                     decoration: const InputDecoration(
                       hintText: 'Что вам понравилось или не понравилось?',
-                      border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -460,7 +356,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                             .add(
                               item.id,
                               Review(
-                                author: profile.name,
+                                author: profile.displayName,
                                 rating: rating,
                                 text: text,
                                 ago: 'только что',
@@ -627,11 +523,7 @@ class _ReviewTile extends StatelessWidget {
                 ),
               ),
               if (review.rating > 0) ...[
-                const Icon(
-                  Icons.star_rounded,
-                  size: 16,
-                  color: Color(0xFFFFC53D),
-                ),
+                const Icon(Icons.star_rounded, size: 16, color: AppColors.star),
                 const SizedBox(width: 2),
                 Text(
                   '${review.rating}',

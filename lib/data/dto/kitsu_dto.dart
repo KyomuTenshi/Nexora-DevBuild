@@ -1,5 +1,6 @@
 import 'package:nexora/core/constants/api_constants.dart';
 import 'package:nexora/domain/entities/media_item.dart';
+import 'package:nexora/domain/entities/media_unit.dart';
 import 'package:nexora/domain/errors/app_exception.dart';
 
 /// DTO (Data Transfer Object): форма данных ровно такая, как их отдаёт Kitsu.
@@ -195,6 +196,38 @@ List<KitsuMediaDto> parseKitsuList(Map<String, dynamic> json) {
     }
   }
   return result;
+}
+
+/// Страница серий (глав) из ответа `/episodes` или `/chapters`.
+/// Записи без номера (спецвыпуски) пропускаем.
+UnitsPage parseKitsuUnits(Map<String, dynamic> json) {
+  final data = json['data'];
+  final items = <MediaUnit>[];
+  if (data is List) {
+    for (final raw in data) {
+      final attributes = raw is Map ? raw['attributes'] : null;
+      if (attributes is! Map) continue;
+      final number = _int(attributes['number']);
+      if (number == null || number < 1) continue;
+
+      final titles = attributes['titles'];
+      items.add(
+        MediaUnit(
+          number: number,
+          title:
+              _text(titles is Map ? titles['en_us'] : null) ??
+              _text(titles is Map ? titles['en_jp'] : null) ??
+              _text(attributes['canonicalTitle']),
+          volume: _int(attributes['volumeNumber']),
+          thumbnailUrl: _text(_dig(attributes, ['thumbnail', 'original'])),
+          minutes: _int(attributes['length']),
+          date: _text(attributes['airdate']) ?? _text(attributes['published']),
+        ),
+      );
+    }
+  }
+  final count = _int(_dig(json, ['meta', 'count']));
+  return UnitsPage(items: items, total: count ?? items.length);
 }
 
 // --- безопасные помощники разбора: на неожиданный тип возвращают null ---

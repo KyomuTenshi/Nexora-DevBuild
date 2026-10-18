@@ -468,7 +468,7 @@ class _TitleRow extends StatelessWidget {
                   Text(
                     '${item.type.label} · ${item.year ?? '—'}',
                     style: TextStyle(
-                      fontSize: 12.5,
+                      fontSize: 13,
                       color: scheme.onSurfaceVariant,
                     ),
                   ),

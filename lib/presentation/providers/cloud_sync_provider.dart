@@ -6,8 +6,12 @@ import 'package:nexora/core/di/auth_providers.dart';
 import 'package:nexora/core/di/cloud_providers.dart';
 import 'package:nexora/core/di/providers.dart';
 import 'package:nexora/data/cloud/push_quietly.dart';
+import 'package:nexora/presentation/providers/achievements_provider.dart';
 import 'package:nexora/presentation/providers/favorites_provider.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
+import 'package:nexora/presentation/providers/profile_layout_provider.dart';
+import 'package:nexora/presentation/providers/profile_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum SyncStatus { idle, syncing, done, error }
 
@@ -63,6 +67,16 @@ class CloudSyncNotifier extends Notifier<SyncStatus> {
         for (final entry in localLibrary.getAll()) {
           await localLibrary.remove(entry.item.id);
         }
+        await _resetProfile(prefs);
+      }
+
+      // Имя в профиль берём из аккаунта, если своё ещё не задано
+      final profile = ref.read(profileProvider);
+      if (profile.name.isEmpty) {
+        final name = user.shownName;
+        ref
+            .read(profileProvider.notifier)
+            .edit((p) => p.copyWith(name: name, avatarText: initialsOf(name)));
       }
 
       final cloudFavorites = await cloud.loadFavorites(uid);
@@ -110,6 +124,17 @@ class CloudSyncNotifier extends Notifier<SyncStatus> {
     } finally {
       _running = false;
     }
+  }
+
+  /// Профиль, оформление и достижения принадлежат аккаунту: у нового
+  /// пользователя на этом устройстве всё начинается с нуля.
+  Future<void> _resetProfile(SharedPreferences prefs) async {
+    await prefs.remove('profile_v1');
+    await prefs.remove('profile_layout_v1');
+    await prefs.remove('achievements_v1');
+    ref.invalidate(profileProvider);
+    ref.invalidate(profileLayoutProvider);
+    ref.invalidate(achievementsProvider);
   }
 }
 

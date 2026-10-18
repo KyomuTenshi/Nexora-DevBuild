@@ -5,6 +5,7 @@ plugins {
     // START: FlutterFire Configuration
     id("com.google.gms.google-services")
     // END: FlutterFire Configuration
+    id("com.google.firebase.crashlytics")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -15,6 +16,18 @@ val localProperties = Properties().apply {
     if (file.exists()) {
         file.inputStream().use { load(it) }
     }
+}
+
+// Ключ подписи релиза лежит в android/key.properties (в Git его нет)
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+val hasReleaseKey = keyProperties.getProperty("storeFile") != null
+if (!hasReleaseKey) {
+    logger.lifecycle("key.properties не найден: release подписывается отладочным ключом")
 }
 
 android {
@@ -28,16 +41,10 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.piperitegames.nexora"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
-        // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
-        // flag during build.
+        // Берётся из version в pubspec.yaml
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
@@ -46,11 +53,26 @@ android {
             localProperties.getProperty("MAPS_API_KEY") ?: ""
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Есть ключ: подписываем релизным. Нет: отладочным, чтобы CI
+            // и `flutter run --release` продолжали работать.
+            signingConfig = if (hasReleaseKey) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

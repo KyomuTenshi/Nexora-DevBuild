@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexora/domain/entities/library_entry.dart';
 import 'package:nexora/domain/entities/media_item.dart';
+import 'package:nexora/domain/entities/media_unit.dart';
 import 'package:nexora/presentation/pages/reader/manga_page.dart';
 import 'package:nexora/presentation/providers/library_provider.dart';
+import 'package:nexora/presentation/providers/units_provider.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:nexora/core/router/app_router.dart';
@@ -30,9 +32,6 @@ class ReaderPage extends ConsumerStatefulWidget {
 }
 
 class _ReaderPageState extends ConsumerState<ReaderPage> {
-  /// Сколько страниц в главе (демо-значение).
-  static const int _pages = 18;
-
   late int _chapter;
   int _page = 0;
   bool _barsVisible = true;
@@ -44,7 +43,15 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   final _pager = PageController();
   double _pageExtent = 600; // высота одной страницы в режиме ленты
 
-  int? get _total => widget.item.totalUnits > 0 ? widget.item.totalUnits : null;
+  /// Сколько глав в тайтле. null, если пока неизвестно.
+  int? get _total {
+    final total = ref.read(unitsTotalProvider(widget.item));
+    return total > 0 ? total : null;
+  }
+
+  /// Сколько страниц в главе. Страницы рисуются кодом (сканов в приложении
+  /// нет), поэтому число страниц для каждой главы своё, но постоянное.
+  int get _pages => 14 + ((widget.item.id + _chapter) * 7) % 12;
 
   @override
   void initState() {
@@ -108,11 +115,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     _setPage(page);
   }
 
-  int get _volume => math.max(1, _chapter ~/ 9);
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    ref.watch(unitsTotalProvider(widget.item)); // число глав может подгрузиться
+    final unit = ref.watch(unitProvider((item: widget.item, number: _chapter)));
     final isLast = _total != null && _chapter >= _total!;
 
     return Scaffold(
@@ -137,7 +144,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
               duration: const Duration(milliseconds: 200),
               child: _TopBar(
                 title: widget.item.title,
-                subtitle: 'Том $_volume · Глава $_chapter',
+                subtitle: [
+                  if (unit?.volume != null) 'Том ${unit!.volume}',
+                  'Глава $_chapter',
+                  if (unit?.title != null) unit!.title!,
+                ].join(' · '),
                 onBack: () => Navigator.of(context).pop(),
                 onChapters: _showChapters,
                 onSettings: _showSettings,
@@ -254,47 +265,17 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 
   void _showChapters() {
-    final total = _total ?? (_chapter + 5);
     showModalBottomSheet<void>(
       context: context,
-      builder: (sheetContext) {
-        final scheme = Theme.of(sheetContext).colorScheme;
-        return SizedBox(
-          height: MediaQuery.sizeOf(sheetContext).height * 0.6,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: Text(
-                  'Главы',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: total,
-                  itemBuilder: (context, i) {
-                    final number = i + 1;
-                    final current = number == _chapter;
-                    return ListTile(
-                      title: Text('Глава $number'),
-                      trailing: current
-                          ? Icon(Icons.check_rounded, color: scheme.primary)
-                          : null,
-                      selected: current,
-                      onTap: () {
-                        Navigator.of(sheetContext).pop();
-                        _goToChapter(number);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      isScrollControlled: true,
+      builder: (sheetContext) => _ChaptersSheet(
+        item: widget.item,
+        current: _chapter,
+        onSelect: (number) {
+          Navigator.of(sheetContext).pop();
+          _goToChapter(number);
+        },
+      ),
     );
   }
 
@@ -447,6 +428,116 @@ class _TopBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Список глав: по томам, если Kitsu знает тома, иначе общим списком.
+class _ChaptersSheet extends ConsumerWidget {
+  const _ChaptersSheet({
+    required this.item,
+    required this.current,
+    required this.onSelect,
+  });
+
+  final MediaItem item;
+  final int current;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final total = math.max(ref.watch(unitsTotalProvider(item)), current);
+    final chapters = ref.watch(mangaChaptersProvider(item)).value;
+    final volumes = chapters == null
+        ? const <int, List<MediaUnit>>{}
+        : groupByVolume(chapters);
+
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.7,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
+            child: Text(
+              'Главы',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+            ),
+          ),
+          Expanded(
+            child: volumes.isEmpty
+                ? ListView.builder(
+                    itemCount: total,
+                    itemBuilder: (context, i) => Consumer(
+                      builder: (context, ref, _) => _ChapterTile(
+                        number: i + 1,
+                        unit: ref.watch(
+                          unitProvider((item: item, number: i + 1)),
+                        ),
+                        selected: i + 1 == current,
+                        onTap: () => onSelect(i + 1),
+                      ),
+                    ),
+                  )
+                : ListView(
+                    children: [
+                      for (final entry in volumes.entries)
+                        ExpansionTile(
+                          initiallyExpanded: entry.value.any(
+                            (c) => c.number == current,
+                          ),
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          title: Text(
+                            'Том ${entry.key}',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          children: [
+                            for (final chapter in entry.value)
+                              _ChapterTile(
+                                number: chapter.number,
+                                unit: chapter,
+                                selected: chapter.number == current,
+                                onTap: () => onSelect(chapter.number),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChapterTile extends StatelessWidget {
+  const _ChapterTile({
+    required this.number,
+    required this.unit,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final int number;
+  final MediaUnit? unit;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = unit?.title;
+    return ListTile(
+      title: Text(title ?? 'Глава $number'),
+      subtitle: title == null ? null : Text('Глава $number'),
+      selected: selected,
+      trailing: selected
+          ? Icon(
+              Icons.check_rounded,
+              color: Theme.of(context).colorScheme.primary,
+            )
+          : null,
+      onTap: onTap,
     );
   }
 }

@@ -169,12 +169,18 @@ void main() {
     expect(find.text('Продолжить просмотр'), findsNothing);
   });
 
-  test('уровень и инициалы считаются правильно', () {
+  test('новый профиль пустой, инициалы считаются правильно', () {
     final profile = ProfileState.initial();
-    expect(profile.level, 17);
-    expect(profile.xpInLevel, 1440);
+    expect(profile.name, isEmpty);
+    expect(profile.displayName, 'Гость');
+    expect(profile.avatarText, isEmpty);
+    expect(profile.avatarPath, isEmpty);
+    expect(profile.points, 0);
+    expect(profile.level, 1);
+    expect(profile.xpInLevel, 0);
     expect(initialsOf('Иван Петров'), 'ИП');
     expect(initialsOf('анна'), 'АН');
+    expect(initialsOf('  '), isEmpty);
   });
 
   test('прогресс до конца завершает тайтл и начисляет очки', () async {

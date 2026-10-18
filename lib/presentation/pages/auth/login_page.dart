@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nexora/core/di/auth_providers.dart';
 import 'package:nexora/core/router/app_router.dart';
 import 'package:nexora/domain/errors/app_exception.dart';
+import 'package:nexora/presentation/widgets/brand_mark.dart';
 
 /// Вход и регистрация на одном экране (переключатель внизу).
 /// После успеха ничего вручную открывать не нужно: GoRouter увидит нового
@@ -85,18 +86,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      Icons.account_circle_outlined,
-                      size: 72,
-                      color: scheme.primary,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
+                    const Center(child: BrandMark(size: 80)),
+                    const SizedBox(height: 16),
+                    const Text(
                       'Аккаунт Nexora',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Библиотека и избранное будут на всех ваших устройствах',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 28),
                     if (_register) ...[
                       TextFormField(
                         controller: _name,

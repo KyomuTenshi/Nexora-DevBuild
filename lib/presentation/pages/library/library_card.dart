@@ -62,7 +62,7 @@ class LibraryCard extends ConsumerWidget {
                             'Новая серия',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10.5,
+                              fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

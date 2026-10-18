@@ -60,7 +60,6 @@ class _ProfileInfoPageState extends ConsumerState<ProfileInfoPage> {
             maxLength: 40,
             decoration: const InputDecoration(
               labelText: 'Настоящее имя (необязательно)',
-              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
@@ -69,7 +68,6 @@ class _ProfileInfoPageState extends ConsumerState<ProfileInfoPage> {
             maxLength: 40,
             decoration: const InputDecoration(
               labelText: 'Город или страна (необязательно)',
-              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
@@ -79,7 +77,6 @@ class _ProfileInfoPageState extends ConsumerState<ProfileInfoPage> {
             decoration: const InputDecoration(
               labelText: 'Статус',
               hintText: 'Например: ночью смотрю, днём читаю',
-              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),

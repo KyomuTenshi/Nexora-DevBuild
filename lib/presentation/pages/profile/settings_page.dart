@@ -3,16 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nexora/core/l10n/app_strings.dart';
 import 'package:nexora/core/router/app_router.dart';
-import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/presentation/pages/profile/profile_edit_page.dart';
+import 'package:nexora/presentation/providers/dev_mode_provider.dart';
 import 'package:nexora/presentation/providers/language_provider.dart';
 import 'package:nexora/presentation/providers/onboarding_provider.dart';
 import 'package:nexora/presentation/providers/profile_provider.dart';
 import 'package:nexora/presentation/providers/theme_provider.dart';
+import 'package:nexora/presentation/widgets/accent_picker.dart';
 import 'package:nexora/presentation/widgets/account_tile.dart';
 import 'package:nexora/presentation/widgets/media_labels.dart';
 import 'package:nexora/presentation/widgets/push_tile.dart';
 import 'package:nexora/presentation/widgets/device_tiles.dart';
+import 'package:nexora/presentation/widgets/crash_test_tile.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -24,6 +26,7 @@ class SettingsPage extends ConsumerWidget {
     final language = ref.watch(languageProvider);
     final themeMode = ref.watch(themeProvider);
     final accent = ref.watch(profileProvider.select((p) => p.accentIndex));
+    final devMode = ref.watch(devModeProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(s.settingsTitle)),
@@ -97,41 +100,11 @@ class SettingsPage extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 14,
-                    runSpacing: 12,
-                    children: [
-                      for (var i = 0; i < AppColors.accents.length; i++)
-                        Tooltip(
-                          message: AppColors.accentNames[i],
-                          child: GestureDetector(
-                            onTap: () => ref
-                                .read(profileProvider.notifier)
-                                .edit((p) => p.copyWith(accentIndex: i)),
-                            child: Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.accents[i],
-                                border: Border.all(
-                                  color: i == accent
-                                      ? scheme.onSurface
-                                      : Colors.transparent,
-                                  width: 3,
-                                ),
-                              ),
-                              child: i == accent
-                                  ? const Icon(
-                                      Icons.check_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                        ),
-                    ],
+                  AccentPicker(
+                    selectedIndex: accent,
+                    onSelected: (i) => ref
+                        .read(profileProvider.notifier)
+                        .edit((p) => p.copyWith(accentIndex: i)),
                   ),
                 ],
               ),
@@ -168,35 +141,11 @@ class SettingsPage extends ConsumerWidget {
           _Block(
             child: Column(
               children: [
-                const PushTile(),
+                PushTile(showToken: devMode),
                 const Divider(indent: 56),
                 const DeviceStatusTile(),
                 const Divider(indent: 56),
                 const ShakeTile(),
-                const Divider(indent: 56),
-                ListTile(
-                  leading: const Icon(Icons.science_outlined),
-                  title: const Text('Демо: способы управления состоянием'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => context.pushNamed(AppRoute.stateDemo),
-                ),
-                const Divider(indent: 56),
-                ListTile(
-                  leading: const Icon(Icons.waving_hand_outlined),
-                  title: Text(s.showWelcome),
-                  // Достаточно сбросить флаг: redirect в GoRouter сам
-                  // перенаправит на экран приветствия
-                  onTap: () => ref.read(onboardedProvider.notifier).reset(),
-                ),
-                const Divider(indent: 56),
-                ListTile(
-                  leading: Icon(Icons.restart_alt_rounded, color: scheme.error),
-                  title: Text(
-                    s.resetProfile,
-                    style: TextStyle(color: scheme.error),
-                  ),
-                  onTap: () => _confirmReset(context, ref),
-                ),
               ],
             ),
           ),
@@ -208,6 +157,8 @@ class SettingsPage extends ConsumerWidget {
                   leading: const Icon(Icons.info_outline_rounded),
                   title: const Text('Nexora'),
                   subtitle: Text(s.versionLine),
+                  // Семь нажатий открывают служебный раздел
+                  onTap: () => _tapVersion(context, ref),
                 ),
                 const Divider(indent: 56),
                 ListTile(
@@ -218,9 +169,61 @@ class SettingsPage extends ConsumerWidget {
               ],
             ),
           ),
+          if (devMode) ...[
+            const _SectionTitle('Для разработчика'),
+            _Block(
+              child: Column(
+                children: [
+                  const CrashTestTile(),
+                  const Divider(indent: 56),
+                  ListTile(
+                    leading: const Icon(Icons.science_outlined),
+                    title: const Text('Демо: способы управления состоянием'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.pushNamed(AppRoute.stateDemo),
+                  ),
+                  const Divider(indent: 56),
+                  ListTile(
+                    leading: const Icon(Icons.waving_hand_outlined),
+                    title: Text(s.showWelcome),
+                    // Достаточно сбросить флаг: redirect в GoRouter сам
+                    // перенаправит на экран приветствия
+                    onTap: () => ref.read(onboardedProvider.notifier).reset(),
+                  ),
+                  const Divider(indent: 56),
+                  ListTile(
+                    leading: Icon(
+                      Icons.restart_alt_rounded,
+                      color: scheme.error,
+                    ),
+                    title: Text(
+                      s.resetProfile,
+                      style: TextStyle(color: scheme.error),
+                    ),
+                    onTap: () => _confirmReset(context, ref),
+                  ),
+                  const Divider(indent: 56),
+                  ListTile(
+                    leading: const Icon(Icons.visibility_off_outlined),
+                    title: const Text('Скрыть раздел'),
+                    onTap: () => ref.read(devModeProvider.notifier).disable(),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  void _tapVersion(BuildContext context, WidgetRef ref) {
+    final left = ref.read(devModeProvider.notifier).tapVersion();
+    if (left == 0) {
+      showInfo(context, 'Раздел для разработчика открыт');
+    } else if (left <= 3) {
+      showInfo(context, 'Раздел для разработчика через нажатий: $left');
+    }
   }
 
   Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {
@@ -279,7 +282,7 @@ class _Block extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: child,
     );

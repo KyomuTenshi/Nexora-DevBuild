@@ -19,34 +19,13 @@ class Review {
   final bool mine;
 }
 
-/// Отзывы по id тайтла. Пока без сервера: стартовые отзывы одинаковые
-/// для всех тайтлов, а свои пользователь дописывает сверху.
+/// Отзывы по id тайтла. Пока без сервера: показываем только свои отзывы,
+/// новые встают сверху.
 class ReviewsNotifier extends Notifier<Map<int, List<Review>>> {
-  static const _seed = [
-    Review(
-      author: 'Akira_77',
-      rating: 5,
-      text: 'Один из лучших тайтлов сезона. Сюжет держит до последней серии.',
-      ago: '3 дня назад',
-    ),
-    Review(
-      author: 'sakura_fan',
-      rating: 4,
-      text: 'Отличная графика и музыка, середина немного затянута.',
-      ago: 'неделю назад',
-    ),
-    Review(
-      author: 'Mikasa',
-      rating: 5,
-      text: 'Пересмотрела дважды и всё равно нашла новые детали.',
-      ago: '2 недели назад',
-    ),
-  ];
-
   @override
   Map<int, List<Review>> build() => const {};
 
-  List<Review> of(int itemId) => state[itemId] ?? _seed;
+  List<Review> of(int itemId) => state[itemId] ?? const [];
 
   /// Добавить отзыв. За отзыв начисляем 50 очков (как в магазине оформления).
   void add(int itemId, Review review) {

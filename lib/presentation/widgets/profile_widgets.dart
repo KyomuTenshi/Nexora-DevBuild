@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:nexora/core/constants/store_catalog.dart';
+import 'package:nexora/core/theme/app_colors.dart';
 import 'package:nexora/domain/entities/image_adjust.dart';
 import 'package:nexora/presentation/widgets/adjusted_image.dart';
 
@@ -38,14 +39,17 @@ class ProfileAvatar extends StatelessWidget {
     final hasRing = ringColor != Colors.transparent;
     final inner = hasRing ? size - 16 : size - 4;
 
-    final initials = Text(
-      text,
-      style: TextStyle(
-        fontSize: size * 0.32,
-        fontWeight: FontWeight.w800,
-        color: scheme.primary,
-      ),
-    );
+    // Пока имени нет (гость), вместо инициалов силуэт
+    final initials = text.isEmpty
+        ? Icon(Icons.person_rounded, size: size * 0.5, color: scheme.primary)
+        : Text(
+            text,
+            style: TextStyle(
+              fontSize: size * 0.32,
+              fontWeight: FontWeight.w800,
+              color: scheme.primary,
+            ),
+          );
 
     return SizedBox(
       width: size,
@@ -215,8 +219,7 @@ class _SkylinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rnd = math.Random(7); // одно и то же зерно: город не «мерцает»
     final building = Paint()..color = Colors.black.withValues(alpha: 0.38);
-    final window = Paint()
-      ..color = const Color(0xFFFFC53D).withValues(alpha: 0.55);
+    final window = Paint()..color = AppColors.star.withValues(alpha: 0.55);
 
     var x = 0.0;
     while (x < size.width) {

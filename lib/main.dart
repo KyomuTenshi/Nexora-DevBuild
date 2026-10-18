@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,39 +11,60 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'core/constants/api_constants.dart';
+import 'core/crash/crash_handlers.dart';
 import 'core/di/auth_providers.dart';
 import 'core/di/cloud_providers.dart';
+import 'core/di/crash_providers.dart';
+import 'core/di/device_providers.dart';
 import 'core/di/places_providers.dart';
 import 'core/di/providers.dart';
 import 'core/di/push_providers.dart';
 import 'core/di/retry.dart';
 import 'data/api/api_client.dart';
 import 'data/cloud/firestore_cloud_sync_repository.dart';
+import 'data/crash/firebase_crash_reporter.dart';
 import 'data/local/hive_favorites_repository.dart';
 import 'data/local/hive_library_repository.dart';
 import 'data/local/hive_ratings_repository.dart';
 import 'data/local/hive_response_cache.dart';
 import 'data/location/geolocator_location_repository.dart';
+import 'data/platform/platform_device_status_repository.dart';
 import 'data/push/firebase_push_background.dart';
 import 'data/push/firebase_push_repository.dart';
 import 'data/repositories/cloud_backed_favorites_repository.dart';
 import 'data/repositories/cloud_backed_library_repository.dart';
 import 'data/repositories/firebase_auth_repository.dart';
-import 'data/repositories/in_memory_favorites_repository.dart';
-import 'data/repositories/in_memory_library_repository.dart';
-import 'data/repositories/in_memory_ratings_repository.dart';
 import 'data/repositories/overpass_places_repository.dart';
-import 'firebase_options.dart';
-import 'core/di/device_providers.dart';
-import 'data/platform/platform_device_status_repository.dart';
 import 'data/sensors/sensors_shake_repository.dart';
+import 'firebase_options.dart';
+import 'presentation/pages/startup_error_page.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await _start();
+  } catch (error, stack) {
+    // Вместо чёрного экрана показываем, что именно не запустилось
+    debugPrint('Ошибка запуска: $error\n$stack');
+    runApp(StartupErrorApp(error: error, stack: stack));
+  }
+}
+
+Future<void> _start() async {
   // Нужно, чтобы вызывать платформенный код до runApp
   WidgetsFlutterBinding.ensureInitialized();
 
   // Подключаемся к проекту Firebase (настройки создал flutterfire configure)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Crashlytics ловит необработанные ошибки и сбои приложения
+  final crashlytics = FirebaseCrashlytics.instance;
+  try {
+    await setUpCrashReporting(crashlytics);
+  } catch (e) {
+    // Сбой настройки отчётов не должен мешать запуску самого приложения
+    debugPrint('Crashlytics не подключён: $e');
+  }
 
   // Обработчик push, когда приложение закрыто или в фоне
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -58,13 +80,10 @@ Future<void> main() async {
   final ratingsBox = await Hive.openBox<String>('ratings');
   final cacheBox = await Hive.openBox<String>('http_cache');
 
-  // При самом первом запуске кладём стартовые демо-данные, дальше живут свои
+  // Первый запуск чистый: библиотека, избранное и оценки пустые
   final library = HiveLibraryRepository(libraryBox);
-  await library.seedIfFirstRun(InMemoryLibraryRepository().getAll());
   final favorites = HiveFavoritesRepository(favoritesBox);
-  await favorites.seedIfFirstRun(InMemoryFavoritesRepository().getAll());
   final ratings = HiveRatingsRepository(ratingsBox);
-  await ratings.seedIfFirstRun(InMemoryRatingsRepository().getAll());
 
   // Авторизация, облако и push. Запись в облако идёт только при входе в аккаунт.
   final auth = FirebaseAuthRepository(FirebaseAuth.instance);
@@ -122,6 +141,10 @@ Future<void> main() async {
           PlatformDeviceStatusRepository(),
         ),
         shakeRepositoryProvider.overrideWithValue(SensorsShakeRepository()),
+        // Отчёты о сбоях уходят в Firebase Crashlytics
+        crashReporterProvider.overrideWithValue(
+          FirebaseCrashReporter(crashlytics),
+        ),
       ],
       child: const NexoraApp(),
     ),

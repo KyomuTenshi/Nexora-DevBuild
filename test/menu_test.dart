@@ -110,7 +110,7 @@ void main() {
   ) async {
     await pumpMenu(tester);
 
-    await tester.tap(find.text('Иван'));
+    await tester.tap(find.text('Гость'));
     await tester.pumpAndSettle();
 
     expect(find.text('Редактировать профиль'), findsOneWidget);

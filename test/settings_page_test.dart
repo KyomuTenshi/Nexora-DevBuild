@@ -7,6 +7,7 @@ import 'package:nexora/core/di/retry.dart';
 import 'package:nexora/data/platform/fake_device_status_repository.dart';
 import 'package:nexora/domain/entities/device_status.dart';
 import 'package:nexora/presentation/pages/profile/settings_page.dart';
+import 'package:nexora/presentation/providers/dev_mode_provider.dart';
 import 'package:nexora/presentation/providers/language_provider.dart';
 import 'package:nexora/presentation/providers/shake_provider.dart';
 import 'package:nexora/presentation/providers/theme_provider.dart';
@@ -128,5 +129,40 @@ void main() {
 
     expect(find.textContaining('Заряд 80%'), findsOneWidget);
     expect(find.textContaining('Включено энергосбережение'), findsOneWidget);
+  });
+
+  testWidgets('служебные пункты скрыты от обычного пользователя', (
+    tester,
+  ) async {
+    await pumpSettings(tester);
+    await scrollTo(tester, 'Версия 1.0.0 · учебный проект');
+
+    expect(find.text('Для разработчика'), findsNothing);
+    expect(find.text('Тестовая ошибка (Crashlytics)'), findsNothing);
+    expect(find.text('Сбросить профиль и очки'), findsNothing);
+  });
+
+  testWidgets('семь нажатий по версии открывают служебный раздел', (
+    tester,
+  ) async {
+    final (prefs, container) = await pumpSettings(tester);
+    final dev = container.read(devModeProvider.notifier);
+
+    for (var i = 1; i < DevModeNotifier.tapsToUnlock; i++) {
+      expect(dev.tapVersion(), DevModeNotifier.tapsToUnlock - i);
+    }
+    expect(container.read(devModeProvider), isFalse);
+    expect(dev.tapVersion(), 0);
+    await tester.pump();
+
+    expect(container.read(devModeProvider), isTrue);
+    expect(prefs.getBool('dev_mode'), isTrue);
+    await scrollTo(tester, 'Для разработчика');
+    expect(find.text('Для разработчика'), findsOneWidget);
+
+    dev.disable();
+    await tester.pump();
+    expect(find.text('Для разработчика'), findsNothing);
+    expect(prefs.getBool('dev_mode'), isFalse);
   });
 }

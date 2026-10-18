@@ -31,6 +31,7 @@ void main() {
 
   test('покупка списывает очки один раз', () async {
     final c = await makeContainer();
+    c.read(profileProvider.notifier).edit((p) => p.copyWith(points: 1000));
     final before = c.read(profileProvider).points;
 
     expect(

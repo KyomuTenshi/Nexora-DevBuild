@@ -31,7 +31,7 @@ class ProfileEditorPage extends ConsumerWidget {
         children: [
           Material(
             color: scheme.surface,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [

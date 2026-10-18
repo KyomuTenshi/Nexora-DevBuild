@@ -213,7 +213,6 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
             decoration: InputDecoration(
               labelText: 'Имя',
               errorText: _nameError,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -224,7 +223,6 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
             onChanged: (_) => setState(() => _avatarTouched = true),
             decoration: const InputDecoration(
               labelText: 'Инициалы (если нет фото)',
-              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -235,7 +233,6 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
             decoration: const InputDecoration(
               labelText: 'О себе',
               hintText: 'Например: люблю сёнэн и ночные марафоны',
-              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),

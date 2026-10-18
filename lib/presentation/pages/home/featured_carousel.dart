@@ -275,7 +275,7 @@ class _Pill extends StatelessWidget {
         text,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 12.5,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
       ),

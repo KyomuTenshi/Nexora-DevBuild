@@ -17,7 +17,7 @@ const int kMaxPinned = 3;
 String initialsOf(String name) {
   final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
   final list = words.toList();
-  if (list.isEmpty) return '?';
+  if (list.isEmpty) return '';
   if (list.length >= 2) return (list[0][0] + list[1][0]).toUpperCase();
   final w = list.first;
   return (w.length >= 2 ? w.substring(0, 2) : w).toUpperCase();
@@ -50,18 +50,19 @@ class ProfileState {
     this.pinned = const [],
   });
 
-  /// Профиль нового пользователя (значения как в макете).
+  /// Чистый профиль: без имени, фото, очков и опыта. Всё это появляется
+  /// после регистрации и по мере пользования приложением.
   factory ProfileState.initial() => const ProfileState(
-    name: 'Иван',
-    avatarText: 'ИП',
+    name: '',
+    avatarText: '',
     bio: '',
     accentIndex: 0,
     bannerId: kBannerBase,
-    frameId: kFrameGold,
+    frameId: 'frame_none',
     badgeId: kBadgeFan,
     genres: [],
-    points: 1200,
-    xp: 33440, // уровень 17, 1 440 / 2 000 XP
+    points: 0,
+    xp: 0,
     unlocked: kInitiallyUnlocked,
     showFavorites: true,
     showAchievements: true,
@@ -95,6 +96,9 @@ class ProfileState {
 
   /// Закреплённые достижения (id), которые видны на витрине профиля.
   final List<String> pinned;
+
+  /// Имя для показа: пока профиль пуст, это «Гость».
+  String get displayName => name.isEmpty ? 'Гость' : name;
 
   Color get accent => AppColors.accents[accentIndex % AppColors.accents.length];
   int get level => 1 + xp ~/ kXpPerLevel;

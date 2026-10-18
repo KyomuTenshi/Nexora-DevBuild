@@ -113,7 +113,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                profile.name,
+                                profile.displayName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -305,7 +305,7 @@ class _Group extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
     );
@@ -483,10 +483,7 @@ class _FeedbackDialogState extends State<_FeedbackDialog> {
         controller: _controller,
         maxLines: 4,
         maxLength: 300,
-        decoration: InputDecoration(
-          hintText: s.feedbackHint,
-          border: const OutlineInputBorder(),
-        ),
+        decoration: InputDecoration(hintText: s.feedbackHint),
       ),
       actions: [
         TextButton(

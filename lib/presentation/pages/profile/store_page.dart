@@ -256,7 +256,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  profile.name,
+                                  profile.displayName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
@@ -271,7 +271,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 12.5,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],
@@ -580,7 +580,7 @@ class _StoreTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
           ),
-          Text(caption, style: TextStyle(fontSize: 12.5, color: captionColor)),
+          Text(caption, style: TextStyle(fontSize: 13, color: captionColor)),
         ],
       ),
     );

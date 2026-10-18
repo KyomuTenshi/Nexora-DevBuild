@@ -3,14 +3,18 @@ import 'package:nexora/core/constants/api_constants.dart';
 import 'package:nexora/core/di/cache_status.dart';
 import 'package:nexora/data/api/api_client.dart';
 import 'package:nexora/data/api/response_cache.dart';
+import 'package:nexora/data/repositories/demo_video_source_repository.dart';
 import 'package:nexora/data/repositories/in_memory_favorites_repository.dart';
 import 'package:nexora/data/repositories/in_memory_library_repository.dart';
 import 'package:nexora/data/repositories/in_memory_ratings_repository.dart';
 import 'package:nexora/data/repositories/kitsu_media_repository.dart';
+import 'package:nexora/data/repositories/kitsu_units_repository.dart';
 import 'package:nexora/domain/repositories/favorites_repository.dart';
 import 'package:nexora/domain/repositories/library_repository.dart';
 import 'package:nexora/domain/repositories/media_repository.dart';
 import 'package:nexora/domain/repositories/ratings_repository.dart';
+import 'package:nexora/domain/repositories/units_repository.dart';
+import 'package:nexora/domain/repositories/video_source_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Dependency Injection: единственное место, где выбирается реализация.
@@ -49,6 +53,16 @@ final kitsuClientProvider = Provider<ApiClient>((ref) {
 /// Чтобы работать без сети, верните здесь `MockMediaRepository()`.
 final mediaRepositoryProvider = Provider<MediaRepository>((ref) {
   return KitsuMediaRepository(ref.watch(kitsuClientProvider));
+});
+
+/// Серии и главы тайтлов. Тоже из Kitsu.
+final unitsRepositoryProvider = Provider<UnitsRepository>((ref) {
+  return KitsuUnitsRepository(ref.watch(kitsuClientProvider));
+});
+
+/// Откуда играет видео. Сейчас демо-ролики (см. DemoVideoSourceRepository).
+final videoSourceRepositoryProvider = Provider<VideoSourceRepository>((ref) {
+  return const DemoVideoSourceRepository();
 });
 
 final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {

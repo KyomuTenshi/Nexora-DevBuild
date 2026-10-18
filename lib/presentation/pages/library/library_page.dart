@@ -90,7 +90,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
         bottom: false, // список заезжает под размытую панель
         child: Column(
           children: [
-            _buildHeader(scheme),
+            _buildHeader(),
             _buildSegments(scheme),
             const SizedBox(height: 12),
             SizedBox(
@@ -217,7 +217,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
     );
   }
 
-  Widget _buildHeader(ColorScheme scheme) {
+  Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       child: _searching
@@ -237,12 +237,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
                               onPressed: _resetSearch,
                             )
                           : null,
-                      filled: true,
-                      fillColor: scheme.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                   ),
                 ),
