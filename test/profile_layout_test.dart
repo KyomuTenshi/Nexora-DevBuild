@@ -97,7 +97,7 @@ void main() {
 
   test('настройки переживают сохранение в JSON', () {
     final layout = const ProfileLayout().copyWith(
-      realName: 'Иван',
+      realName: 'Олжас',
       favoriteIds: [3, 7],
       favoriteTitleId: 7,
       statKeys: [StatKey.average],
@@ -109,7 +109,7 @@ void main() {
       jsonDecode(jsonEncode(layout.toJson())) as Map<String, dynamic>,
     );
 
-    expect(back.realName, 'Иван');
+    expect(back.realName, 'Олжас');
     expect(back.favoriteIds, [3, 7]);
     expect(back.favoriteTitleId, 7);
     expect(back.statKeys, [StatKey.average]);

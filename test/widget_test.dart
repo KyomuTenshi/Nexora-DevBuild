@@ -178,7 +178,7 @@ void main() {
     expect(profile.points, 0);
     expect(profile.level, 1);
     expect(profile.xpInLevel, 0);
-    expect(initialsOf('Иван Петров'), 'ИП');
+    expect(initialsOf('Олжас Ахметов'), 'ОА');
     expect(initialsOf('анна'), 'АН');
     expect(initialsOf('  '), isEmpty);
   });

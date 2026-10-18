@@ -13,7 +13,7 @@ const int kXpPerLevel = 2000;
 /// Сколько достижений можно закрепить на витрине профиля.
 const int kMaxPinned = 3;
 
-/// Инициалы для аватара: «Иван П» -> «ИП», «Анна» -> «АН».
+/// Инициалы для аватара: «Олжас А» -> «ОА», «Анна» -> «АН».
 String initialsOf(String name) {
   final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
   final list = words.toList();
